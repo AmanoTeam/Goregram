@@ -1456,6 +1456,34 @@ public class ConnectionsManager extends BaseController {
         }
     }
 
+    private static class FirebaseTask extends AsyncTask<Void, Void, NativeByteBuffer> {
+
+        private int currentAccount;
+
+        public FirebaseTask(int instance) {
+            super();
+            currentAccount = instance;
+        }
+
+        protected NativeByteBuffer doInBackground(Void... voids) {
+            Utilities.stageQueue.postRunnable(() -> {
+                if (BuildVars.LOGS_ENABLED) {
+                    FileLog.d("failed to get firebase result");
+                    FileLog.d("start dns txt task");
+                }
+                GoogleDnsLoadTask task = new GoogleDnsLoadTask(currentAccount);
+                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
+                currentTask = task;
+            });
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(NativeByteBuffer result) {
+
+        }
+    }
+
     public static long lastPremiumFloodWaitShown = 0;
     @Keep
     public static void onPremiumFloodWait(final int currentAccount, final int requestToken, boolean isUpload) {
