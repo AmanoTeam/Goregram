@@ -8,16 +8,51 @@
 
 package org.telegram.messenger;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
+import androidx.core.app.NotificationCompat;
+import android.util.Log;
 
 public class NotificationsService extends Service {
 
     @Override
     public void onCreate() {
         super.onCreate();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int pendingIntentFlags;
+            if (Build.VERSION.SDK_INT >= 34) {
+                pendingIntentFlags = PendingIntent.FLAG_IMMUTABLE;
+            } else {
+                pendingIntentFlags = PendingIntent.FLAG_MUTABLE;
+            }
+            String CHANNEL_ID = "push_service_channel";
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,"Push Notifications Service",NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+            Intent explainIntent = new Intent("android.intent.action.VIEW");
+            explainIntent.setData(Uri.parse("https://github.com/Telegram-FOSS-Team/Telegram-FOSS/blob/master/Notifications.md"));
+            try {
+            PendingIntent explainPendingIntent = PendingIntent.getActivity(this, 0, explainIntent, pendingIntentFlags);
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentIntent(explainPendingIntent)
+                    .setShowWhen(false)
+                    .setOngoing(true)
+                    .setSmallIcon(R.drawable.notification)
+                    .setContentText("Push service: tap to learn more").build();
+            startForeground(9999,notification);
+            } catch (Throwable ignore) {
+                Log.d("Fork Client", "Failed to set intent");
+            }
+        }
         ApplicationLoader.postInitApplication();
     }
 
