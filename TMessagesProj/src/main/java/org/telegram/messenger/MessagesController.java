@@ -22573,7 +22573,7 @@ public class MessagesController extends BaseController implements NotificationCe
         if (reasons.isEmpty()) {
             return null;
         }
-        for (int a = 0, N = reasons.size(); a < N; a++) {
+        /*for (int a = 0, N = reasons.size(); a < N; a++) {
             TLRPC.RestrictionReason reason = reasons.get(a);
             if (ignoreRestrictionReasons != null && ignoreRestrictionReasons.contains(reason.reason)) continue;
             if ("sensitive".equals(reason.reason)) continue;
@@ -22584,7 +22584,7 @@ public class MessagesController extends BaseController implements NotificationCe
             ) {
                 return reason.text;
             }
-        }
+        }*/
         return null;
     }
 
