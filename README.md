@@ -5,7 +5,7 @@ Fork Client is a fork of the official Telegram for Android application.
       alt="Get it on F-Droid"
       height="80">](https://f-droid.org/app/org.forkgram.messenger)
 
-![Build Status](https://travis-ci.org//Forkgram/TelegramAndroid.svg?branch=dev)
+[![Attestation](https://img.shields.io/badge/attestation-Sigstore-brightgreen?logo=sigstore&logoColor=white)](https://github.com/Forkgram/TelegramAndroid/attestations)
 [![Github All Releases](https://img.shields.io/github/downloads/Forkgram/TelegramAndroid/total.svg)](https://github.com/Forkgram/TelegramAndroid/releases)
 
 ## Features:
@@ -52,3 +52,21 @@ Forkgram adds no telemetry, no analytics, no crash-reporting, and no third-party
 
 ## Downloads:
 You can download binaries from Releases or from my [Telegram channel Forkgram](https://t.me/forkgram).
+
+## Verifying release builds
+
+Every APK published in [Releases](https://github.com/Forkgram/TelegramAndroid/releases) is built on a GitHub-hosted runner and signed with a [Sigstore](https://www.sigstore.dev/) attestation, with the signing record stored in the public [Rekor](https://docs.sigstore.dev/logging/overview/) transparency log. You can use it to confirm that a given APK was produced by this repository's CI from a specific commit.
+
+Requirements: [GitHub CLI](https://cli.github.com/) authenticated with `gh auth login`.
+
+```sh
+gh release download <tag> -R Forkgram/TelegramAndroid -p 'ForkClient.*.apk'
+gh attestation verify ForkClient.<version>.apk --repo Forkgram/TelegramAndroid
+```
+
+What the attestation proves:
+
+- the APK bytes match the digest signed by CI (no post-build tampering);
+- it was built by `.github/workflows/tandroid.yml` on a GitHub-hosted runner, from the `Forkgram/TelegramAndroid` repository (matched by numeric ID, so renames cannot spoof it);
+- the exact commit SHA the build was made from, linkable on GitHub.
+
