@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ANDROID_SDK_ROOT=${1:-SDK}
-ANDROID_NDK_VERSION=${2:-23.2.8568313}
+ANDROID_NDK_VERSION=${2:-27.2.12479018}
 OPENSSL_INSTALL_DIR=${3:-third-party/openssl}
 ANDROID_STL=${4:-c++_static}
 TDLIB_INTERFACE=${5:-Java}
@@ -51,7 +51,7 @@ for ABI in arm64-v8a armeabi-v7a x86_64 x86 ; do
 
   mkdir -p build-$ABI-$TDLIB_INTERFACE || exit 1
   cd build-$ABI-$TDLIB_INTERFACE
-  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" -DOPENSSL_ROOT_DIR="$OPENSSL_INSTALL_DIR/$ABI" -DCMAKE_BUILD_TYPE=RelWithDebInfo -GNinja -DANDROID_ABI=$ABI -DANDROID_STL=$ANDROID_STL -DANDROID_PLATFORM=android-16 $TDLIB_INTERFACE_OPTION .. || exit 1
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" -DOPENSSL_ROOT_DIR="$OPENSSL_INSTALL_DIR/$ABI" -DCMAKE_BUILD_TYPE=RelWithDebInfo -GNinja -DANDROID_ABI=$ABI -DANDROID_STL=$ANDROID_STL -DANDROID_PLATFORM=android-21 $TDLIB_INTERFACE_OPTION .. || exit 1
   if [ "$TDLIB_INTERFACE" == "Java" ] || [ "$TDLIB_INTERFACE" == "JSONJava" ] ; then
     cmake --build . --target tde2e || exit 1
   fi
