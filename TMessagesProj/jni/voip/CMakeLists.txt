@@ -1722,7 +1722,7 @@ target_include_directories(tgcalls PUBLIC
         third_party/usrsctplib
         third_party
         voip/libtgvoip
-        ffmpeg/include
+        ffmpeg/build/${ANDROID_ABI}/include
         voip/webrtc/third_party/crc32c/src/include
         voip/webrtc/third_party/jni_zero
         libvpx/build/${ANDROID_ABI}/include)
