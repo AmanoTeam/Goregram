@@ -70,18 +70,10 @@ add_library(swscale STATIC IMPORTED)
 set_target_properties(swscale PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/lib/${ANDROID_ABI}/libswscale.a)
 
 add_library(crypto STATIC IMPORTED)
-set_target_properties(crypto PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/lib/${ANDROID_ABI}/libcrypto.a)
+set_target_properties(crypto PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/boringssl/build/${ANDROID_ABI}/crypto/libcrypto.a)
 
 add_library(ssl STATIC IMPORTED)
-set_target_properties(ssl PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/lib/${ANDROID_ABI}/libssl.a)
-
-
-#aesige
-#add_library(aesige STATIC openssl/aes_ige.c)
-#target_compile_options(aesige PUBLIC -Wall -frtti -finline-functions -ffast-math -Oz)
-#target_include_directories(aesige PUBLIC third_party/boringssl/include openssl/include)
-#target_link_libraries(aesige crypto)
-
+set_target_properties(ssl PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/boringssl/build/${ANDROID_ABI}/ssl/libssl.a)
 
 add_library(libvpx STATIC IMPORTED)
 set_target_properties(libvpx PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/lib/${ANDROID_ABI}/libvpx.a)
@@ -100,7 +92,6 @@ set_target_properties(tdutils PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTOR
 
 #tgnet
 add_library(tgnet STATIC
-        openssl/aes_ige.c
         tgnet/ApiScheme.cpp
         tgnet/BuffersStorage.cpp
         tgnet/ByteArray.cpp
@@ -128,8 +119,7 @@ set_target_properties(tgnet PROPERTIES
 target_compile_definitions(tgnet PUBLIC
         HAVE_PTHREAD)
 target_include_directories(tgnet PUBLIC
-        third_party/boringssl/include
-        openssl/include)
+        boringssl/include/)
 target_link_libraries(tgnet
         crypto)
 
