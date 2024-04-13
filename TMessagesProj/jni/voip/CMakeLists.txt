@@ -1522,7 +1522,7 @@ target_include_directories(tgcalls PUBLIC
         third_party/libsrtp/crypto/include
         third_party/usrsctplib
         third_party
-        ffmpeg/include
+        ffmpeg/build/${ANDROID_ABI}/include
         libvpx/build/${ANDROID_ABI}/include
         voip/third_party/crc32c/src/include
         voip/third_party/jni_zero)
