@@ -127,6 +127,7 @@ target_include_directories(tgcalls_tp PUBLIC
         third_party/libsrtp/include
         third_party/libsrtp/config
         third_party/libsrtp/crypto/include
+        libvpx/build/${ANDROID_ABI}/include
         third_party
         voip/third_party/crc32c/src/include
 )
@@ -1521,10 +1522,8 @@ target_include_directories(tgcalls PUBLIC
         third_party/libsrtp/crypto/include
         third_party/usrsctplib
         third_party
-        prebuild/include/${ANDROID_ABI}
-        third_party/ffmpeg
-        third_party/libvpx
-        third_party/dav1d/include
+        ffmpeg/include
+        libvpx/build/${ANDROID_ABI}/include
         voip/third_party/crc32c/src/include
         voip/third_party/jni_zero)
 

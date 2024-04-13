@@ -76,7 +76,7 @@ add_library(ssl STATIC IMPORTED)
 set_target_properties(ssl PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/boringssl/build/${ANDROID_ABI}/ssl/libssl.a)
 
 add_library(libvpx STATIC IMPORTED)
-set_target_properties(libvpx PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/lib/${ANDROID_ABI}/libvpx.a)
+set_target_properties(libvpx PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/libvpx/build/${ANDROID_ABI}/lib/libvpx.a)
 
 add_library(libdav1d STATIC IMPORTED)
 set_target_properties(libdav1d PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/lib/${ANDROID_ABI}/libdav1d.a)
@@ -219,12 +219,9 @@ target_include_directories(${NATIVE_LIB} PUBLIC
         third_party/xiph/ogg/include
         third_party/libyuv/include
         third_party/absl
-        third_party/boringssl/include
-        openssl/include
-        prebuild/include/${ANDROID_ABI}
-        third_party/ffmpeg
-        third_party/libvpx
-        third_party/dav1d/include
+        boringssl/include
+        ffmpeg/include
+        libvpx/build/${ANDROID_ABI}/include
         emoji
         exoplayer/include
         intro
