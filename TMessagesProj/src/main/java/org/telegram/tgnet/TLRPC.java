@@ -47813,7 +47813,7 @@ public class TLRPC {
         public boolean call_not_empty;
         public boolean fake;
         public boolean gigagroup;
-        public boolean noforwards;
+        public boolean noforwards = false;
         public boolean forum;
         public ArrayList<TL_restrictionReason> restriction_reason = new ArrayList<>();
         public TL_channelAdminRights_layer92 admin_rights_layer92;
@@ -48050,7 +48050,7 @@ public class TLRPC {
             deactivated = (flags & 32) != 0;
             call_active = (flags & 8388608) != 0;
             call_not_empty = (flags & 16777216) != 0;
-            noforwards = (flags & 33554432) != 0;
+            /* noforwards = (flags & 33554432) != 0; */
             id = stream.readInt64(exception);
             title = stream.readString(exception);
             photo = ChatPhoto.TLdeserialize(stream, stream.readInt32(exception), exception, allowStrippedThumb);
@@ -48330,7 +48330,7 @@ public class TLRPC {
             call_not_empty = (flags & 16777216) != 0;
             fake = (flags & 33554432) != 0;
             gigagroup = (flags & 67108864) != 0;
-            noforwards = (flags & 134217728) != 0;
+            /* noforwards = (flags & 134217728) != 0; */
             join_to_send = (flags & 268435456) != 0;
             join_request = (flags & 536870912) != 0;
             forum = (flags & 1073741824) != 0;
@@ -48503,7 +48503,7 @@ public class TLRPC {
             call_not_empty = (flags & 16777216) != 0;
             fake = (flags & 33554432) != 0;
             gigagroup = (flags & 67108864) != 0;
-            noforwards = (flags & 134217728) != 0;
+            /* noforwards = (flags & 134217728) != 0; */
             join_to_send = (flags & 268435456) != 0;
             join_request = (flags & 536870912) != 0;
             forum = (flags & 1073741824) != 0;
@@ -48682,7 +48682,7 @@ public class TLRPC {
             call_not_empty = (flags & 16777216) != 0;
             fake = (flags & 33554432) != 0;
             gigagroup = (flags & 67108864) != 0;
-            noforwards = (flags & 134217728) != 0;
+            /* noforwards = (flags & 134217728) != 0; */
             join_to_send = (flags & 268435456) != 0;
             join_request = (flags & 536870912) != 0;
             forum = (flags & 1073741824) != 0;
@@ -48867,7 +48867,7 @@ public class TLRPC {
             call_not_empty = (flags & 16777216) != 0;
             fake = (flags & 33554432) != 0;
             gigagroup = (flags & 67108864) != 0;
-            noforwards = (flags & 134217728) != 0;
+            /* noforwards = (flags & 134217728) != 0; */
             join_to_send = (flags & 268435456) != 0;
             join_request = (flags & 536870912) != 0;
             forum = (flags & 1073741824) != 0;
@@ -49034,7 +49034,7 @@ public class TLRPC {
             call_not_empty = (flags & 16777216) != 0;
             fake = (flags & 33554432) != 0;
             gigagroup = (flags & 67108864) != 0;
-            noforwards = (flags & 134217728) != 0;
+            /* noforwards = (flags & 134217728) != 0; */
             join_to_send = (flags & 268435456) != 0;
             join_request = (flags & 536870912) != 0;
             forum = (flags & 1073741824) != 0;
@@ -49211,7 +49211,7 @@ public class TLRPC {
             call_not_empty = (flags & 16777216) != 0;
             fake = (flags & 33554432) != 0;
             gigagroup = (flags & 67108864) != 0;
-            noforwards = (flags & 134217728) != 0;
+            /* noforwards = (flags & 134217728) != 0; */
             join_to_send = (flags & 268435456) != 0;
             join_request = (flags & 536870912) != 0;
             forum = (flags & 1073741824) != 0;
@@ -49385,7 +49385,7 @@ public class TLRPC {
             call_not_empty = (flags & 16777216) != 0;
             fake = (flags & 33554432) != 0;
             gigagroup = (flags & 67108864) != 0;
-            noforwards = (flags & 134217728) != 0;
+            /* noforwards = (flags & 134217728) != 0; */
             join_to_send = (flags & 268435456) != 0;
             join_request = (flags & 536870912) != 0;
             forum = (flags & 1073741824) != 0;
@@ -49539,7 +49539,7 @@ public class TLRPC {
             call_not_empty = (flags & 16777216) != 0;
             fake = (flags & 33554432) != 0;
             gigagroup = (flags & 67108864) != 0;
-            noforwards = (flags & 134217728) != 0;
+            /* noforwards = (flags & 134217728) != 0; */
             join_to_send = (flags & 268435456) != 0;
             join_request = (flags & 536870912) != 0;
             forum = (flags & 1073741824) != 0;
@@ -68512,7 +68512,7 @@ public class TLRPC {
             legacy = (flags & 524288) != 0;
             edit_hide = (flags & 2097152) != 0;
             pinned = (flags & 16777216) != 0;
-            noforwards = (flags & 67108864) != 0;
+            /* noforwards = (flags & 67108864) != 0; */
             invert_media = (flags & 134217728) != 0;
             flags2 = stream.readInt32(exception);
             offline = (flags2 & 2) != 0;
@@ -68736,7 +68736,7 @@ public class TLRPC {
             legacy = (flags & 524288) != 0;
             edit_hide = (flags & 2097152) != 0;
             pinned = (flags & 16777216) != 0;
-            noforwards = (flags & 67108864) != 0;
+            /* noforwards = (flags & 67108864) != 0; */
             invert_media = (flags & 134217728) != 0;
             flags2 = stream.readInt32(exception);
             offline = (flags2 & 2) != 0;
@@ -68954,7 +68954,7 @@ public class TLRPC {
             legacy = (flags & 524288) != 0;
             edit_hide = (flags & 2097152) != 0;
             pinned = (flags & 16777216) != 0;
-            noforwards = (flags & 67108864) != 0;
+            /* noforwards = (flags & 67108864) != 0; */
             invert_media = (flags & 134217728) != 0;
             flags2 = stream.readInt32(exception);
             offline = (flags2 & 2) != 0;
@@ -69166,7 +69166,7 @@ public class TLRPC {
             legacy = (flags & 524288) != 0;
             edit_hide = (flags & 2097152) != 0;
             pinned = (flags & 16777216) != 0;
-            noforwards = (flags & 67108864) != 0;
+            /* noforwards = (flags & 67108864) != 0; */
             invert_media = (flags & 134217728) != 0;
             id = stream.readInt32(exception);
             if ((flags & 256) != 0) {
@@ -69368,7 +69368,7 @@ public class TLRPC {
             legacy = (flags & 524288) != 0;
             edit_hide = (flags & 2097152) != 0;
             pinned = (flags & 16777216) != 0;
-            noforwards = (flags & 67108864) != 0;
+            /* noforwards = (flags & 67108864) != 0; */
             invert_media = (flags & 134217728) != 0;
             id = stream.readInt32(exception);
             if ((flags & 256) != 0) {
@@ -69564,7 +69564,7 @@ public class TLRPC {
             legacy = (flags & 524288) != 0;
             edit_hide = (flags & 2097152) != 0;
             pinned = (flags & 16777216) != 0;
-            noforwards = (flags & 67108864) != 0;
+            /* noforwards = (flags & 67108864) != 0; */
             invert_media = (flags & 134217728) != 0;
             id = stream.readInt32(exception);
             if ((flags & 256) != 0) {
@@ -69754,7 +69754,7 @@ public class TLRPC {
             legacy = (flags & 524288) != 0;
             edit_hide = (flags & 2097152) != 0;
             pinned = (flags & 16777216) != 0;
-            noforwards = (flags & 67108864) != 0;
+            /* noforwards = (flags & 67108864) != 0; */
             invert_media = (flags & 134217728) != 0;
             id = stream.readInt32(exception);
             if ((flags & 256) != 0) {
@@ -69939,7 +69939,7 @@ public class TLRPC {
             legacy = (flags & 524288) != 0;
             edit_hide = (flags & 2097152) != 0;
             pinned = (flags & 16777216) != 0;
-            noforwards = (flags & 67108864) != 0;
+            /* noforwards = (flags & 67108864) != 0; */
             id = stream.readInt32(exception);
             if ((flags & 256) != 0) {
                 from_id = Peer.TLdeserialize(stream, stream.readInt32(exception), exception);
