@@ -3134,6 +3134,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             );
         }
 
+        /*
         @Override
         protected boolean canCopy() {
             return chatActivity == null || !(
@@ -3141,7 +3142,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 selectedView != null && selectedView.getMessageObject() != null && (selectedView.getMessageObject().messageOwner != null && selectedView.getMessageObject().messageOwner.noforwards)
             );
         }
-
+        */
         @Override
         protected void onQuoteClick(MessageObject messageObject, int start, int end, CharSequence text) {
             if (messageObject == null) {
