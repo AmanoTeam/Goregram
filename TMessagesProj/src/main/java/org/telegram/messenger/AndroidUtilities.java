@@ -3861,6 +3861,7 @@ public class AndroidUtilities {
             } else {
                 intent.setDataAndType(Uri.fromFile(f), realMimeType != null ? realMimeType : "text/plain");
             }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             if (realMimeType != null) {
                 try {
                     activity.startActivityForResult(intent, 500);
