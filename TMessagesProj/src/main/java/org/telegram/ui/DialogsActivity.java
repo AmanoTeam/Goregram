@@ -5768,10 +5768,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             dialogsHintCell.setCompact(false);
             dialogsHintCell.setAvatars(currentAccount, null);
         }
-        if (isInPreviewMode()) {
+        if (true /* isInPreviewMode() */) {
             dialogsHintCellVisible = false;
             dialogsHintCell.setVisibility(View.GONE);
             updateAuthHintCellVisibility(false);
+            return;
         } else if (!getMessagesController().getUnconfirmedAuthController().auths.isEmpty() && folderId == 0 && initialDialogsType == DIALOGS_TYPE_DEFAULT) {
             dialogsHintCellVisible = false;
             dialogsHintCell.setVisibility(View.GONE);
