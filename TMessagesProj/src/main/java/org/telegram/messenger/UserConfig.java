@@ -549,10 +549,13 @@ public class UserConfig extends BaseController {
     }
 
     public boolean isPremium() {
+    	/*
         if (currentUser == null) {
             return false;
         }
         return currentUser.premium;
+        */
+        return true;
     }
 
     public Long getEmojiStatus() {
