@@ -5546,6 +5546,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     }
 
     private boolean isCacheHintVisible() {
+    	/*
         if (cacheSize == null || deviceSize == null) {
             return false;
         }
@@ -5555,6 +5556,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
         SharedPreferences prefs = MessagesController.getGlobalMainSettings();
         return System.currentTimeMillis() > prefs.getLong("cache_hint_showafter", 0L);
+        */
+        return false;
     }
 
     private void resetCacheHintVisible() {

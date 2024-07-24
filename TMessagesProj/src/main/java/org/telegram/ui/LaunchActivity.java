@@ -7067,6 +7067,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     private long lastSpaceAlert;
     private static LaunchActivity staticInstanceForAlerts;
     private void checkFreeDiscSpace(final int force) {
+    	/*
         staticInstanceForAlerts = this;
         AutoDeleteMediaTask.run();
         SharedConfig.checkLogsToDelete();
@@ -7117,6 +7118,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
             }
         }, 2000);
+        */
+        return;
     }
     public static void checkFreeDiscSpaceStatic(final int force) {
         if (staticInstanceForAlerts != null) {
