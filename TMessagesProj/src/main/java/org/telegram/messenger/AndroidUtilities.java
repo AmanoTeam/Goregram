@@ -3209,6 +3209,9 @@ public class AndroidUtilities {
     }
 
     public static boolean addToClipboard(CharSequence str) {
+		
+		str = str.toString().replace("mailto:", "");
+		
         try {
             android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ApplicationLoader.applicationContext.getSystemService(Context.CLIPBOARD_SERVICE);
 
