@@ -1685,7 +1685,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
                             }
                         }
                     } else if (!gif && result.photo != null) {
-                        TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(result.photo.sizes, AndroidUtilities.getPhotoSize());
+                        TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(result.photo.sizes, AndroidUtilities.photoSize);
                         TLRPC.PhotoSize size2 = FileLoader.getClosestPhotoSizeWithSize(result.photo.sizes, 320);
                         if (size == null) {
                             continue;

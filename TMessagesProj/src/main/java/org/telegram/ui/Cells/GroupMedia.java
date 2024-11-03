@@ -759,7 +759,7 @@ public class GroupMedia {
                 filename = MessageObject.getFileName(messageMedia);
                 if (messageMedia instanceof TLRPC.TL_messageMediaPhoto) {
                     TLRPC.TL_messageMediaPhoto mediaPhoto = (TLRPC.TL_messageMediaPhoto) messageMedia;
-                    TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(mediaPhoto.photo.sizes, AndroidUtilities.getPhotoSize(), true, null, true);
+                    TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(mediaPhoto.photo.sizes, AndroidUtilities.photoSize, true, null, true);
                     TLRPC.PhotoSize thumbSize = FileLoader.getClosestPhotoSizeWithSize(mediaPhoto.photo.sizes, Math.min(w, h) / 100, false, photoSize, false);
                     ImageLocation photoLocation = ImageLocation.getForPhoto(photoSize, mediaPhoto.photo);
                     ImageLocation thumbLocation = ImageLocation.getForPhoto(thumbSize, mediaPhoto.photo);
@@ -778,7 +778,7 @@ public class GroupMedia {
 //                    }
                     if (!album && video) {
                         if (mediaDocument.document != null) {
-                            TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(mediaDocument.document.thumbs, AndroidUtilities.getPhotoSize(), true, null, true);
+                            TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(mediaDocument.document.thumbs, AndroidUtilities.photoSize, true, null, true);
                             TLRPC.PhotoSize thumbSize = FileLoader.getClosestPhotoSizeWithSize(mediaDocument.document.thumbs, Math.min(w, h), false, photoSize, false);
                             ImageLocation mediaLocation = ImageLocation.getForDocument(mediaDocument.document);
                             ImageLocation photoLocation = ImageLocation.getForDocument(photoSize, mediaDocument.document);
@@ -794,7 +794,7 @@ public class GroupMedia {
                         }
                     }
                     if (mediaDocument.document != null) {
-                        TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(mediaDocument.document.thumbs, AndroidUtilities.getPhotoSize(), true, null, true);
+                        TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(mediaDocument.document.thumbs, AndroidUtilities.photoSize, true, null, true);
                         TLRPC.PhotoSize thumbSize = FileLoader.getClosestPhotoSizeWithSize(mediaDocument.document.thumbs, Math.min(w, h), false, photoSize, false);
                         ImageLocation photoLocation = ImageLocation.getForDocument(photoSize, mediaDocument.document);
                         ImageLocation thumbLocation = ImageLocation.getForDocument(thumbSize, mediaDocument.document);
@@ -977,10 +977,10 @@ public class GroupMedia {
                     TLRPC.TL_messageExtendedMedia m = (TLRPC.TL_messageExtendedMedia) media;
                     if (m.media instanceof TLRPC.TL_messageMediaPhoto) {
                         TLRPC.TL_messageMediaPhoto photo = (TLRPC.TL_messageMediaPhoto) m.media;
-                        photoSize = photo.photo == null ? null : FileLoader.getClosestPhotoSizeWithSize(photo.photo.sizes, AndroidUtilities.getPhotoSize());
+                        photoSize = photo.photo == null ? null : FileLoader.getClosestPhotoSizeWithSize(photo.photo.sizes, AndroidUtilities.photoSize);
                     } else if (m.media instanceof TLRPC.TL_messageMediaDocument) {
                         TLRPC.TL_messageMediaDocument doc = (TLRPC.TL_messageMediaDocument) m.media;
-                        photoSize = doc.document == null ? null : FileLoader.getClosestPhotoSizeWithSize(doc.document.thumbs, AndroidUtilities.getPhotoSize());
+                        photoSize = doc.document == null ? null : FileLoader.getClosestPhotoSizeWithSize(doc.document.thumbs, AndroidUtilities.photoSize);
                     } else {
                         photoSize = null;
                     }

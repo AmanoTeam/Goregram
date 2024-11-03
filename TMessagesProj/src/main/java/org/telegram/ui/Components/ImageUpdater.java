@@ -578,7 +578,7 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
                 bitmap = ImageLoader.loadBitmap(info.path, null, 800, 800, true);
             } else if (info.searchImage != null) {
                 if (info.searchImage.photo != null) {
-                    TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(info.searchImage.photo.sizes, AndroidUtilities.getPhotoSize());
+                    TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(info.searchImage.photo.sizes, AndroidUtilities.photoSize);
                     if (photoSize != null) {
                         File path = FileLoader.getInstance(currentAccount).getPathToAttach(photoSize, true);
                         finalPath = path.getAbsolutePath();

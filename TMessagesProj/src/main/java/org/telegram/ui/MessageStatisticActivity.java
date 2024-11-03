@@ -463,7 +463,7 @@ public class MessageStatisticActivity extends BaseFragment implements Notificati
                 String type = messageObject.isWebpage() ? messageObject.messageOwner.media.webpage.type : null;
                 if (!("app".equals(type) || "profile".equals(type) || "article".equals(type) || type != null && type.startsWith("telegram_"))) {
                     TLRPC.PhotoSize smallThumb = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, 50);
-                    TLRPC.PhotoSize bigThumb = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                    TLRPC.PhotoSize bigThumb = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.photoSize);
                     if (smallThumb == bigThumb) {
                         bigThumb = null;
                     }
@@ -568,7 +568,7 @@ public class MessageStatisticActivity extends BaseFragment implements Notificati
             avatarContainer.allowDrawStories = true;
             avatarContainer.setStoriesForceState(StoriesUtilities.STATE_HAS_UNREAD);
             if (messageObject.photoThumbs != null) {
-                TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.photoSize);
                 TLRPC.PhotoSize thumbSize = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, 50);
                 avatarContainer.getAvatarImageView().setImage(
                         ImageLocation.getForObject(size, messageObject.photoThumbsObject), "50_50",

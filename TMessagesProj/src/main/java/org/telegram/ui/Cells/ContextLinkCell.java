@@ -251,7 +251,7 @@ public class ContextLinkCell extends FrameLayout implements DownloadController.F
                 }
             }
         } else if (inlineResult != null && inlineResult.photo != null) {
-            currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, AndroidUtilities.getPhotoSize(), true);
+            currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, AndroidUtilities.photoSize, true);
             currentPhotoObjectThumb = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, 80);
             if (currentPhotoObjectThumb == currentPhotoObject) {
                 currentPhotoObjectThumb = null;
@@ -897,7 +897,7 @@ public class ContextLinkCell extends FrameLayout implements DownloadController.F
                                 fileName = FileLoader.getAttachFileName(inlineResult.document);
                                 cacheFile = FileLoader.getInstance(currentAccount).getPathToAttach(inlineResult.document);
                             } else if (inlineResult.photo instanceof TLRPC.TL_photo) {
-                                currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(inlineResult.photo.sizes, AndroidUtilities.getPhotoSize(), true);
+                                currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(inlineResult.photo.sizes, AndroidUtilities.photoSize, true);
                                 fileName = FileLoader.getAttachFileName(currentPhotoObject);
                                 cacheFile = FileLoader.getInstance(currentAccount).getPathToAttach(currentPhotoObject);
                             } else if (inlineResult.content instanceof TLRPC.TL_webDocument) {

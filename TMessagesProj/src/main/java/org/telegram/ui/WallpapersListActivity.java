@@ -1666,7 +1666,7 @@ public class WallpapersListActivity extends BaseFragment implements Notification
 
                         MediaController.SearchImage bingImage = new MediaController.SearchImage();
                         if (result.photo != null) {
-                            TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(result.photo.sizes, AndroidUtilities.getPhotoSize());
+                            TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(result.photo.sizes, AndroidUtilities.photoSize);
                             TLRPC.PhotoSize size2 = FileLoader.getClosestPhotoSizeWithSize(result.photo.sizes, 320);
                             if (size == null) {
                                 continue;

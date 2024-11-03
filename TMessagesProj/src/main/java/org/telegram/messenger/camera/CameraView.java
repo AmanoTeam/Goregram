@@ -715,20 +715,20 @@ public class CameraView extends FrameLayout implements TextureView.SurfaceTextur
             photoMaxHeight = wantedHeight = 720;
         } else if (initialFrontface) {
             aspectRatio = new Size(16, 9);
-            photoMaxWidth = wantedWidth = 1280;
-            photoMaxHeight = wantedHeight = 720;
+            photoMaxWidth = wantedWidth = 2560;
+            photoMaxHeight = wantedHeight = 1440;
         } else {
             if (Math.abs(screenSize - size4to3) < 0.1f) {
                 aspectRatio = new Size(4, 3);
-                wantedWidth = 1280;
-                wantedHeight = 960;
+                wantedWidth = 2560;
+                wantedHeight = 1920;
 
                 if (SharedConfig.getDevicePerformanceClass() == SharedConfig.PERFORMANCE_CLASS_LOW) {
                     photoMaxWidth = 1280;
                     photoMaxHeight = 960;
                 } else {
-                    photoMaxWidth = 1920;
-                    photoMaxHeight = 1440;
+                    photoMaxWidth = 2560;
+                    photoMaxHeight = 2160;
                 }
             } else {
                 aspectRatio = new Size(16, 9);
@@ -739,8 +739,8 @@ public class CameraView extends FrameLayout implements TextureView.SurfaceTextur
                     photoMaxWidth = 1280;
                     photoMaxHeight = 960;
                 } else {
-                    photoMaxWidth = isStory ? 1280 : 1920;
-                    photoMaxHeight = isStory ? 720 : 1080;
+                    photoMaxWidth = 2560;
+                    photoMaxHeight = 1440;
                 }
             }
         }

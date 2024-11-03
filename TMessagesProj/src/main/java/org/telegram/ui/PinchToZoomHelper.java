@@ -688,7 +688,7 @@ public class PinchToZoomHelper {
             if (message.messageOwner.action instanceof TLRPC.TL_messageActionUserUpdatedPhoto) {
                 return null;
             } else {
-                TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(message.photoThumbs, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(message.photoThumbs, AndroidUtilities.photoSize);
                 if (sizeFull != null) {
                     if (size != null) {
                         size[0] = sizeFull.size;
@@ -705,7 +705,7 @@ public class PinchToZoomHelper {
             if (message.isGif()) {
                 return ImageLocation.getForDocument(message.getDocument());
             } else {
-                TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(message.photoThumbs, AndroidUtilities.getPhotoSize(), false, null, true);
+                TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(message.photoThumbs, AndroidUtilities.photoSize, false, null, true);
                 if (sizeFull != null) {
                     if (size != null) {
                         size[0] = sizeFull.size;

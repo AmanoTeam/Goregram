@@ -539,7 +539,7 @@ public class DownloadController extends BaseController implements NotificationCe
                 DownloadObject downloadObject = photoDownloadQueue.get(a);
                 if (downloadObject.object instanceof TLRPC.Photo) {
                     TLRPC.Photo photo = (TLRPC.Photo) downloadObject.object;
-                    TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.getPhotoSize());
+                    TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.photoSize);
                     getFileLoader().cancelLoadFile(photoSize);
                 } else if (downloadObject.object instanceof TLRPC.Document) {
                     getFileLoader().cancelLoadFile((TLRPC.Document) downloadObject.object);
@@ -901,7 +901,7 @@ public class DownloadController extends BaseController implements NotificationCe
                 getFileLoader().cancelLoadFile(document, true);
             } else if (downloadObject.object instanceof TLRPC.Photo) {
                 TLRPC.Photo photo = (TLRPC.Photo) downloadObject.object;
-                TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.photoSize);
                 if (photoSize != null) {
                     getFileLoader().cancelLoadFile(photoSize, true);
                 }
@@ -932,7 +932,7 @@ public class DownloadController extends BaseController implements NotificationCe
                 path = FileLoader.getAttachFileName(document);
             } else if (downloadObject.object instanceof TLRPC.Photo) {
                 TLRPC.Photo photo = (TLRPC.Photo) downloadObject.object;
-                photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.getPhotoSize());
+                photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.photoSize);
                 path = FileLoader.getAttachFileName(photoSize);
             } else {
                 path = null;

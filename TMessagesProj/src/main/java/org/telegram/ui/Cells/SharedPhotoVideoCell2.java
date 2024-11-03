@@ -217,7 +217,7 @@ public class SharedPhotoVideoCell2 extends FrameLayout {
         imageFilter = sharedResources.getFilterString(width);
         boolean showImageStub = false;
         if (parentColumnsCount <= 2) {
-            stride = AndroidUtilities.getPhotoSize();
+            stride = AndroidUtilities.photoSize;
         } else if (parentColumnsCount == 3) {
             stride = 320;
         } else if (parentColumnsCount == 5) {

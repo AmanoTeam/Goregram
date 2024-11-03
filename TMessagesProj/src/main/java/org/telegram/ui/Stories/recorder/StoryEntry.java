@@ -108,8 +108,8 @@ public class StoryEntry {
 //    public int width, height;
     public long duration;
 
-    public int resultWidth = 720;
-    public int resultHeight = 1280;
+    public int resultWidth = 1440;
+    public int resultHeight = 2560;
 
     public int width, height;
     // matrix describes transformations from width x height to resultWidth x resultHeight
@@ -597,8 +597,8 @@ public class StoryEntry {
         entry.repostCaption = storyItem.caption;
         entry.file = file;
         entry.fileDeletable = false;
-        entry.width = 720;
-        entry.height = 1280;
+        entry.width = 1440;
+        entry.height = 2560;
         if (storyItem.media instanceof TLRPC.TL_messageMediaPhoto) {
             entry.isVideo = false;
             if (file != null) {
@@ -714,8 +714,8 @@ public class StoryEntry {
         StoryEntry entry = new StoryEntry();
         entry.isRepostMessage = true;
         entry.messageObjects = messageObjects;
-        entry.resultWidth = 1080;
-        entry.resultHeight = 1920;
+        entry.resultWidth = 1440;
+        entry.resultHeight = 2560;
         MessageObject msg = messageObjects.get(0);
         entry.backgroundWallpaperPeerId = getRepostDialogId(msg);
 
@@ -756,8 +756,8 @@ public class StoryEntry {
         entry.editStoryId = storyItem.id;
         entry.file = file;
         entry.fileDeletable = false;
-        entry.width = 720;
-        entry.height = 1280;
+        entry.width = 1440;
+        entry.height = 2560;
         if (storyItem.media instanceof TLRPC.TL_messageMediaPhoto) {
             entry.isVideo = false;
             if (file != null) {
@@ -866,8 +866,8 @@ public class StoryEntry {
                 resultWidth = 720;
                 resultHeight = 1280;
             } else {
-                resultWidth = 1080;
-                resultHeight = 1920;
+                resultWidth = 1440;
+                resultHeight = 2560;
             }
         }
     }

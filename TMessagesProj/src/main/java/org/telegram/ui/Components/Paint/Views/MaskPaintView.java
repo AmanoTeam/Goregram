@@ -190,7 +190,7 @@ public class MaskPaintView extends FrameLayout {
         float width = bitmapToEdit.getWidth();
         float height = bitmapToEdit.getHeight();
 
-        int maxSide = 1280;
+        int maxSide = 2560;
         Size size = new Size(width, height);
         size.width = maxSide;
         size.height = (float) Math.floor(size.width * height / width);

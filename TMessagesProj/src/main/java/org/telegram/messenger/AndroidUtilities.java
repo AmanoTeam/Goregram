@@ -278,7 +278,7 @@ public class AndroidUtilities {
     public static int roundPlayingMessageSize;
     public static int roundMessageInset;
     public static boolean incorrectDisplaySizeFix;
-    public static Integer photoSize = null;
+    public static int photoSize = 2560;
     public static DisplayMetrics displayMetrics = new DisplayMetrics();
     public static int leftBaseline;
     public static boolean usingHardwareInput;
@@ -2655,13 +2655,6 @@ public class AndroidUtilities {
             }
             return Math.min(smallSide, maxSide - leftSide);
         }
-    }
-
-    public static int getPhotoSize() {
-        if (photoSize == null) {
-            photoSize = 1280;
-        }
-        return photoSize;
     }
 
     /*public static void clearCursorDrawable(EditText editText) {
