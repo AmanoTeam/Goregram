@@ -4037,7 +4037,7 @@ public class MessagesStorage extends BaseController {
             id = document.id;
             type = DownloadController.AUTODOWNLOAD_TYPE_DOCUMENT;
         } else if (photo != null) {
-            TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.getPhotoSize());
+            TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.photoSize);
             if (photoSize != null) {
                 id = photo.id;
                 type = DownloadController.AUTODOWNLOAD_TYPE_PHOTO;
@@ -11953,7 +11953,7 @@ public class MessagesStorage extends BaseController {
                                 object.document = document;
                                 object.flags |= 1;
                             } else if (photo != null) {
-                                TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.getPhotoSize());
+                                TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.photoSize);
                                 if (photoSize != null) {
                                     id = photo.id;
                                     type = DownloadController.AUTODOWNLOAD_TYPE_PHOTO;

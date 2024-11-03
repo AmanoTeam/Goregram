@@ -895,7 +895,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
             imageView.setAspectFit(true);
 
             if (messageObject.type == MessageObject.TYPE_PHOTO) {
-                TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.photoSize);
                 TLRPC.PhotoSize thumb = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, 100);
                 boolean photoSet = false;
                 if (currentPhotoObject != null) {

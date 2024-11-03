@@ -414,13 +414,13 @@ public class CameraController implements MediaRecorder.OnInfoListener {
                 camera.takePicture(null, null, (data, camera1) -> {
                     Bitmap bitmap = null;
                     int orientation = 0;
-                    int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
+                    int size = (int) (AndroidUtilities.photoSize / AndroidUtilities.density);
                     String key = String.format(Locale.US, "%s@%d_%d", Utilities.MD5(path.getAbsolutePath()), size, size);
                     try {
                         BitmapFactory.Options options = new BitmapFactory.Options();
                         options.inJustDecodeBounds = true;
                         BitmapFactory.decodeByteArray(data, 0, data.length, options);
-                        //                    float scaleFactor = Math.max((float) options.outWidth / AndroidUtilities.getPhotoSize(), (float) options.outHeight / AndroidUtilities.getPhotoSize());
+                        //                    float scaleFactor = Math.max((float) options.outWidth / AndroidUtilities.photoSize, (float) options.outHeight / AndroidUtilities.photoSize);
                         //                    if (scaleFactor < 1) {
                         //                        scaleFactor = 1;
                         //                    }

@@ -142,7 +142,7 @@ public class StoryMediaAreasView extends FrameLayout implements View.OnClickList
 
         shined = false;
 
-        final float W = 1080, H = 1920;
+        final float W = 1440, H = 2560;
 
         double totalArea = 0;
         for (int i = 0; i < mediaAreas.size(); ++i) {

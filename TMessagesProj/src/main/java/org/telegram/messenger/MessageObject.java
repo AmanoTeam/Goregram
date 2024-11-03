@@ -1119,7 +1119,7 @@ public class MessageObject {
                 if (messageObject.messageOwner != null && messageObject.messageOwner.invert_media) {
                     captionAbove = true;
                 }
-                TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize photoSize = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.photoSize);
                 GroupedMessagePosition position = new GroupedMessagePosition();
                 position.last = (reversed ? a == 0 : a == count - 1);
                 position.aspectRatio = photoSize == null ? 1.0f : photoSize.w / (float) photoSize.h;
@@ -5349,7 +5349,7 @@ public class MessageObject {
                     round = attribute.round_message;
                 }
             }
-            if (round && width <= 1280 && height <= 1280) {
+            if (round && width <= 2560 && height <= 2560) {
                 return true;
             }
         }
@@ -5370,7 +5370,7 @@ public class MessageObject {
                     height = attribute.h;
                 }
             }
-            if (/*animated && */width <= 1280 && height <= 1280) {
+            if (/*animated && */width <= 2560 && height <= 2560) {
                 return true;
             }
         }
@@ -5391,7 +5391,7 @@ public class MessageObject {
                     height = attribute.h;
                 }
             }
-            if (animated && width <= 1280 && height <= 1280) {
+            if (animated && width <= 2560 && height <= 2560) {
                 return true;
             }
         }
@@ -5671,7 +5671,7 @@ public class MessageObject {
         } else if (getMedia(messageOwner) instanceof TLRPC.TL_messageMediaPhoto) {
             ArrayList<TLRPC.PhotoSize> sizes = getMedia(messageOwner).photo.sizes;
             if (sizes.size() > 0) {
-                TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(sizes, AndroidUtilities.photoSize);
                 if (sizeFull != null) {
                     return FileLoader.getAttachFileName(sizeFull);
                 }
@@ -5688,7 +5688,7 @@ public class MessageObject {
         } else if (media instanceof TLRPC.TL_messageMediaPhoto) {
             ArrayList<TLRPC.PhotoSize> sizes = media.photo.sizes;
             if (sizes.size() > 0) {
-                TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(sizes, AndroidUtilities.photoSize);
                 if (sizeFull != null) {
                     return FileLoader.getAttachFileName(sizeFull);
                 }
@@ -8425,7 +8425,7 @@ public class MessageObject {
                 isAnimated = true;
             }
         }
-        if (isAnimated && (width > 1280 || height > 1280)) {
+        if (isAnimated && (width > 2560 || height > 1280)) {
             isAnimated = false;
         }
         if (SharedConfig.streamMkv && !isVideo && "video/x-matroska".equals(document.mime_type)) {
@@ -8786,7 +8786,7 @@ public class MessageObject {
             }
             return height;
         } else if (type == TYPE_EXTENDED_MEDIA_PREVIEW) {
-            return AndroidUtilities.getPhotoSize();
+            return AndroidUtilities.photoSize;
         } else if (type == TYPE_VOICE) {
             return dp(72);
         } else if (type == TYPE_CONTACT) {
@@ -8848,13 +8848,13 @@ public class MessageObject {
                 photoWidth = (int) (Math.min(AndroidUtilities.displaySize.x, AndroidUtilities.displaySize.y) * 0.7f);
             }
             photoHeight = photoWidth + dp(100);
-            if (photoWidth > AndroidUtilities.getPhotoSize()) {
-                photoWidth = AndroidUtilities.getPhotoSize();
+            if (photoWidth > AndroidUtilities.photoSize) {
+                photoWidth = AndroidUtilities.photoSize;
             }
-            if (photoHeight > AndroidUtilities.getPhotoSize()) {
-                photoHeight = AndroidUtilities.getPhotoSize();
+            if (photoHeight > AndroidUtilities.photoSize) {
+                photoHeight = AndroidUtilities.photoSize;
             }
-            TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, AndroidUtilities.getPhotoSize());
+            TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, AndroidUtilities.photoSize);
 
             if (currentPhotoObject != null) {
                 float scale = (float) currentPhotoObject.w / (float) photoWidth;
@@ -9668,7 +9668,7 @@ public class MessageObject {
                 }
             }
         } else if (type == TYPE_PHOTO) {
-            TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, AndroidUtilities.getPhotoSize());
+            TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, AndroidUtilities.photoSize);
             if (currentPhotoObject != null) {
                 File file = FileLoader.getInstance(currentAccount).getPathToMessage(messageOwner, useFileDatabaseQueue);
                 if (needDrawBluredPreview()) {
@@ -9703,7 +9703,7 @@ public class MessageObject {
                     mediaExists = FileLoader.getInstance(currentAccount).getPathToAttach(document, null, false, useFileDatabaseQueue).exists();
                 }
             } else if (type == MessageObject.TYPE_TEXT) {
-                TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photoThumbs, AndroidUtilities.photoSize);
                 if (currentPhotoObject == null) {
                     return;
                 }

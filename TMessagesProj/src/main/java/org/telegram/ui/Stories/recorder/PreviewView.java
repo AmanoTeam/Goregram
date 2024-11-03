@@ -1198,7 +1198,7 @@ public class PreviewView extends FrameLayout {
 
     public Pair<Integer, Integer> getPaintSize() {
         if (entry == null) {
-            return new Pair<>(1080, 1920);
+            return new Pair<>(1440, 2560);
         }
         return new Pair<>(entry.resultWidth, entry.resultHeight);
     }
@@ -1572,8 +1572,8 @@ public class PreviewView extends FrameLayout {
                     int w = wallpaperDrawable.getIntrinsicWidth();
                     int h = wallpaperDrawable.getIntrinsicHeight();
                     if (w <= 0 || h <= 0) {
-                        w = 1080;
-                        h = 1920;
+                        w = 1440;
+                        h = 2560;
                     }
                     float scale = Math.max(100f / w, 100f / h);
                     if (scale > 1) {

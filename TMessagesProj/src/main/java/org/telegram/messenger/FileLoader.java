@@ -1179,7 +1179,7 @@ public class FileLoader extends BaseController {
             if (message.action.photo != null) {
                 ArrayList<TLRPC.PhotoSize> sizes = message.action.photo.sizes;
                 if (sizes.size() > 0) {
-                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize());
+                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.photoSize);
                     if (sizeFull != null) {
                         return getAttachFileName(sizeFull);
                     }
@@ -1191,7 +1191,7 @@ public class FileLoader extends BaseController {
             } else if (MessageObject.getMedia(message) instanceof TLRPC.TL_messageMediaPhoto) {
                 ArrayList<TLRPC.PhotoSize> sizes = MessageObject.getMedia(message).photo.sizes;
                 if (sizes.size() > 0) {
-                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize(), false, null, true);
+                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.photoSize, false, null, true);
                     if (sizeFull != null) {
                         return getAttachFileName(sizeFull);
                     }
@@ -1202,7 +1202,7 @@ public class FileLoader extends BaseController {
                 } else if (MessageObject.getMedia(message).webpage.photo != null) {
                     ArrayList<TLRPC.PhotoSize> sizes = MessageObject.getMedia(message).webpage.photo.sizes;
                     if (sizes.size() > 0) {
-                        TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize());
+                        TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.photoSize);
                         if (sizeFull != null) {
                             return getAttachFileName(sizeFull);
                         }
@@ -1230,7 +1230,7 @@ public class FileLoader extends BaseController {
             if (message.action.photo != null) {
                 ArrayList<TLRPC.PhotoSize> sizes = message.action.photo.sizes;
                 if (sizes.size() > 0) {
-                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize());
+                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.photoSize);
                     if (sizeFull != null) {
                         return getPathToAttach(sizeFull, null, false, useFileDatabaseQueue);
                     }
@@ -1242,7 +1242,7 @@ public class FileLoader extends BaseController {
             } else if (MessageObject.getMedia(message) instanceof TLRPC.TL_messageMediaPhoto) {
                 ArrayList<TLRPC.PhotoSize> sizes = MessageObject.getMedia(message).photo.sizes;
                 if (sizes.size() > 0) {
-                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize(), false, null, true);
+                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.photoSize, false, null, true);
                     if (sizeFull != null) {
                         return getPathToAttach(sizeFull, null, MessageObject.getMedia(message).ttl_seconds != 0, useFileDatabaseQueue);
                     }
@@ -1253,7 +1253,7 @@ public class FileLoader extends BaseController {
                 } else if (MessageObject.getMedia(message).webpage.photo != null) {
                     ArrayList<TLRPC.PhotoSize> sizes = MessageObject.getMedia(message).webpage.photo.sizes;
                     if (sizes.size() > 0) {
-                        TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize());
+                        TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.photoSize);
                         if (sizeFull != null) {
                             return getPathToAttach(sizeFull, null, false, useFileDatabaseQueue);
                         }
@@ -1313,7 +1313,7 @@ public class FileLoader extends BaseController {
                 dcId = document.dc_id;
                 dir = getDirectory(type);
             } else if (attach instanceof TLRPC.Photo) {
-                TLRPC.PhotoSize photoSize = getClosestPhotoSizeWithSize(((TLRPC.Photo) attach).sizes, AndroidUtilities.getPhotoSize());
+                TLRPC.PhotoSize photoSize = getClosestPhotoSizeWithSize(((TLRPC.Photo) attach).sizes, AndroidUtilities.photoSize);
                 return getPathToAttach(photoSize, ext, false, useFileDatabaseQueue);
             } else if (attach instanceof TLRPC.PhotoSize) {
                 TLRPC.PhotoSize photoSize = (TLRPC.PhotoSize) attach;

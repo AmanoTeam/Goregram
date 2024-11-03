@@ -14106,7 +14106,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 photoSizeObject = thumbMediaMessageObject.photoThumbsObject2;
                 if (photoSize == null) {
                     if (thumbMediaMessageObject.mediaExists) {
-                        photoSize = FileLoader.getClosestPhotoSizeWithSize(thumbMediaMessageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                        photoSize = FileLoader.getClosestPhotoSizeWithSize(thumbMediaMessageObject.photoThumbs, AndroidUtilities.photoSize);
                         if (photoSize != null) {
                             size = photoSize.size;
                         }
@@ -25775,7 +25775,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 TLObject photoSizeObject = pinnedMessageObject.photoThumbsObject2;
                 if (photoSize == null) {
                     if (pinnedMessageObject.mediaExists) {
-                        photoSize = FileLoader.getClosestPhotoSizeWithSize(pinnedMessageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                        photoSize = FileLoader.getClosestPhotoSizeWithSize(pinnedMessageObject.photoThumbs, AndroidUtilities.photoSize);
                         if (photoSize != null) {
                             size = photoSize.size;
                         }

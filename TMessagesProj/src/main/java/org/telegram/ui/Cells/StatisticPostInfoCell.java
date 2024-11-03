@@ -192,7 +192,7 @@ public class StatisticPostInfoCell extends FrameLayout {
         this.needDivider = !isLast;
         MessageObject messageObject = postInfo.message;
         if (messageObject.photoThumbs != null) {
-            TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+            TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.photoSize);
             TLRPC.PhotoSize thumbSize = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, 50);
             imageView.setImage(
                     ImageLocation.getForObject(size, messageObject.photoThumbsObject), "50_50",

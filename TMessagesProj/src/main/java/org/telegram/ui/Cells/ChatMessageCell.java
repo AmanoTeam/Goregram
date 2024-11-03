@@ -5386,7 +5386,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             TLRPC.Document document = messageObject.getDocument();
             boolean loadDocumentFromImageReceiver = MessageObject.isStickerDocument(document) || MessageObject.isAnimatedStickerDocument(document, true) || MessageObject.isGifDocument(document) || MessageObject.isRoundVideoDocument(document);
             if (!loadDocumentFromImageReceiver && !isSmallImage) {
-                TLRPC.PhotoSize photo = document == null ? FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize()) : null;
+                TLRPC.PhotoSize photo = document == null ? FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.photoSize) : null;
                 if (canDownload == 2 || canDownload == 1 && messageObject.isVideo()) {
                     if (canDownload != 2 && document != null && !messageObject.shouldEncryptPhotoOrVideo() && messageObject.canStreamVideo()) {
                         FileLoader.getInstance(currentAccount).loadFile(document, messageObject, FileLoader.PRIORITY_NORMAL, 0);
@@ -5420,7 +5420,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 if (document != null) {
                     FileLoader.getInstance(currentAccount).cancelLoadFile(document);
                 } else {
-                    TLRPC.PhotoSize photo = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                    TLRPC.PhotoSize photo = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.photoSize);
                     if (photo != null) {
                         FileLoader.getInstance(currentAccount).cancelLoadFile(photo);
                     }
@@ -6774,7 +6774,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                             documentAttachType = DOCUMENT_ATTACH_TYPE_GIF;
                         } else if (MessageObject.isVideoDocument(document)) {
                             if (photo != null) {
-                                currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.getPhotoSize(), true);
+                                currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, AndroidUtilities.photoSize, true);
                                 currentPhotoObjectThumb = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, 40);
                                 photoParentObject = photo;
                             }
@@ -6947,7 +6947,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         }
                     } else if (photo != null) {
                         boolean isPhoto = type != null && type.equals("photo");
-                        currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, isPhoto || !smallImage ? AndroidUtilities.getPhotoSize() : maxPhotoWidth, !isPhoto);
+                        currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, isPhoto || !smallImage ? AndroidUtilities.photoSize : maxPhotoWidth, !isPhoto);
                         photoParentObject = messageObject.photoThumbsObject;
                         checkOnlyButtonPressed = !isPhoto;
                         if (currentMessageObject.strippedThumb == null) {
@@ -8528,7 +8528,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         blurredPhotoImage.setColorFilter(getFancyBlurFilter());
                     }
                 } else {
-                    currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                    currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.photoSize);
                     photoParentObject = messageObject.photoThumbsObject;
                     boolean useFullWidth = false;
                     if (messageObject.type == MessageObject.TYPE_ROUND_VIDEO) {
@@ -8558,11 +8558,11 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         if (messageObject.type != MessageObject.TYPE_ROUND_VIDEO && checkNeedDrawShareButton(messageObject)) {
                             photoWidth -= AndroidUtilities.dp(20);
                         }
-                        if (photoWidth > AndroidUtilities.getPhotoSize()) {
-                            photoWidth = AndroidUtilities.getPhotoSize();
+                        if (photoWidth > AndroidUtilities.photoSize) {
+                            photoWidth = AndroidUtilities.photoSize;
                         }
-                        if (photoHeight > AndroidUtilities.getPhotoSize()) {
-                            photoHeight = AndroidUtilities.getPhotoSize();
+                        if (photoHeight > AndroidUtilities.photoSize) {
+                            photoHeight = AndroidUtilities.photoSize;
                         }
                     } else if (drawAvatar) {
                         photoWidth -= AndroidUtilities.dp(52);
@@ -16338,7 +16338,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         photoObject = messageObject.replyMessageObject.photoThumbsObject2;
                         if (photoSize == null) {
                             if (messageObject.replyMessageObject.mediaExists) {
-                                photoSize = FileLoader.getClosestPhotoSizeWithSize(messageObject.replyMessageObject.photoThumbs, AndroidUtilities.getPhotoSize());
+                                photoSize = FileLoader.getClosestPhotoSizeWithSize(messageObject.replyMessageObject.photoThumbs, AndroidUtilities.photoSize);
                                 if (photoSize != null) {
                                     size = photoSize.size;
                                 }
@@ -22221,11 +22221,11 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
             photoHeight = photoWidth + AndroidUtilities.dp(100);
 
-            if (photoWidth > AndroidUtilities.getPhotoSize()) {
-                photoWidth = AndroidUtilities.getPhotoSize();
+            if (photoWidth > AndroidUtilities.photoSize) {
+                photoWidth = AndroidUtilities.photoSize;
             }
-            if (photoHeight > AndroidUtilities.getPhotoSize()) {
-                photoHeight = AndroidUtilities.getPhotoSize();
+            if (photoHeight > AndroidUtilities.photoSize) {
+                photoHeight = AndroidUtilities.photoSize;
             }
         }
 
