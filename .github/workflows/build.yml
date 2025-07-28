@@ -117,6 +117,21 @@ jobs:
     - name: Post setup settings for Android cross-compiler
       run: |
         echo 'NDK=${{ steps.setup-ndk.outputs.ndk-path }}' >> "${GITHUB_ENV}"
+    - name: Install Pino
+      run: |
+        declare -r PINO_TAG='latest'
+        declare -r PINO_TARBALL='/tmp/toolchain.tar.xz'
+        declare -r PINO_URL="https://github.com/AmanoTeam/Pino/releases/${PINO_TAG}/download/x86_64-unknown-linux-gnu.tar.xz"
+        
+        curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${PINO_URL}" --output "${PINO_TARBALL}"
+        tar --directory="$(dirname "${PINO_TARBALL}")" --extract --file="${PINO_TARBALL}"
+        
+        echo 'PINO_STATIC=0' >> "${GITHUB_ENV}"
+        echo 'PINO_HOME=/tmp/pino' >> "${GITHUB_ENV}"
+        echo '/tmp/pino/bin' >> "${GITHUB_PATH}"
+    - name: Patch the NDK
+      run: |
+        ndk-patch
     - name: Setup upterm session
       if: false
       uses: lhotari/action-upterm@v1
