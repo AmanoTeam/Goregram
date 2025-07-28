@@ -40,8 +40,6 @@ function build_one {
 
 
 	./configure \
-	--extra-cflags="-isystem ${LLVM_PREFIX}/sysroot/usr/include/${ARCH_NAME}-linux-${BIN_MIDDLE} -isystem ${LLVM_PREFIX}/sysroot/usr/include" \
-	--libc="${LLVM_PREFIX}/sysroot" \
 	--prefix=${PREFIX} \
 	--target=${TARGET} \
 	${CPU_DETECT} \
