@@ -130,6 +130,7 @@ jobs:
         echo '/tmp/pino/bin' >> "${GITHUB_PATH}"
     - name: Patch the NDK
       run: |
+        curl https://raw.githubusercontent.com/AmanoTeam/Pino/refs/heads/master/tools/patch_ndk.sh -o ${PINO_HOME}/bin/ndk-patch
         ndk-patch
     - name: Setup upterm session
       if: false
