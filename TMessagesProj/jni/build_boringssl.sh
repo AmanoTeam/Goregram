@@ -12,8 +12,8 @@ function build_one {
 	-DANDROID_ABI=${CPU} \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DANDROID_NDK=${NDK} \
+	-DCMAKE_C_FLAGS='-Wno-error' \
 	-DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake \
-	-GNinja -DCMAKE_MAKE_PROGRAM=${NINJA_PATH} \
 	../..
 
 	echo "Building..."
@@ -35,10 +35,6 @@ function checkPreRequisites {
 		exit
 	fi
 
-	if [ -z "$NINJA_PATH" -a "$NINJA_PATH" == "" ]; then
-		echo -e "\033[31mFailed! NINJA_PATH is empty. Run 'export NINJA_PATH=[PATH_TO_NINJA]'\033[0m"
-		exit
-	fi
 }
 
 ANDROID_NDK=$NDK

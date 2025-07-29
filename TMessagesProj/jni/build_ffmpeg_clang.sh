@@ -50,7 +50,7 @@ function build_one {
 	--sysroot="${LLVM_PREFIX}/sysroot" \
 	--extra-cflags="${INCLUDES} -Wl,-Bsymbolic -Os -DCONFIG_LINUX_PERF=0 -DANDROID $OPTIMIZE_CFLAGS -fPIE -pie --static -fPIC" \
 	--extra-cxxflags="${INCLUDES} -Wl,-Bsymbolic -Os -DCONFIG_LINUX_PERF=0 -DANDROID $OPTIMIZE_CFLAGS -fPIE -pie --static -fPIC" \
-	--extra-ldflags="${LIBS} -Wl,-Bsymbolic -Wl,-rpath-link=$PLATFORM/usr/lib -L$PLATFORM/usr/lib -nostdlib -lc -lm -ldl -fPIC" \
+	--extra-ldflags="${LIBS} -Wl,-Bsymbolic -Wl,-rpath-link=$PLATFORM/usr/lib -L$PLATFORM/usr/lib -nostdlib -lc -lm -ldl -lgcc_s -fPIC" \
 	\
 	--enable-version3 \
 	--enable-gpl \
