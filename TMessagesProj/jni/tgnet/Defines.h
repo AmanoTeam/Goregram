@@ -9,6 +9,8 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+#include <memory>
+#include <cstring>
 #include <functional>
 #include <list>
 #include <limits.h>
