@@ -98,7 +98,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 33
         versionName "8.9.0"
-	 namespace = "org.telegram.messenger"
+	 namespace = "org.telegram.messenger.regular"
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
         //obtain your own keys at https://core.telegram.org/api/obtaining_api_id
         buildConfigField 'int', 'APP_ID', getAppId()
