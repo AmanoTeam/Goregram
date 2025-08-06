@@ -20,7 +20,7 @@ dependencies {
 }
 
 android {
-    namespace "org.telegram.messenger"
+    namespace "org.telegram.messenger.regular"
     compileSdkVersion 33
     buildToolsVersion '33.0.0'
 
