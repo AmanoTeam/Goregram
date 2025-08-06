@@ -86,7 +86,7 @@ elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
     target_compile_definitions(mozjpeg PUBLIC
             SIZEOF_SIZE_T=8)
 elseif(${ANDROID_ABI} STREQUAL "x86")
-    set(CMAKE_ASM_NASM_COMPILER_ARG1 "${CMAKE_ASM_NASM_COMPILER_ARG1} -DPIC")
+    set(CMAKE_ASM_NASM_COMPILER_ARG1 "${CMAKE_ASM_NASM_COMPILER_ARG1} -DPIC -DELF")
     target_sources(mozjpeg PRIVATE
             mozjpeg/simd/i386/jsimd.c
             mozjpeg/simd/i386/jsimdcpu.asm
