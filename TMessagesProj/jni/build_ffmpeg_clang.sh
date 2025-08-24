@@ -27,7 +27,7 @@ function build_one {
 	make clean || true
 
 	echo "Configuring..."
-
+	export PINO_LTO=-1
 	./configure \
 	--nm=${NM} \
 	--ar=${AR} \
@@ -102,6 +102,7 @@ function build_one {
 
 	#echo "continue?"
 	#read
+	export PINO_LTO=1
 	make -j$COMPILATION_PROC_COUNT
 	make install
 }
