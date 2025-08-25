@@ -2193,6 +2193,9 @@ void ConnectionsManager::failNotRunningRequest(int32_t token) {
     scheduleTask([&, token] {
         for (auto iter = requestsQueue.begin(); iter != requestsQueue.end(); iter++) {
             Request *request = iter->get();
+	    if (request == nullptr) {
+	      return true;
+	    }
             if ((token != 0 && request->requestToken == token)) {
                 auto error = new TL_error();
                 error->code = -2000;
