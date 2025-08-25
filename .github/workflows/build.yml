@@ -127,6 +127,7 @@ jobs:
         
         echo 'PINO_STATIC=1' >> "${GITHUB_ENV}"
         echo 'PINO_NEON=1' >> "${GITHUB_ENV}"
+        echo 'PINO_LTO=1' >> "${GITHUB_ENV}"
         echo 'PINO_HOME=/tmp/pino' >> "${GITHUB_ENV}"
         echo '/tmp/pino/bin' >> "${GITHUB_PATH}"
     - name: Patch the NDK
