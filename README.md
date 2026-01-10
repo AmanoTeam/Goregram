@@ -74,3 +74,6 @@ What the attestation proves:
 - it was built by `.github/workflows/tandroid.yml` on a GitHub-hosted runner, from the `Forkgram/TelegramAndroid` repository (matched by numeric ID, so renames cannot spoof it);
 - the exact commit SHA the build was made from, linkable on GitHub.
 
+
+## Building instructions for Debian 13:
+[BUILDING.md](BUILDING.md)
