@@ -1,0 +1,95 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    branches:
+        - '**'
+  push:
+    branches:
+        - '**'
+
+permissions: write-all
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+        with:
+          submodules: true
+      - name: Free up some space
+        run: |
+          curl 'https://raw.githubusercontent.com/AmanoTeam/gha-free-space/refs/heads/master/main.sh' -sSf | bash 
+      - uses: actions/setup-java@main
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Install required dependencies
+        run: |
+          sudo apt install cmake golang libuv1 make yasm nasm meson gperf ninja-build
+      - name: Setup Android SDK
+        run: |
+          declare -r tarball_filename='/tmp/tools.zip'
+          declare -r sdk_root='/tmp/android-sdk'
+          declare -r cmdline_tools_directory='/tmp/cmdline-tools'
+          
+          wget 'https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip' --output-document="${tarball_filename}"
+          unzip -d '/tmp' "${tarball_filename}"
+          
+          yes | "${cmdline_tools_directory}/bin/sdkmanager" --licenses --sdk_root="${sdk_root}"
+          
+          "${cmdline_tools_directory}/bin/sdkmanager" \
+              --install 'ndk;21.4.7075529' \
+              --sdk_root="${sdk_root}"
+          "${cmdline_tools_directory}/bin/sdkmanager" \
+              --install 'ndk;27.2.12479018' \
+              --sdk_root="${sdk_root}"
+          
+          unlink "${tarball_filename}"
+          rm --recursive "${cmdline_tools_directory}"
+          
+          echo "ANDROID_HOME=${sdk_root}" >> "${GITHUB_ENV}"
+          echo "ANDROID_SDK_ROOT=${sdk_root}" >> "${GITHUB_ENV}"
+          echo "NDK=${sdk_root}/ndk/21.4.7075529" >> "${GITHUB_ENV}"
+      - name: Install android-gcc-cross
+        run: |
+          declare -r PINO_TARBALL='/tmp/gcc.tar.xz'
+          declare -r PINO_URL='https://github.com/AmanoTeam/android-gcc-cross/releases/latest/download/x86_64-unknown-linux-gnu.tar.xz'
+          
+          curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${PINO_URL}" --output "${PINO_TARBALL}"
+          tar --directory="$(dirname "${PINO_TARBALL}")" --extract --file="${PINO_TARBALL}"
+                  
+          echo 'PINO_STATIC=true' >> "${GITHUB_ENV}"
+          echo 'PINO_NEON=true' >> "${GITHUB_ENV}"
+          #echo 'PINO_VERBOSE=true' >> "${GITHUB_ENV}"
+          echo 'PINO_LTO=full' >> "${GITHUB_ENV}"
+          echo 'PINO_OPT_LEVEL=3' >> "${GITHUB_ENV}"
+          echo 'PINO_HOME=/tmp/android-gcc-cross' >> "${GITHUB_ENV}"
+          # echo '/tmp/android-gcc-cross/bin' >> "${GITHUB_PATH}"
+          
+          /tmp/android-gcc-cross/bin/ndk-patch
+      - name: Build
+        run: |
+          echo "NATIVE_DEPS_NDK_DIR=${NDK}" >> 'gradle.properties'
+
+          ./gradlew :TMessagesProj_App:assembleAfatRelease
+
+          mv TMessagesProj_App/build/outputs/apk/afat/release/app.apk app-release.apk
+      - name: Create logs
+        if: always()
+        run: |
+          tar --create --file=- '/var/tmp/obggcc' | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
+      - name: Upload logs
+        if:  always()
+        uses: actions/upload-artifact@main
+        with:
+          name: logs
+          if-no-files-found: error
+          path: |
+              /tmp/logs.tar.xz
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: build
+          path: app-release.apk

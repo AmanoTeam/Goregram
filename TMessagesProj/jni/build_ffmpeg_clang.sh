@@ -28,7 +28,7 @@ function build_one {
 
 	echo "Configuring..."
 
-	./configure \
+	PINO_LTO=none ./configure \
 	--nm=${NM} \
 	--ar=${AR} \
 	--strip=${STRIP} \
