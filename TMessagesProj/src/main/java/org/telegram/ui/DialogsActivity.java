@@ -5882,6 +5882,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     }
 
     private void updateDialogsHint() {
+	if (true) return;
         if (topPanelLayout == null || dialogsHintCell == null || fragmentView == null || getContext() == null) {
             return;
         }
