@@ -10267,8 +10267,18 @@ public class MessagesController extends BaseController implements NotificationCe
 
         checkDeletingTask(false);
         checkReadTasks();
-
-        if (getUserConfig().isClientActivated()) {
+	
+	if (mainPreferences.getBoolean("ghostMode", false)) {
+		if (Math.abs(currentTime - lastStatusUpdateTime) < 60000) {
+			return;
+		}
+		
+		TL_account.updateStatus req = new TL_account.updateStatus();
+		req.offline = true;
+		getConnectionsManager().sendRequest(req, (response, error) -> {});
+		
+		lastStatusUpdateTime = currentTime;
+	} else if (getUserConfig().isClientActivated()) {
             if (!ignoreSetOnline && getConnectionsManager().getPauseTime() == 0 && ApplicationLoader.isScreenOn && !ApplicationLoader.mainInterfacePausedStageQueue) {
                 if (ApplicationLoader.mainInterfacePausedStageQueueTime != 0 && Math.abs(ApplicationLoader.mainInterfacePausedStageQueueTime - System.currentTimeMillis()) > 1000) {
                     if (statusSettingState != 1 && (lastStatusUpdateTime == 0 || Math.abs(System.currentTimeMillis() - lastStatusUpdateTime) >= 55000 || offlineSent)) {
@@ -11128,6 +11138,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean sendTyping(long dialogId, long threadMsgId, int action, String emojicon, int classGuid) {
+	if (mainPreferences.getBoolean("ghostMode", false)) return true;
         if (action < 0 || action >= sendingTypings.length || dialogId == 0) {
             return false;
         }
@@ -14109,6 +14120,7 @@ public class MessagesController extends BaseController implements NotificationCe
         long dialogId = messageObject.getDialogId();
         getMessagesStorage().markMessagesContentAsRead(dialogId, arrayList, 0, 0);
         getNotificationCenter().postNotificationName(NotificationCenter.messagesReadContent, dialogId, arrayList);
+	if (mainPreferences.getBoolean("ghostMode", false)) return;
         if (messageObject.getId() < 0) {
             markMessageAsRead(messageObject.getDialogId(), messageObject.messageOwner.random_id, Integer.MIN_VALUE);
         } else {
@@ -14184,6 +14196,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public void markMessageAsRead2(long dialogId, int mid, TLRPC.InputChannel inputChannel, int ttl, long taskId, boolean createDeleteTask) {
+	if (mainPreferences.getBoolean("ghostMode", false)) return;
         if (mid == 0 || ttl < 0) {
             return;
         }
@@ -14261,6 +14274,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     private void completeReadTask(ReadTask task) {
+	if (mainPreferences.getBoolean("ghostMode", false)) return;
         if (task.replyId != 0 && task.monoForumPeerId == 0) {
             TLRPC.TL_messages_readDiscussion req = new TLRPC.TL_messages_readDiscussion();
             req.msg_id = (int) task.replyId;

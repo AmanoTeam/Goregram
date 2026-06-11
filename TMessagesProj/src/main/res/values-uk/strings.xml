@@ -17,6 +17,8 @@
     <!--fork settings view-->
     <string name="ForkSettingsTitle">Налаштування клієнта Fork</string>
     <string name="ForkCheckUpdate">Перевірити оновлення</string>
+    <string name="GhostMode">Режим глядача</string>
+    <string name="GhostModeInfo">Залишайтеся невидимими для інших користувачів, поки ви не вирішите взаємодіяти з ними.</string>
     <string name="SquareAvatars">Квадратні аватари</string>
     <string name="SquareAvatarsInfo">Потрібен перезапуск</string>
     <string name="InAppCamera">Увімкнути камеру в додатку</string>

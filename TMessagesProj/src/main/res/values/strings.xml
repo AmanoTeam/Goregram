@@ -18,6 +18,8 @@
     <!--fork settings view-->
     <string name="ForkSettingsTitle">Fork Client Settings</string>
     <string name="ForkCheckUpdate">Check updates</string>
+    <string name="GhostMode">Spectator Mode</string>
+    <string name="GhostModeInfo">Stay invisible to other users until you choose to interact with them.</string>
     <string name="InAppCamera">Enable In-App Camera</string>
     <string name="InAppCameraInfo">In Attachments</string>
     <string name="SquareAvatars">Square Avatars</string>

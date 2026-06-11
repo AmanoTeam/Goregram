@@ -17,6 +17,8 @@
     <!--fork settings view-->
     <string name="ForkSettingsTitle">포크 클라이언트 설정</string>
     <string name="ForkCheckUpdate">업데이트 확인</string>
+    <string name="GhostMode">관찰자 모드</string>
+    <string name="GhostModeInfo">다른 사용자와 상호 작용하기로 선택할 때까지 다른 사용자에게 보이지 않게 유지합니다.</string>
     <string name="SquareAvatars">정사각형 아바타</string>
     <string name="SquareAvatarsInfo">재시작 필요</string>
     <string name="InAppCamera">앱 내 카메라 활성화</string>

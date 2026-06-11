@@ -157,6 +157,7 @@ public class ForkSettingsActivity extends BaseFragment {
     private int rowCount;
 
     private int hideSensitiveDataRow;
+    private int ghostModeRow;
     private int squareAvatarsRow;
     private int inappCameraRow;
     private int systemCameraRow;
@@ -498,7 +499,8 @@ public class ForkSettingsActivity extends BaseFragment {
         emptyRows.clear();
 
         sectionRows.add(rowCount++);
-        hideSensitiveDataRow = SharedConfig.isUserOwner() ? -1 : rowCount++;
+	ghostModeRow = rowCount++;
+        hideSensitiveDataRow = rowCount++;
         squareAvatarsRow = rowCount++;
         photoHasStickerRow = rowCount++;
         showNotificationContent = rowCount++;
@@ -700,6 +702,8 @@ public class ForkSettingsActivity extends BaseFragment {
                 toggleGlobalMainSetting("syncPins", view, true);
             } else if (position == hideSensitiveDataRow) {
                 toggleGlobalMainSetting("hideSensitiveData", view, false);
+            } else if (position == ghostModeRow) {
+                toggleGlobalMainSetting("ghostMode", view, false);
             } else if (position == disableUnifiedPushRow) {
                 toggleGlobalMainSetting("disableUnifiedPush", view, false);
             } else if (position == cloudflareEnableSTTRow) {
@@ -995,6 +999,10 @@ public class ForkSettingsActivity extends BaseFragment {
                         String t = LocaleController.getString("HideSensitiveData", R.string.HideSensitiveData);
                         String info = LocaleController.getString("SquareAvatarsInfo", R.string.SquareAvatarsInfo);
                         textCell.setTextAndValueAndCheck(t, info, preferences.getBoolean("hideSensitiveData", false), true, false);
+                    } else if (position == ghostModeRow) {
+                        String t = LocaleController.getString("GhostMode", R.string.GhostMode);
+                        String info = LocaleController.getString("GhostModeInfo", R.string.GhostModeInfo);
+                        textCell.setTextAndValueAndCheck(t, info, preferences.getBoolean("ghostMode", false), true, false);
                     } else if (position == disableUnifiedPushRow) {
                         String t = LocaleController.getString("DisableUnifiedPush", R.string.DisableUnifiedPush);
                         String info = LocaleController.getString("DisableUnifiedPushInfo", R.string.DisableUnifiedPushInfo);
@@ -1021,6 +1029,7 @@ public class ForkSettingsActivity extends BaseFragment {
             int position = holder.getAdapterPosition();
             boolean fork = position == squareAvatarsRow
                         || position == hideSensitiveDataRow
+                        || position == ghostModeRow
                         || position == disableUnifiedPushRow
                         || position == cloudflareSTTRow
                         || position == cloudflareEnableSTTRow
@@ -1107,6 +1116,7 @@ public class ForkSettingsActivity extends BaseFragment {
                 return 2;
             } else if (position == squareAvatarsRow
                 || position == hideSensitiveDataRow
+                || position == ghostModeRow
                 || position == inappCameraRow
                 || position == systemCameraRow
                 || position == unmutedOnTopRow
