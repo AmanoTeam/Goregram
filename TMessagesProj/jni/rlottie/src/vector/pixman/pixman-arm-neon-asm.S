@@ -43,6 +43,7 @@
     .fpu neon
     .arch armv7a
     .object_arch armv4
+    .syntax unified
     .eabi_attribute 10, 0 /* suppress Tag_FP_arch */
     .eabi_attribute 12, 0 /* suppress Tag_Advanced_SIMD_arch */
     .arm
