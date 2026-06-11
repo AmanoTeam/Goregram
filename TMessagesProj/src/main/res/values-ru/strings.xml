@@ -15,7 +15,7 @@
     <string name="formatterDay12HSec">h:mm:ss a</string>
     <string name="CopyWithoutProtocol">Копировать без протокола</string>
     <!--fork settings view-->
-    <string name="ForkSettingsTitle">Настройки Fork Client</string>
+    <string name="ForkSettingsTitle">Разное</string>
     <string name="ForkCheckUpdate">Проверить обновления</string>
     <string name="GhostMode">Режим зрителя</string>
     <string name="GhostModeInfo">Оставайтесь невидимыми для других пользователей, пока вы не решите с ними взаимодействовать.</string>
@@ -64,8 +64,8 @@
     <string name="DisableRecentFilesAttachment">Отключить недавние файлы</string>
     <string name="SmsOnlyOfficialWarning">Примечание: SMS-подтверждение доступно ТОЛЬКО в официальных мобильных приложениях</string>
 
-    <string name="AppName">Fork Client</string>
-    <string name="AppNameBeta">Fork Client</string>
+    <string name="AppName">Telegram</string>
+    <string name="AppNameBeta">Telegram</string>
     <string name="LanguageName">Русский</string>
     <string name="English">Английский</string>
     <string name="LanguageNameInEnglish">Russian</string>

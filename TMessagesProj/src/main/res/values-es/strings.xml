@@ -15,7 +15,7 @@
     <string name="formatterDay12HSec">h:mm:ss a</string>
     <string name="CopyWithoutProtocol">Copiar sin protocolo</string>
     <!--fork settings view-->
-    <string name="ForkSettingsTitle">Configuraciones del cliente Fork</string>
+    <string name="ForkSettingsTitle">Varios</string>
     <string name="ForkCheckUpdate">Verificar actualizaciones</string>
     <string name="GhostMode">Modo espectador</string>
     <string name="GhostModeInfo">Permanece invisible para otros usuarios hasta que decidas interactuar con ellos.</string>
@@ -63,8 +63,8 @@
     <string name="DisableSlideToNextChannel">Desactivar deslizar al siguiente canal</string>
     <string name="DisableRecentFilesAttachment">Desactivar archivos recientes</string>
     <string name="SmsOnlyOfficialWarning">Nota: La verificación por SMS está limitada SOLO a aplicaciones móviles oficiales</string>
-    <string name="AppName">Fork Client</string>
-    <string name="AppNameBeta">Fork Client</string>
+    <string name="AppName">Telegram</string>
+    <string name="AppNameBeta">Telegram</string>
     <string name="LanguageName">Español</string>
     <string name="English">Inglés</string>
     <string name="LanguageNameInEnglish">Spanish</string>
