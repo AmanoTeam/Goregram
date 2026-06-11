@@ -17,6 +17,8 @@
     <!--fork settings view-->
     <string name="ForkSettingsTitle">إعدادات عميل Fork</string>
     <string name="ForkCheckUpdate">تحقق من التحديثات</string>
+    <string name="GhostMode">وضع المشاهد</string>
+    <string name="GhostModeInfo">ابق غير مرئي للمستخدمين الآخرين حتى تختار التفاعل معهم.</string>
     <string name="SquareAvatars">أفاتارات مربعة</string>
     <string name="SquareAvatarsInfo">إعادة التشغيل مطلوبة</string>
     <string name="InAppCamera">تفعيل الكاميرا داخل التطبيق</string>

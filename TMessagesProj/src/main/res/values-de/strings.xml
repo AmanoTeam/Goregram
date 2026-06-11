@@ -17,6 +17,8 @@
     <!--fork settings view-->
     <string name="ForkSettingsTitle">Einstellungen des Fork-Clients</string>
     <string name="ForkCheckUpdate">Updates überprüfen</string>
+    <string name="GhostMode">Zuschauermodus</string>
+    <string name="GhostModeInfo">Bleiben Sie für andere Benutzer unsichtbar, bis Sie mit ihnen interagieren möchten.</string>
     <string name="SquareAvatars">Quadratische Avatare</string>
     <string name="SquareAvatarsInfo">Neustart erforderlich</string>
     <string name="InAppCamera">In-App-Kamera aktivieren</string>
