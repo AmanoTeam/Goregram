@@ -9,7 +9,6 @@ function build_one {
 
 	TOOLS_PREFIX="${LLVM_BIN}/${ARCH_NAME}-linux-${BIN_MIDDLE}-"
 
-	export LD=${LLVM_BIN}/ld.lld
 	export AR=${LLVM_BIN}/llvm-ar
 	export STRIP=${LLVM_BIN}/llvm-strip
 	export RANLIB=${LLVM_BIN}/llvm-ranlib
@@ -20,6 +19,7 @@ function build_one {
 	export CC=${CC_PREFIX}clang
 	export CXX=${CC_PREFIX}clang++
 	export AS=${CC_PREFIX}clang++
+	export LD=${CC}
 	export CROSS_PREFIX=${LLVM_BIN}/llvm-
 
 	export EXTRA_CFLAGS=""
@@ -138,7 +138,7 @@ function build {
 				CLANG_PREFIX=x86_64
 				BIN_MIDDLE=android
 				CPU=x86_64
-				OPTIMIZE_CFLAGS="-O3 -march=x86-64 -mtune=intel -msse4.2 -mpopcnt -m64 -fPIC"
+				OPTIMIZE_CFLAGS="-O3 -march=x86-64 -mtune=intel -msse4.2 -mpopcnt -fPIC"
 				TARGET="x86_64-android-gcc"
 				PREFIX=./build/$CPU
 				CPU_DETECT="--enable-runtime-cpu-detect"
