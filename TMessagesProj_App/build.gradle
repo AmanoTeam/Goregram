@@ -50,7 +50,7 @@ android {
     compileSdkVersion 35
     buildToolsVersion '35.0.0'
 
-    defaultConfig.applicationId = "org.forkclient.messenger"
+    defaultConfig.applicationId = "com.amanoteam.flonne"
 
     sourceSets.main.jniLibs.srcDirs = ['../TMessagesProj/jni/']
 
