@@ -721,7 +721,7 @@ public class ForkSettingsActivity extends BaseFragment {
             } else if (position == hiddenAccountsRow) {
                 presentFragment(new HiddenAccountsActivity());
             } else if (position == customTitleRow) {
-                final String defaultValue = "Fork Client";
+                final String defaultValue = LocaleController.getString(R.string.AppName);
                 org.telegram.messenger.forkgram.ForkDialogs.CreateFieldAlert(
                     context,
                     LocaleController.getString("EditAdminRank", R.string.EditAdminRank),
@@ -862,7 +862,7 @@ public class ForkSettingsActivity extends BaseFragment {
                     TextSettingsCell textCell = (TextSettingsCell) holder.itemView;
                     if (position == customTitleRow) {
                         String t = LocaleController.getString("EditAdminRank", R.string.EditAdminRank);
-                        final String v = MessagesController.getGlobalMainSettings().getString("forkCustomTitle", "Fork Client");
+                        final String v = MessagesController.getGlobalMainSettings().getString("forkCustomTitle", LocaleController.getString(R.string.AppName));
                         textCell.setTextAndValue(t, v, false);
                     } else if (position == hiddenAccountsRow) {
                         textCell.setTextAndValue(LocaleController.getString(R.string.HiddenAccounts), getHiddenAccountsText(), false);

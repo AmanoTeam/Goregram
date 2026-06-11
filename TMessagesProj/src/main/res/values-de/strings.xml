@@ -15,7 +15,7 @@
     <string name="formatterDay12HSec">h:mm:ss a</string>
     <string name="CopyWithoutProtocol">Ohne Protokoll kopieren</string>
     <!--fork settings view-->
-    <string name="ForkSettingsTitle">Einstellungen des Fork-Clients</string>
+    <string name="ForkSettingsTitle">Sonstiges</string>
     <string name="ForkCheckUpdate">Updates überprüfen</string>
     <string name="GhostMode">Zuschauermodus</string>
     <string name="GhostModeInfo">Bleiben Sie für andere Benutzer unsichtbar, bis Sie mit ihnen interagieren möchten.</string>
@@ -64,8 +64,8 @@
     <string name="DisableRecentFilesAttachment">Neueste Dateien deaktivieren</string>
     <string name="SmsOnlyOfficialWarning">Hinweis: Die SMS-Verifizierung ist NUR für offizielle mobile Apps verfügbar</string>
 
-    <string name="AppName">Fork Client</string>
-    <string name="AppNameBeta">Fork Client</string>
+    <string name="AppName">Goregram</string>
+    <string name="AppNameBeta">Goregram</string>
     <string name="LanguageName">Deutsch</string>
     <string name="English">Englisch</string>
     <string name="LanguageNameInEnglish">German</string>

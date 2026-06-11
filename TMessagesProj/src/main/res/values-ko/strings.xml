@@ -15,7 +15,7 @@
     <string name="formatterDay12HSec">h:mm:ss a</string>
     <string name="CopyWithoutProtocol">프로토콜 없이 복사</string>
     <!--fork settings view-->
-    <string name="ForkSettingsTitle">포크 클라이언트 설정</string>
+    <string name="ForkSettingsTitle">기타</string>
     <string name="ForkCheckUpdate">업데이트 확인</string>
     <string name="GhostMode">관찰자 모드</string>
     <string name="GhostModeInfo">다른 사용자와 상호 작용하기로 선택할 때까지 다른 사용자에게 보이지 않게 유지합니다.</string>
@@ -64,8 +64,8 @@
     <string name="DisableRecentFilesAttachment">최근 파일 비활성화</string>
     <string name="SmsOnlyOfficialWarning">참고: SMS 인증은 공식 모바일 앱에서만 가능합니다</string>
 
-    <string name="AppName">Fork Client</string>
-    <string name="AppNameBeta">Fork Client</string>
+    <string name="AppName">Goregram</string>
+    <string name="AppNameBeta">Goregram</string>
     <string name="LanguageName">한국어</string>
     <string name="English">영어</string>
     <string name="LanguageNameInEnglish">한국어</string>
