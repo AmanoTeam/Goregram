@@ -13,6 +13,7 @@
 #include <limits.h>
 #include <stddef.h>
 
+#include <climits>
 #include <algorithm>
 #include <memory>
 #include <set>
