@@ -17,6 +17,8 @@
     <!--fork settings view-->
     <string name="ForkSettingsTitle">Instellingen van de Fork-client</string>
     <string name="ForkCheckUpdate">Controleer op updates</string>
+    <string name="GhostMode">Toeschouwermodus</string>
+    <string name="GhostModeInfo">Blijf onzichtbaar voor andere gebruikers totdat u ervoor kiest om met hen te communiceren.</string>
     <string name="SquareAvatars">Vierkante avatars</string>
     <string name="SquareAvatarsInfo">Herstart vereist</string>
     <string name="InAppCamera">In-app camera inschakelen</string>
