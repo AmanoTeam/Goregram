@@ -15,7 +15,7 @@
     <string name="formatterDay12HSec">h:mm:ss a</string>
     <string name="CopyWithoutProtocol">Copiar sem protocolo</string>
     <!--fork settings view-->
-    <string name="ForkSettingsTitle">Configurações do cliente Fork</string>
+    <string name="ForkSettingsTitle">Diversos</string>
     <string name="ForkCheckUpdate">Verificar atualizações</string>
     <string name="GhostMode">Modo espectador</string>
     <string name="GhostModeInfo">Fique invisível para outros usuários até que você escolha interagir com eles.</string>
@@ -69,8 +69,8 @@
     <string name="ThirdParty">Terceiros</string>
     <string name="EnableLastSeenDots">Marcadores coloridos para visto por último</string>
     <string name="HideStoriesInArchive">Ocultar Stories no Arquivo</string>
-    <string name="AppName">Fork Client</string>
-    <string name="AppNameBeta">Fork Client</string>
+    <string name="AppName">Telegram</string>
+    <string name="AppNameBeta">Telegram</string>
     <string name="LanguageName">Português (Brasil)</string>
     <string name="English">Inglês</string>
     <string name="LanguageNameInEnglish">Portuguese (Brazil)</string>

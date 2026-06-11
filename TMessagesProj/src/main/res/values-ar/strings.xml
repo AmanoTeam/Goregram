@@ -15,7 +15,7 @@
     <string name="formatterDay12HSec">h:mm:ss ص</string>
     <string name="CopyWithoutProtocol">نسخ بدون بروتوكول</string>
     <!--fork settings view-->
-    <string name="ForkSettingsTitle">إعدادات عميل Fork</string>
+    <string name="ForkSettingsTitle">متنوع</string>
     <string name="ForkCheckUpdate">تحقق من التحديثات</string>
     <string name="GhostMode">وضع المشاهد</string>
     <string name="GhostModeInfo">ابق غير مرئي للمستخدمين الآخرين حتى تختار التفاعل معهم.</string>
@@ -64,8 +64,8 @@
     <string name="DisableRecentFilesAttachment">تعطيل الملفات الحديثة</string>
     <string name="SmsOnlyOfficialWarning">ملاحظة: التحقق عبر الرسائل النصية مقتصر فقط على التطبيقات الرسمية</string>
 
-    <string name="AppName">Fork Client</string>
-    <string name="AppNameBeta">Fork Client</string>
+    <string name="AppName">Telegram</string>
+    <string name="AppNameBeta">Telegram</string>
     <string name="LanguageName">العربية</string>
     <string name="English">الإنجليزية</string>
     <string name="LanguageNameInEnglish">Arabic</string>

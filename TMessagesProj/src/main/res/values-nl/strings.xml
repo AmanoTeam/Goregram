@@ -15,7 +15,7 @@
     <string name="formatterDay12HSec">h:mm:ss a</string>
     <string name="CopyWithoutProtocol">Kopiëren zonder protocol</string>
     <!--fork settings view-->
-    <string name="ForkSettingsTitle">Instellingen van de Fork-client</string>
+    <string name="ForkSettingsTitle">Diversen</string>
     <string name="ForkCheckUpdate">Controleer op updates</string>
     <string name="GhostMode">Toeschouwermodus</string>
     <string name="GhostModeInfo">Blijf onzichtbaar voor andere gebruikers totdat u ervoor kiest om met hen te communiceren.</string>
@@ -64,8 +64,8 @@
     <string name="DisableRecentFilesAttachment">Recente bestanden uitschakelen</string>
     <string name="SmsOnlyOfficialWarning">Let op: SMS-verificatie is ALLEEN beschikbaar voor officiële mobiele apps</string>
 
-    <string name="AppName">Fork Client</string>
-    <string name="AppNameBeta">Fork Client</string>
+    <string name="AppName">Telegram</string>
+    <string name="AppNameBeta">Telegram</string>
     <string name="LanguageName">Nederlands</string>
     <string name="English">Engels</string>
     <string name="LanguageNameInEnglish">Dutch</string>
