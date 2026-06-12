@@ -34,6 +34,8 @@
 #ifndef ARCH_H
 #define ARCH_H
 
+#define FLOAT_APPROX
+
 #include "opus_types.h"
 #include "common.h"
 
