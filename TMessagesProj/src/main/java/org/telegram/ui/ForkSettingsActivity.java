@@ -180,7 +180,6 @@ public class ForkSettingsActivity extends BaseFragment {
 
     private int hiddenAccountsRow;
     private int hideStoriesInArchiveRow;
-    private int updateCheckIntervalRow;
     private int addItemToDeleteAllUnpinnedMessages;
     private int disableSlideToNextChannel;
     private int disableRecentFilesAttachment;
@@ -218,23 +217,6 @@ public class ForkSettingsActivity extends BaseFragment {
     }
     private static String getLocale(String s, int i) {
         return LocaleController.getString(s, i);
-    }
-
-    private String getUpdateIntervalText() {
-        SharedPreferences preferences = MessagesController.getGlobalMainSettings();
-        long interval = preferences.getLong("updateForkCheckInterval", 30 * 60 * 1000);
-
-        if (interval == 0) {
-            return "Disabled";
-        } else if (interval < 60 * 1000) {
-            return (interval / 1000) + " sec";
-        } else if (interval < 60 * 60 * 1000) {
-            return (interval / (60 * 1000)) + " min";
-        } else if (interval < 24 * 60 * 60 * 1000) {
-            return (interval / (60 * 60 * 1000)) + " h";
-        } else {
-            return (interval / (24 * 60 * 60 * 1000)) + " d";
-        }
     }
 
     private String getVoiceQualityText() {
@@ -400,80 +382,6 @@ public class ForkSettingsActivity extends BaseFragment {
         builder.show();
     }
 
-    private void showUpdateIntervalDialog() {
-        String[] options = {
-            "Disabled",
-            "5 minutes",
-            "15 minutes",
-            "30 minutes",
-            "1 hour",
-            "2 hours",
-            "6 hours",
-            "12 hours",
-            "24 hours",
-            "2 days",
-            "7 days"
-        };
-
-        long[] intervals = {
-            0,
-            5 * 60 * 1000,
-            15 * 60 * 1000,
-            30 * 60 * 1000,
-            60 * 60 * 1000,
-            2 * 60 * 60 * 1000,
-            6 * 60 * 60 * 1000,
-            12 * 60 * 60 * 1000,
-            24 * 60 * 60 * 1000,
-            2 * 24 * 60 * 60 * 1000,
-            7 * 24 * 60 * 60 * 1000
-        };
-
-        SharedPreferences preferences = MessagesController.getGlobalMainSettings();
-        long currentInterval = preferences.getLong("updateForkCheckInterval", 30 * 60 * 1000);
-
-        int selectedIndex = 3; // default 30 minutes
-        for (int i = 0; i < intervals.length; i++) {
-            if (intervals[i] == currentInterval) {
-                selectedIndex = i;
-                break;
-            }
-        }
-
-        LinearLayout linearLayout = new LinearLayout(getParentActivity());
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-        builder.setTitle("Update Check Interval");
-
-        for (int i = 0; i < options.length; i++) {
-            RadioColorCell cell = new RadioColorCell(getParentActivity());
-            cell.setPadding(AndroidUtilities.dp(4), 0, AndroidUtilities.dp(4), 0);
-            cell.setTag(i);
-            cell.setCheckColor(Theme.getColor(Theme.key_radioBackground), Theme.getColor(Theme.key_dialogRadioBackgroundChecked));
-            cell.setTextAndValue(options[i], selectedIndex == i);
-            cell.setBackground(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector), Theme.RIPPLE_MASK_ALL));
-            linearLayout.addView(cell);
-
-            cell.setOnClickListener(v -> {
-                int index = (Integer) v.getTag();
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putLong("updateForkCheckInterval", intervals[index]);
-                editor.commit();
-
-                RecyclerListView.Holder holder = (RecyclerListView.Holder) listView.findViewHolderForAdapterPosition(updateCheckIntervalRow);
-                if (holder != null && holder.itemView instanceof TextSettingsCell) {
-                    ((TextSettingsCell) holder.itemView).getValueTextView().setText(getUpdateIntervalText());
-                }
-
-                builder.getDismissRunnable().run();
-            });
-        }
-
-        builder.setView(linearLayout);
-        builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-        builder.show();
-    }
-
     @Override
     public boolean onFragmentCreate() {
         super.onFragmentCreate();
@@ -507,7 +415,6 @@ public class ForkSettingsActivity extends BaseFragment {
         disableGlobalSearch = rowCount++;
         enableLastSeenDots = rowCount++;
         customTitleRow = rowCount++;
-        updateCheckIntervalRow = rowCount++;
 
         emptyRows.add(rowCount++);
         sectionRows.add(rowCount++);
@@ -731,8 +638,6 @@ public class ForkSettingsActivity extends BaseFragment {
                     });
             } else if (position == voiceQualityRow) {
                 showVoiceQualityDialog();
-            } else if (position == updateCheckIntervalRow) {
-                showUpdateIntervalDialog();
             } else if (position == lastFmLoginRow) {
                 presentFragment(new LastFmLoginActivity());
             }
@@ -778,10 +683,6 @@ public class ForkSettingsActivity extends BaseFragment {
                         textCell.setTextAndValue(LocaleController.getString("CloudflareCredentials", R.string.CloudflareCredentials), "", false);
                     } else if (position == voiceQualityRow) {
                         textCell.setTextAndValue("Voice Message Quality", getVoiceQualityText(), false);
-                    } else if (position == updateCheckIntervalRow) {
-                        String t = "Update Check Interval";
-                        String v = getUpdateIntervalText();
-                        textCell.setTextAndValue(t, v, false);
                     } else if (position == lastFmLoginRow) {
                         textCell.setTextAndIcon("Last.fm Login", R.drawable.ic_lastfm, false);
                     }
@@ -972,7 +873,6 @@ public class ForkSettingsActivity extends BaseFragment {
                         || position == hiddenAccountsRow
                         || position == photoHasStickerRow
                         || position == voiceQualityRow
-                        || position == updateCheckIntervalRow
                         || position == cloudflareSTTRow
                         || position == cloudflareEnableSTTRow
                         || position == lastFmLoginRow
@@ -1014,7 +914,7 @@ public class ForkSettingsActivity extends BaseFragment {
         public int getItemViewType(int position) {
             if (emptyRows.contains(position)) {
                 return 1;
-            } else if (position == customTitleRow || position == hiddenAccountsRow || position == cloudflareSTTRow || position == voiceQualityRow || position == updateCheckIntervalRow || position == lastFmLoginRow) {
+            } else if (position == customTitleRow || position == hiddenAccountsRow || position == cloudflareSTTRow || position == voiceQualityRow || position == lastFmLoginRow) {
                 return 2;
             } else if (position == squareAvatarsRow
                 || position == hideSensitiveDataRow

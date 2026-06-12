@@ -41053,7 +41053,6 @@ public class ChatActivity extends BaseFragment implements
                                 }
                             }
                         };
-                        LaunchActivity.instance.checkAppUpdate(true, progressDialogCurrent);
                     }
                 } else if (BuildVars.isHuaweiStoreApp()) {
                 } else {

@@ -4537,8 +4537,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 presentFragment(new SessionsActivity(0));
             } else if (position == forkRow) {
                 presentFragment(new ForkSettingsActivity());
-            } else if (position == forkCheckUpdateRow) {
-                ((LaunchActivity) getParentActivity()).checkAppUpdate(true, null);
             } else if (position == questionRow) {
                 showDialog(AlertsCreator.createSupportAlert(ProfileActivity.this, resourcesProvider));
             } else if (position == faqRow) {
@@ -4778,8 +4776,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 MessagesController.getInstance(currentAccount).ignoreSetOnline = true;
                                 Toast.makeText(getParentActivity(), "ignoreSetOnline = true;", Toast.LENGTH_SHORT).show();
                                 // SharedConfig.toggleRoundCamera16to9();
-                            } else if (which == 9) { // Check app update
-                                ((LaunchActivity) getParentActivity()).checkAppUpdate(true, null);
                             } else if (which == 10) { // Read all chats
                                 getMessagesStorage().readAllDialogs(-1);
                             } else if (which == 11) { // Voip audio effects

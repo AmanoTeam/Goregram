@@ -138,7 +138,6 @@ import org.telegram.messenger.voip.VoIPGroupNotification;
 import org.telegram.messenger.voip.VoIPPendingCall;
 import org.telegram.messenger.voip.VoIPPreNotificationService;
 import org.telegram.messenger.voip.VoIPService;
-import org.telegram.messenger.forkgram.AppUpdater;
 import org.telegram.messenger.forkgram.HiddenAccountHelper;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLObject;
@@ -259,7 +258,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     private static final String EXTRA_ACTION_TOKEN = "actions.fulfillment.extra.ACTION_TOKEN";
     public ArrayList<INavigationLayout> sheetFragmentsStack = new ArrayList<>();
 
-    private static boolean clearedCachedInstallers = false;
+
 
     private boolean finished;
     final private Pattern locationRegex = Pattern.compile("geo: ?(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)(,|\\?z=)(-?\\d+)");
@@ -846,10 +845,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         //}
         checkFrameMetrics();
 
-        if (!clearedCachedInstallers) {
-            clearedCachedInstallers = true;
-            AppUpdater.clearCachedInstallers(getBaseContext());
-        }
     }
 
     public void checkFrameMetrics() {
@@ -5960,98 +5955,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         return foundContacts;
     }
 
-    private boolean firstAppUpdateCheck = true;
-    public void checkAppUpdate(boolean force, Browser.Progress progress) {
-        final int accountNum = currentAccount;
-        AppUpdater.checkNewVersion(this, getBaseContext(), (builder) -> {
-            showAlertDialog(builder);
-            return 0;
-        }, (update) -> {
-            if (update == null) {
-                return 0;
-            }
-            if (SharedConfig.setNewAppVersionAvailable(update)) {
-                ApplicationLoader.applicationLoaderInstance.showUpdateAppPopup(LaunchActivity.this, update, accountNum);
-                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.appUpdateAvailable);
-            }
-            return 0;
-        }, force);
-    }
-
-    // Never be called.
-    public void checkAppUpdate(boolean force, Browser.Progress progress, int dummy) {
-        if (!force && BuildVars.DEBUG_VERSION || !force && !BuildVars.CHECK_UPDATES) {
-            return;
-        }
-        if (!force && Math.abs(System.currentTimeMillis() - SharedConfig.lastUpdateCheckTime) < MessagesController.getInstance(0).updateCheckDelay * 1000) {
-            return;
-        }
-        final TLRPC.TL_help_getAppUpdate req = new TLRPC.TL_help_getAppUpdate();
-        try {
-            req.source = ApplicationLoader.applicationContext.getPackageManager().getInstallerPackageName(ApplicationLoader.applicationContext.getPackageName());
-        } catch (Exception ignore) {
-
-        }
-        if (req.source == null) {
-            req.source = "";
-        }
-        final int accountNum = currentAccount;
-        int reqId = ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> {
-            SharedConfig.lastUpdateCheckTime = System.currentTimeMillis();
-            SharedConfig.saveConfig();
-            if (response instanceof TLRPC.TL_help_appUpdate) {
-                final TLRPC.TL_help_appUpdate res = (TLRPC.TL_help_appUpdate) response;
-                AndroidUtilities.runOnUIThread(() -> {
-                    if (SharedConfig.pendingAppUpdate != null && SharedConfig.pendingAppUpdate.version.equals(res.version)) {
-                        return;
-                    }
-                    final boolean newVersionAvailable = SharedConfig.setNewAppVersionAvailable(res);
-                    if (newVersionAvailable) {
-                        if (res.can_not_skip) {
-                            showUpdateActivity(accountNum, res, false);
-                        } else if (ApplicationLoader.isStandaloneBuild() || BuildVars.DEBUG_VERSION) {
-                            ApplicationLoader.applicationLoaderInstance.showUpdateAppPopup(LaunchActivity.this, res, accountNum);
-                        }
-                        NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.appUpdateAvailable);
-                    }
-                    if (progress != null) {
-                        progress.end();
-                        if (!newVersionAvailable) {
-                            BaseFragment fragment = getLastFragment();
-                            if (fragment != null) {
-                                BulletinFactory.of(fragment).createSimpleBulletin(R.raw.chats_infotip, LocaleController.getString(R.string.YourVersionIsLatest)).show();
-                            }
-                        }
-                    }
-                });
-            } else if (response instanceof TLRPC.TL_help_noAppUpdate) {
-                AndroidUtilities.runOnUIThread(() -> {
-                    if (progress != null) {
-                        progress.end();
-                        BaseFragment fragment = getLastFragment();
-                        if (fragment != null) {
-                            BulletinFactory.of(fragment).createSimpleBulletin(R.raw.chats_infotip, LocaleController.getString(R.string.YourVersionIsLatest)).show();
-                        }
-                    }
-                });
-            } else if (error != null) {
-                AndroidUtilities.runOnUIThread(() -> {
-                    if (progress != null) {
-                        progress.end();
-                        BaseFragment fragment = getLastFragment();
-                        if (fragment != null) {
-                            BulletinFactory.of(fragment).showForError(error);
-                        }
-                    }
-                });
-            }
-        });
-        if (progress != null) {
-            progress.init();
-            progress.onCancel(() -> ConnectionsManager.getInstance(currentAccount).cancelRequest(reqId, true));
-        }
-    }
-
     public Dialog showAlertDialog(AlertDialog.Builder builder) {
         try {
             AlertDialog dialog = builder.show();
@@ -7053,7 +6956,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         } else if (SharedConfig.pendingAppUpdate != null && SharedConfig.pendingAppUpdate.can_not_skip) {
             showUpdateActivity(UserConfig.selectedAccount, SharedConfig.pendingAppUpdate, true);
         }
-        checkAppUpdate(false, null);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ApplicationLoader.canDrawOverlays = Settings.canDrawOverlays(this);
