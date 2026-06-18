@@ -1,4 +1,0 @@
-AutoUpdateMode: None
-UpdateCheckMode: None
-CurrentVersion: V_NAME
-CurrentVersionCode: V_CODE
