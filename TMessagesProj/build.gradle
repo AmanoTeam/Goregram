@@ -86,7 +86,7 @@ dependencies {
 android {
     compileSdkVersion 36
     buildToolsVersion '36.0.0'
-    ndkVersion "27.2.12479018"
+    ndkVersion "27.3.13750724"
 
     sourceSets.main.jniLibs.srcDirs = ['./jni/']
 

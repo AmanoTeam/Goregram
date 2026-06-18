@@ -8,16 +8,16 @@ function build_one {
 
 	TOOLS_PREFIX="${LLVM_BIN}/${ARCH_NAME}-linux-${BIN_MIDDLE}-"
 
-	LD=${TOOLS_PREFIX}ld
-	AR=${TOOLS_PREFIX}ar
-	STRIP=${TOOLS_PREFIX}strip
-	NM=${TOOLS_PREFIX}nm
+	LD=${LLVM_BIN}/ld.lld
+	AR=${LLVM_BIN}/llvm-ar
+	STRIP=${LLVM_BIN}/llvm-strip
+	NM=${LLVM_BIN}/llvm-nm
 
 	CC_PREFIX="${LLVM_BIN}/${CLANG_PREFIX}-linux-${BIN_MIDDLE}${ANDROID_API}-"
 
 	CC=${CC_PREFIX}clang
 	CXX=${CC_PREFIX}clang++
-	CROSS_PREFIX=${PREBUILT}/bin/${ARCH_NAME}-linux-${BIN_MIDDLE}-
+	CROSS_PREFIX=${LLVM_BIN}/llvm-
 	
 	INCLUDES=" -I${LIBVPXPREFIX}/include"
 	LIBS=" -L${LIBVPXPREFIX}/lib"
@@ -195,7 +195,7 @@ function build {
 				build_one
 			;;
 			arm)
-				ANDROID_API=16
+				ANDROID_API=21
 
 				ARCH=arm
 				ARCH_NAME=arm
@@ -211,7 +211,7 @@ function build {
 				build_one
 			;;
 			x86)
-				ANDROID_API=16
+				ANDROID_API=21
 
 				ARCH=x86
 				ARCH_NAME=i686
