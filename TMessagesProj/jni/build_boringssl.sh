@@ -13,7 +13,6 @@ function build_one {
 	-DCMAKE_BUILD_TYPE=Release \
 	-DANDROID_NDK=${NDK} \
 	-DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake \
-	-GNinja -DCMAKE_MAKE_PROGRAM=${NINJA_PATH} \
 	../..
 
 	echo "Building..."
@@ -32,11 +31,6 @@ function checkPreRequisites {
 
 	if [ -z "$NDK" -a "$NDK" == "" ]; then
 		echo -e "\033[31mFailed! NDK is empty. Run 'export NDK=[PATH_TO_NDK]'\033[0m"
-		exit
-	fi
-
-	if [ -z "$NINJA_PATH" -a "$NINJA_PATH" == "" ]; then
-		echo -e "\033[31mFailed! NINJA_PATH is empty. Run 'export NINJA_PATH=[PATH_TO_NINJA]'\033[0m"
 		exit
 	fi
 }
@@ -64,12 +58,12 @@ function build {
 				build_one
 			;;
 			arm)
-				API=16
+				API=21
 				CPU=armeabi-v7a
 				build_one
 			;;
 			x86)
-				API=16
+				API=21
 				CPU=x86
 				build_one
 			;;
