@@ -433,7 +433,7 @@ stage('tde2e', """
     # Install gsed on macOS.
 
     git submodule init && git submodule update
-    git reset HEAD tde2e/ && git checkout -- tde2e/
+    git reset HEAD tde2e/ && git checkout -- tde2e/ && sed -i -e "s/23.2.8568313/27.3.13750724/g" -e "s/android-16/android-21/g" tde2e/build-tdlib.sh
     cd tde2e_source && git reset --hard HEAD && cd ..
     export NDK={ndk}
     export NINJA_PATH=`which ninja`
