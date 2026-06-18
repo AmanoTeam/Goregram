@@ -9,10 +9,10 @@ function build_one {
 
 	TOOLS_PREFIX="${LLVM_BIN}/${ARCH_NAME}-linux-${BIN_MIDDLE}-"
 
-	export AR=${TOOLS_PREFIX}ar
-	export STRIP=${TOOLS_PREFIX}strip
-	export RANLIB=${TOOLS_PREFIX}ranlib
-	export NM=${TOOLS_PREFIX}nm
+	export AR=${LLVM_BIN}/llvm-ar
+	export STRIP=${LLVM_BIN}/llvm-strip
+	export RANLIB=${LLVM_BIN}/llvm-ranlib
+	export NM=${LLVM_BIN}/llvm-nm
 
 	export CC_PREFIX="${LLVM_BIN}/${CLANG_PREFIX}-linux-${BIN_MIDDLE}${ANDROID_API}-"
 
@@ -21,14 +21,13 @@ function build_one {
 	export AS=${CC_PREFIX}clang++
 	export LD=${CC}
 
-	export CROSS_PREFIX=${PREBUILT}/bin/${ARCH_NAME}-linux-${BIN_MIDDLE}-
+	export CROSS_PREFIX=${LLVM_BIN}/llvm-
 
-	export ISYSTEM="-isystem ${LLVM_PREFIX}/sysroot/usr/include/${ARCH_NAME}-linux-${BIN_MIDDLE} -isystem ${LLVM_PREFIX}/sysroot/usr/include"
 	export EXTRA_CFLAGS="${ISYSTEM}"
 
 	export CFLAGS="-DANDROID -fpic -fpie ${OPTIMIZE_CFLAGS} ${ISYSTEM}"
 	export CPPFLAGS="${CFLAGS}"
-	export CXXFLAGS="${CFLAGS} -std=c++11"
+	export CXXFLAGS="${CFLAGS} -std=c++17"
 	export ASFLAGS="-D__ANDROID__"
 	export LDFLAGS="-L${PLATFORM}/usr/lib"
 
@@ -47,7 +46,6 @@ function build_one {
 
 	./configure \
 		--extra-cflags="${EXTRA_CFLAGS}" \
-		--libc="${LLVM_PREFIX}/sysroot" \
 		--prefix=${PREFIX} \
 		--target=${TARGET} \
 		${CPU_DETECT} \
