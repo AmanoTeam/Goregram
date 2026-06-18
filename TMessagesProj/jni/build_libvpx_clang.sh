@@ -3,31 +3,25 @@ set -e
 function build_one {
 	echo "Building ${ARCH}..."
 
-	PREBUILT=${NDK}/toolchains/${PREBUILT_ARCH}-${VERSION}/prebuilt/${BUILD_PLATFORM}
-	PLATFORM=${NDK}/platforms/android-${ANDROID_API}/arch-${ARCH}
-
-	TOOLS_PREFIX="${LLVM_BIN}/${ARCH_NAME}-linux-${BIN_MIDDLE}-"
-
-	export LD=${TOOLS_PREFIX}ld
-	export AR=${TOOLS_PREFIX}ar
-	export STRIP=${TOOLS_PREFIX}strip
-	export RANLIB=${TOOLS_PREFIX}ranlib
-	export NM=${TOOLS_PREFIX}nm
+	export AR=${LLVM_BIN}/llvm-ar
+	export STRIP=${LLVM_BIN}/llvm-strip
+	export RANLIB=${LLVM_BIN}/llvm-ranlib
+	export NM=${LLVM_BIN}/llvm-nm
 
 	export CC_PREFIX="${LLVM_BIN}/${CLANG_PREFIX}-linux-${BIN_MIDDLE}${ANDROID_API}-"
 
 	export CC=${CC_PREFIX}clang
 	export CXX=${CC_PREFIX}clang++
 	export AS=${CC_PREFIX}clang++
-	export CROSS_PREFIX=${PREBUILT}/bin/${ARCH_NAME}-linux-${BIN_MIDDLE}-
-	
-	
-	export CFLAGS="-DANDROID -fpic -fpie ${OPTIMIZE_CFLAGS}"
+	export LD=${CC}
+	export CROSS_PREFIX=${LLVM_BIN}/llvm-
+
+
+	export CFLAGS="-DANDROID -fpic -fpie"
 	export CPPFLAGS="${CFLAGS}"
-	export CXXFLAGS="${CFLAGS} -std=c++11"
+	export CXXFLAGS="${CFLAGS} -std=c++17"
 	export ASFLAGS="-D__ANDROID__"
-	export LDFLAGS="-L${PLATFORM}/usr/lib"
-	
+
 	if [ "x86" = ${ARCH} ]; then
 		sed -i '20s/^/#define rand() ((int)lrand48())\n/' vpx_dsp/add_noise.c
 	fi
@@ -37,11 +31,7 @@ function build_one {
 
 	echo "Configuring..."
 
-
-
 	./configure \
-	--extra-cflags="-isystem ${LLVM_PREFIX}/sysroot/usr/include/${ARCH_NAME}-linux-${BIN_MIDDLE} -isystem ${LLVM_PREFIX}/sysroot/usr/include" \
-	--libc="${LLVM_PREFIX}/sysroot" \
 	--prefix=${PREFIX} \
 	--target=${TARGET} \
 	${CPU_DETECT} \
@@ -66,7 +56,7 @@ function build_one {
 	--disable-webm-io
 
 	make -j$COMPILATION_PROC_COUNT install
-	
+
 	if [ "x86" = ${ARCH} ]; then
 		sed -i '20d' vpx_dsp/add_noise.c
 	fi
@@ -131,7 +121,6 @@ function build {
 				CLANG_PREFIX=x86_64
 				BIN_MIDDLE=android
 				CPU=x86_64
-				OPTIMIZE_CFLAGS="-O3 -march=x86-64 -mtune=intel -msse4.2 -mpopcnt -m64 -fPIC"
 				TARGET="x86_64-android-gcc"
 				PREFIX=./build/$CPU
                 CPU_DETECT="--enable-runtime-cpu-detect"
@@ -144,7 +133,6 @@ function build {
 				CLANG_PREFIX=i686
 				BIN_MIDDLE=android
 				CPU=i686
-				OPTIMIZE_CFLAGS="-O3 -march=i686 -mtune=intel -msse3 -mfpmath=sse -m32 -fPIC"
 				TARGET="x86-android-gcc"
 				PREFIX=./build/$ARCH
 				CPU_DETECT="--enable-runtime-cpu-detect"
@@ -157,7 +145,6 @@ function build {
 				CLANG_PREFIX=aarch64
 				BIN_MIDDLE=android
 				CPU=arm64-v8a
-				OPTIMIZE_CFLAGS="-O3 -march=armv8-a"
 				TARGET="arm64-android-gcc"
 				PREFIX=./build/$CPU
 				CPU_DETECT="--disable-runtime-cpu-detect"
@@ -170,7 +157,6 @@ function build {
 				CLANG_PREFIX=armv7a
 				BIN_MIDDLE=androideabi
 				CPU=armeabi-v7a
-				OPTIMIZE_CFLAGS="-Os -march=armv7-a -mfloat-abi=softfp -mfpu=neon -mtune=cortex-a8 -mthumb -D__thumb__"
 				TARGET="armv7-android-gcc --enable-neon --disable-neon-asm"
 				PREFIX=./build/$CPU
 				CPU_DETECT="--disable-runtime-cpu-detect"
