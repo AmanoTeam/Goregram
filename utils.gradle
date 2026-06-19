@@ -1,10 +1,10 @@
 
 def getVersionName = {
-    return APP_VERSION_NAME + "." + ADDITIONAL_BUILD_NUMBER
+    return APP_VERSION_NAME
 }
 
 def getVersionCode = {
-    return (APP_VERSION_CODE.toInteger() * 10 + ADDITIONAL_BUILD_NUMBER.toInteger()) + ""
+    return APP_VERSION_CODE
 }
 
 def isFdroid = {

@@ -265,14 +265,11 @@ android {
 //
     }
 
-    defaultConfig.versionCode = Integer.parseInt(Utils['getVersionCode']())
-
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
             if (!fdroid) {
                 outputFileName = "app.apk"
             }
-            output.versionCodeOverride = defaultConfig.versionCode * 10 + variant.productFlavors.get(0).abiVersionCode
         }
     }
 
@@ -293,6 +290,7 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 35
+        versionCode = Integer.parseInt(Utils['getVersionCode']())
         versionName Utils['getVersionName']()
         ndkVersion "27.3.13750724"
 

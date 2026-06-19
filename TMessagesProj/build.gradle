@@ -103,8 +103,6 @@ android {
         jvmTarget = JavaVersion.VERSION_21
     }
 
-    defaultConfig.versionCode = Integer.parseInt(Utils['getVersionCode']())
-
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 35
