@@ -14,6 +14,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: ['gcc', 'clang']
     steps:
       - uses: actions/checkout@main
         with:
@@ -34,6 +37,7 @@ jobs:
         run: |
           sudo apt install cmake golang libuv1 make yasm nasm meson gperf ninja-build
       - name: Install android-gcc-cross
+        if: matrix.target == 'gcc'
         run: |
           declare -r PINO_TARBALL='/tmp/gcc.tar.xz'
           declare -r PINO_URL='https://github.com/AmanoTeam/android-gcc-cross/releases/latest/download/x86_64-unknown-linux-gnu.tar.xz'
@@ -69,5 +73,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@main
         with:
-          name: build
+          name: build-${{ matrix.target }}
           path: app-release.apk
