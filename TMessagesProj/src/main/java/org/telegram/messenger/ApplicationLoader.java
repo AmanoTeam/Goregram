@@ -637,19 +637,11 @@ public class ApplicationLoader extends Application {
         applicationLoaderInstance.startAppCenterInternal(context);
     }
 
-    public static void checkForUpdates() {
-        applicationLoaderInstance.checkForUpdatesInternal();
-    }
-
     public static void appCenterLog(Throwable e) {
         applicationLoaderInstance.appCenterLogInternal(e);
     }
 
     protected void appCenterLogInternal(Throwable e) {
-
-    }
-
-    protected void checkForUpdatesInternal() {
 
     }
 
