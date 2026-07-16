@@ -2,4 +2,4 @@
 
 set -e
 
-patch -d tdlib -p1 < patches/tdlib/icf.patch
+patch --forward -d tdlib -p1 < patches/tdlib/icf.patch
