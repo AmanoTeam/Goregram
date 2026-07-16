@@ -243,4 +243,14 @@ task checkVisibility {
     }
 }
 
+task runJniBuildScript {
+    doFirst {
+        exec {
+            executable 'bash'
+            args "${projectDir}/jni/build.sh"
+        }
+    }
+}
+
 preBuild.dependsOn checkVisibility
+preBuild.dependsOn runJniBuildScript
