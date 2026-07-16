@@ -625,7 +625,7 @@ public class GiftSheet extends BottomSheetWithRecyclerListView implements Notifi
                         }));
                         return;
                     }
-                    if (gift.require_premium && !UserConfig.getInstance(currentAccount).isPremium()) {
+                    if (gift.require_premium && !UserConfig.getInstance(currentAccount).isReallyPremium()) {
                         final BaseFragment fragment = LaunchActivity.getSafeLastFragment();
                         if (fragment == null) return;
                         PremiumPreviewBottomSheet sheet = new PremiumPreviewBottomSheet(fragment, currentAccount, null, null, gift, resourcesProvider);

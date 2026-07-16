@@ -530,7 +530,7 @@ public class MessagesController extends BaseController implements NotificationCe
     public String mapKey;
     public int maxMessageLength;
     public int getMaxMessageLength() {
-        return getUserConfig().isPremium() ? config.messageLengthLimitPremium.get() : config.messageLengthLimitDefault.get();
+        return getUserConfig().isReallyPremium() ? config.messageLengthLimitPremium.get() : config.messageLengthLimitDefault.get();
     }
     public int maxCaptionLength;
     public int roundVideoSize;
@@ -899,19 +899,19 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public int getCaptionMaxLengthLimit() {
-        return getUserConfig().isPremium() ? captionLengthLimitPremium : captionLengthLimitDefault;
+        return getUserConfig().isReallyPremium() ? captionLengthLimitPremium : captionLengthLimitDefault;
     }
 
     public int getAboutLimit() {
-        return getUserConfig().isPremium() ? aboutLengthLimitPremium : aboutLengthLimitDefault;
+        return getUserConfig().isReallyPremium() ? aboutLengthLimitPremium : aboutLengthLimitDefault;
     }
 
     public int getMaxUserReactionsCount() {
-        return getUserConfig().isPremium() ? reactionsUserMaxPremium : reactionsUserMaxDefault;
+        return getUserConfig().isReallyPremium() ? reactionsUserMaxPremium : reactionsUserMaxDefault;
     }
 
     public int getChatReactionsCount() {
-        return getUserConfig().isPremium() ? reactionsInChatMax : 1;
+        return getUserConfig().isReallyPremium() ? reactionsInChatMax : 1;
     }
 
     public int getChatMaxUniqReactions(long dialogId) {
@@ -6447,7 +6447,7 @@ public class MessagesController extends BaseController implements NotificationCe
         } else if (id == NotificationCenter.currentUserPremiumStatusChanged) {
             loadAppConfig(false);
             getContactsController().reloadContactsStatusesMaybe(true);
-            if (storyQualityFull && !getUserConfig().isPremium() || getUserConfig().isPremium()) {
+            if (storyQualityFull && !getUserConfig().isReallyPremium() || getUserConfig().isReallyPremium()) {
                 getNotificationCenter().postNotificationName(NotificationCenter.storyQualityUpdate);
             }
         }
@@ -23674,7 +23674,7 @@ public class MessagesController extends BaseController implements NotificationCe
     public boolean storiesEnabled() {
         switch (storiesPosting) {
             case "premium":
-                return getUserConfig().isPremium();
+                return getUserConfig().isReallyPremium();
             case "enabled":
                 return true;
             default:
@@ -23691,7 +23691,7 @@ public class MessagesController extends BaseController implements NotificationCe
     public boolean richEditorAllowed() {
         switch (config.richMessagePosting.get()) {
             case "premium":
-                return getUserConfig().isPremium();
+                return getUserConfig().isReallyPremium();
             case "enabled":
                 return true;
             default:
@@ -23703,7 +23703,7 @@ public class MessagesController extends BaseController implements NotificationCe
     public boolean storyEntitiesAllowed() {
         switch (storiesEntities) {
             case "premium":
-                return getUserConfig().isPremium();
+                return getUserConfig().isReallyPremium();
             case "enabled":
                 return true;
             default:
@@ -24212,7 +24212,7 @@ public class MessagesController extends BaseController implements NotificationCe
         return isUserContactBlocked(userId, false);
     }
     public TL_account.RequirementToContact isUserContactBlocked(long userId, boolean cache) {
-        if (getUserConfig().isPremium() || getUserConfig().getClientUserId() == userId) {
+        if (getUserConfig().isReallyPremium() || getUserConfig().getClientUserId() == userId) {
             return null;
         }
         TL_account.RequirementToContact cached = cachedIsUserContactBlocked.get(userId);

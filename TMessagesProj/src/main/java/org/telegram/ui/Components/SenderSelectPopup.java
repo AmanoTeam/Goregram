@@ -233,7 +233,7 @@ public class SenderSelectPopup extends ActionBarPopupWindow {
             if (clicked) {
                 return;
             }
-            if (peerObj.premium_required && !UserConfig.getInstance(UserConfig.selectedAccount).isPremium()) {
+            if (peerObj.premium_required && !UserConfig.getInstance(UserConfig.selectedAccount).isReallyPremium()) {
                 try {
                     view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignored) {}

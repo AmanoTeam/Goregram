@@ -1894,7 +1894,7 @@ public class FileLoader extends BaseController {
     }
 
     public static boolean checkUploadFileSize(int currentAccount, long length) {
-        boolean premium = AccountInstance.getInstance(currentAccount).getUserConfig().isPremium();
+        boolean premium = AccountInstance.getInstance(currentAccount).getUserConfig().isReallyPremium();
         if (length < DEFAULT_MAX_FILE_SIZE || (length < DEFAULT_MAX_FILE_SIZE_PREMIUM && premium)) {
             return true;
         }

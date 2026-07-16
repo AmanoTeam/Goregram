@@ -3784,7 +3784,7 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
                     super.updateTags(notify);
                     show(searching && (getSelectedTab() == TAB_SAVED_DIALOGS || getSelectedTab() == TAB_SAVED_MESSAGES) && searchTagsList.hasFilters());
                     if (searchItemIcon != null) {
-                        searchItemIcon.setIcon(hasFilters() && profileActivity.getUserConfig().isPremium() ? R.drawable.navbar_search_tag : R.drawable.outline_header_search, notify);
+                        searchItemIcon.setIcon(hasFilters() && profileActivity.getUserConfig().isReallyPremium() ? R.drawable.navbar_search_tag : R.drawable.outline_header_search, notify);
                     }
                     if (searchItem != null) {
                         searchItem.setSearchFieldHint(getString(searchTagsList != null && searchTagsList.hasFilters() && getSelectedTab() == TAB_SAVED_DIALOGS ? R.string.SavedTagSearchHint : R.string.Search));

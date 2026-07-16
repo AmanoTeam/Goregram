@@ -336,7 +336,7 @@ public class ChatAttachAlertRichLayout extends ChatAttachAlert.AttachAlertLayout
         }
         final ItemOptions o = ItemOptions.makeOptions(this, resourcesProvider, v, true).dontFocus();
         final ItemOptions headers = o.makeSwipeback();
-        final boolean premiumLock = !MessagesController.getInstance(currentAccount).richEditorAllowed() && !UserConfig.getInstance(currentAccount).isPremium();
+        final boolean premiumLock = !MessagesController.getInstance(currentAccount).richEditorAllowed() && !UserConfig.getInstance(currentAccount).isReallyPremium();
 
         headers.add(R.drawable.ic_ab_back, getString(R.string.Back), () -> o.closeSwipeback());
         headers.addGap();
@@ -878,7 +878,7 @@ public class ChatAttachAlertRichLayout extends ChatAttachAlert.AttachAlertLayout
     private MessageSendPreview messageSendPreview;
 
     private boolean showSendPreview(View view) {
-        if (!UserConfig.getInstance(currentAccount).isPremium()) {
+        if (!UserConfig.getInstance(currentAccount).isReallyPremium()) {
             new PremiumFeatureBottomSheet(parentAlert.baseFragment, getContext(), currentAccount, PremiumPreviewFragment.PREMIUM_FEATURE_RICH_EDITOR, true).show();
             return true;
         }
@@ -1137,7 +1137,7 @@ public class ChatAttachAlertRichLayout extends ChatAttachAlert.AttachAlertLayout
     private void updateSendButtonLocked() {
         if (toolbar != null) {
             final boolean premiumLocked = !MessagesController.getInstance(currentAccount).richEditorAllowed()
-                && !UserConfig.getInstance(currentAccount).isPremium();
+                && !UserConfig.getInstance(currentAccount).isReallyPremium();
             toolbar.getSendButton().setLocked(premiumLocked && listView.isLossy());
             toolbar.setPremiumLocked(premiumLocked);
         }
@@ -1145,13 +1145,13 @@ public class ChatAttachAlertRichLayout extends ChatAttachAlert.AttachAlertLayout
 
     private boolean isSendLocked() {
         return !MessagesController.getInstance(currentAccount).richEditorAllowed()
-            && !UserConfig.getInstance(currentAccount).isPremium()
+            && !UserConfig.getInstance(currentAccount).isReallyPremium()
             && listView.isLossy();
     }
 
     private void showConversionSheet() {
         RichEditor.openConversionSheet(getContext(), listView::convertToSimple, () -> {
-            if (!UserConfig.getInstance(currentAccount).isPremium()) {
+            if (!UserConfig.getInstance(currentAccount).isReallyPremium()) {
                 new PremiumFeatureBottomSheet(parentAlert.baseFragment, getContext(), currentAccount, PremiumPreviewFragment.PREMIUM_FEATURE_RICH_EDITOR, true).show();
             }
         }, resourcesProvider);

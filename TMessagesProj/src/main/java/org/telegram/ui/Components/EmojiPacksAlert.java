@@ -123,7 +123,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
 
         @Override
         public boolean needSend(int contentType) {
-            return fragment instanceof ChatActivity && ((ChatActivity) fragment).canSendMessage() && (UserConfig.getInstance(UserConfig.selectedAccount).isPremium() || ((ChatActivity) fragment).getCurrentUser() != null && UserObject.isUserSelf(((ChatActivity) fragment).getCurrentUser()));
+            return fragment instanceof ChatActivity && ((ChatActivity) fragment).canSendMessage() && (UserConfig.getInstance(UserConfig.selectedAccount).isReallyPremium() || ((ChatActivity) fragment).getCurrentUser() != null && UserObject.isUserSelf(((ChatActivity) fragment).getCurrentUser()));
         }
 
         @Override
@@ -137,7 +137,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
 
         @Override
         public boolean needCopy(TLRPC.Document document) {
-            return UserConfig.getInstance(UserConfig.selectedAccount).isPremium() && MessageObject.isAnimatedEmoji(document);
+            return UserConfig.getInstance(UserConfig.selectedAccount).isReallyPremium() && MessageObject.isAnimatedEmoji(document);
         }
 
         @Override
@@ -151,7 +151,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
 
         @Override
         public Boolean canSetAsStatus(TLRPC.Document document) {
-            if (!UserConfig.getInstance(UserConfig.selectedAccount).isPremium() || !MessageObject.isAnimatedEmoji(document)) {
+            if (!UserConfig.getInstance(UserConfig.selectedAccount).isReallyPremium() || !MessageObject.isAnimatedEmoji(document)) {
                 return null;
             }
             TLRPC.User user = UserConfig.getInstance(UserConfig.selectedAccount).getCurrentUser();
@@ -1456,7 +1456,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
 
         @Override
         public int getItemCount() {
-            hasDescription = !UserConfig.getInstance(currentAccount).isPremium() && customEmojiPacks.stickerSets != null && customEmojiPacks.stickerSets.size() == 1 && MessageObject.isPremiumEmojiPack(customEmojiPacks.stickerSets.get(0));
+            hasDescription = !UserConfig.getInstance(currentAccount).isReallyPremium() && customEmojiPacks.stickerSets != null && customEmojiPacks.stickerSets.size() == 1 && MessageObject.isPremiumEmojiPack(customEmojiPacks.stickerSets.get(0));
             return 1 + (hasDescription ? 1 : 0) + customEmojiPacks.getItemsCount() + Math.max(0, customEmojiPacks.data.length - 1);
         }
     }
@@ -1630,7 +1630,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
 
             float endMarginDp = 8;
             if (!single) {
-                if (!UserConfig.getInstance(currentAccount).isPremium()) {
+                if (!UserConfig.getInstance(currentAccount).isReallyPremium()) {
                     unlockButtonView = new PremiumButtonView(context, AndroidUtilities.dp(4), false, resourcesProvider);
                     unlockButtonView.setButton(LocaleController.getString(R.string.Unlock), ev -> {
                         premiumButtonClicked = SystemClock.elapsedRealtime();
@@ -1828,7 +1828,7 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
                 }
             }
 
-            if (premium && unlockButtonView != null && !UserConfig.getInstance(currentAccount).isPremium()) {
+            if (premium && unlockButtonView != null && !UserConfig.getInstance(currentAccount).isReallyPremium()) {
                 unlockButtonView.setVisibility(VISIBLE);
                 if (addButtonView != null) {
                     addButtonView.setVisibility(GONE);

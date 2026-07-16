@@ -571,7 +571,7 @@ public class AIEditorAlert extends BottomSheetWithRecyclerListView implements No
     public static void showStylesLimitToast(BulletinFactory bulletinFactory, int currentAccount) {
         if (bulletinFactory == null || bulletinFactory.getContext() == null) return;
         final MessagesController m = MessagesController.getInstance(currentAccount);
-        final boolean isPremium = UserConfig.getInstance(currentAccount).isPremium();
+        final boolean isPremium = UserConfig.getInstance(currentAccount).isReallyPremium();
         bulletinFactory.createSimpleBulletin(
             !isPremium ? R.raw.star_premium_2 : R.raw.error,
             getString(R.string.AIEditorStyleLimitTitle),
@@ -601,7 +601,7 @@ public class AIEditorAlert extends BottomSheetWithRecyclerListView implements No
         if (tone == null) {
             if (
                 tonesController.getSavedTonesCount() + 1 >
-                    (UserConfig.getInstance(currentAccount).isPremium() ?
+                    (UserConfig.getInstance(currentAccount).isReallyPremium() ?
                         MessagesController.getInstance(currentAccount).config.aicomposeToneSavedLimitPremium.get() :
                         MessagesController.getInstance(currentAccount).config.aicomposeToneSavedLimitDefault.get()
                     )

@@ -551,7 +551,7 @@ public class TopicCreateFragment extends BaseFragment {
             return;
         }
 
-        if (!free && docId != 0 && !getUserConfig().isPremium()) {
+        if (!free && docId != 0 && !getUserConfig().isReallyPremium()) {
             TLRPC.Document emoji = AnimatedEmojiDrawable.findDocument(currentAccount, documentId);
             if (emoji != null) {
                 BulletinFactory.of(this)

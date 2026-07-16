@@ -407,7 +407,7 @@ public class ChatAttachAlertQuickRepliesLayout extends ChatAttachAlert.AttachAle
                 object = listAdapter.getItem(section, row);
             }
             if (object instanceof QuickRepliesController.QuickReply) {
-                if (!UserConfig.getInstance(parentAlert.currentAccount).isPremium()) {
+                if (!UserConfig.getInstance(parentAlert.currentAccount).isReallyPremium()) {
                     if (parentAlert.baseFragment != null) {
                         new PremiumFeatureBottomSheet(parentAlert.baseFragment, getContext(), parentAlert.currentAccount, true, PremiumPreviewFragment.PREMIUM_FEATURE_BUSINESS_QUICK_REPLIES, false, null).show();
                     }

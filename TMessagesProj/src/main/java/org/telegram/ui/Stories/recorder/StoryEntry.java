@@ -969,7 +969,7 @@ public class StoryEntry {
     }
 
     public void setupMultipleStoriesSelector() {
-        if (isVideo && !isCollage() && !isEdit && !isRepost && duration > TimelineView.MAX_SELECT_DURATION + 10_000L && UserConfig.getInstance(currentAccount).isPremium()) {
+        if (isVideo && !isCollage() && !isEdit && !isRepost && duration > TimelineView.MAX_SELECT_DURATION + 10_000L && UserConfig.getInstance(currentAccount).isReallyPremium()) {
             long newDuration = TimelineView.MAX_SELECT_DURATION;
             if (duration - newDuration > 10_000L) {
                 newDuration += Math.min(TimelineView.MAX_SELECT_DURATION, duration - newDuration);

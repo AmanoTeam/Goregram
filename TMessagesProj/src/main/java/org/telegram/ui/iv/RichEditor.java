@@ -682,7 +682,7 @@ public class RichEditor extends BaseFragment implements NotificationCenter.Notif
                 currentMenuVisible.dismiss();
                 currentMenuVisible = null;
             }
-            final boolean premiumLock = !MessagesController.getInstance(currentAccount).richEditorAllowed() && !UserConfig.getInstance(currentAccount).isPremium();
+            final boolean premiumLock = !MessagesController.getInstance(currentAccount).richEditorAllowed() && !UserConfig.getInstance(currentAccount).isReallyPremium();
             final BlockRow row = listView.findFocusedRow();
             final ItemOptions o = ItemOptions.makeOptions(RichEditor.this, v, true).dontFocus();
             final ItemOptions headers = o.makeSwipeback();
@@ -1888,7 +1888,7 @@ public class RichEditor extends BaseFragment implements NotificationCenter.Notif
 
     private boolean isSendLocked() {
         return !MessagesController.getInstance(currentAccount).richEditorAllowed()
-            && !UserConfig.getInstance(currentAccount).isPremium()
+            && !UserConfig.getInstance(currentAccount).isReallyPremium()
             && listView.isLossy();
     }
 
@@ -1899,7 +1899,7 @@ public class RichEditor extends BaseFragment implements NotificationCenter.Notif
 
     private void showConversionSheet() {
         openConversionSheet(getContext(), listView::convertToSimple, () -> {
-            if (!UserConfig.getInstance(currentAccount).isPremium()) {
+            if (!UserConfig.getInstance(currentAccount).isReallyPremium()) {
                 showDialog(new PremiumFeatureBottomSheet(this, PremiumPreviewFragment.PREMIUM_FEATURE_RICH_EDITOR, true));
             }
         }, getResourceProvider());
@@ -2504,7 +2504,7 @@ public class RichEditor extends BaseFragment implements NotificationCenter.Notif
     }
 
     private void updatePremiumButtons() {
-        final boolean premiumLock = !MessagesController.getInstance(currentAccount).richEditorAllowed() && !UserConfig.getInstance(currentAccount).isPremium();
+        final boolean premiumLock = !MessagesController.getInstance(currentAccount).richEditorAllowed() && !UserConfig.getInstance(currentAccount).isReallyPremium();
         for (Button b : premiumButtons) {
             b.setPremiumLocked(premiumLock);
         }

@@ -96,7 +96,7 @@ public class ArchiveSettingsActivity extends BaseFragment implements Notificatio
                 ((TextCheckCell) view).setChecked(settings.keep_archived_folders);
                 changed = true;
             } else if (item.id == 7) {
-                if (!getUserConfig().isPremium() && !getMessagesController().autoarchiveAvailable && !settings.archive_and_mute_new_noncontact_peers) {
+                if (!getUserConfig().isReallyPremium() && !getMessagesController().autoarchiveAvailable && !settings.archive_and_mute_new_noncontact_peers) {
                     final Bulletin.SimpleLayout layout = new Bulletin.SimpleLayout(getContext(), getResourceProvider());
                     layout.textView.setText(AndroidUtilities.replaceSingleTag(LocaleController.getString(R.string.UnlockPremium), Theme.key_undo_cancelColor, 0, () -> {
                         presentFragment(new PremiumPreviewFragment("settings"));
@@ -224,7 +224,7 @@ public class ArchiveSettingsActivity extends BaseFragment implements Notificatio
                     cell.setCheckBoxIcon(0);
                 } else if (item.id == 7) {
                     checked = settings.archive_and_mute_new_noncontact_peers;
-                    cell.setCheckBoxIcon(getUserConfig().isPremium() || getMessagesController().autoarchiveAvailable ? 0 : R.drawable.permission_locked);
+                    cell.setCheckBoxIcon(getUserConfig().isReallyPremium() || getMessagesController().autoarchiveAvailable ? 0 : R.drawable.permission_locked);
                 } else {
                     return;
                 }
