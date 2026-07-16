@@ -2929,11 +2929,7 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
 
                     @Override
                     public void didPressAppUpdateButton() {
-                        if (ApplicationLoader.isStandaloneBuild()) {
-                            if (LaunchActivity.instance != null) {
-                                LaunchActivity.instance.checkAppUpdate(true, null);
-                            }
-                        } else if (BuildVars.isHuaweiStoreApp()) {
+                        if (BuildVars.isHuaweiStoreApp()) {
                             Browser.openUrl(getContext(), BuildVars.HUAWEI_STORE_URL);
                         } else {
                             Browser.openUrl(getContext(), BuildVars.PLAYSTORE_APP_URL);
@@ -3420,11 +3416,7 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
                 cell.setDelegate(new ChatMessageCell.ChatMessageCellDelegate() {
                     @Override
                     public void didPressAppUpdateButton() {
-                        if (ApplicationLoader.isStandaloneBuild()) {
-                            if (LaunchActivity.instance != null) {
-                                LaunchActivity.instance.checkAppUpdate(true, null);
-                            }
-                        } else if (BuildVars.isHuaweiStoreApp()) {
+                        if (BuildVars.isHuaweiStoreApp()) {
                             Browser.openUrl(getContext(), BuildVars.HUAWEI_STORE_URL);
                         } else {
                             Browser.openUrl(getContext(), BuildVars.PLAYSTORE_APP_URL);
