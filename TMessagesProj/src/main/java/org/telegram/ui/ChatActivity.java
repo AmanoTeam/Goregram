@@ -41645,7 +41645,6 @@ public class ChatActivity extends BaseFragment implements
                         }
                     };
                     */
-                    LaunchActivity.instance.checkAppUpdate(true, null);
                 }
             } else {
                 Browser.openUrl(getContext(), BuildVars.PLAYSTORE_APP_URL);
