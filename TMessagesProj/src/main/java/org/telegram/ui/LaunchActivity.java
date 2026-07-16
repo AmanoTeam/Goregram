@@ -33,6 +33,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Path;
+import android.location.Location;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -1904,15 +1906,15 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
                     final LinkManager linkManager = new LinkManager(this, intentAccount[0], progress, openedTelegram);
                     if (linkManager.handle(data)) {
-                        if (intent.hasExtra(EXTRA_ACTION_TOKEN)) {
-                            final boolean success = true;
-                            final Action assistAction = new AssistActionBuilder()
-                                .setActionToken(intent.getStringExtra(EXTRA_ACTION_TOKEN))
-                                .setActionStatus(success ? Action.Builder.STATUS_TYPE_COMPLETED : Action.Builder.STATUS_TYPE_FAILED)
-                                .build();
-                            FirebaseUserActions.getInstance(this).end(assistAction);
-                            intent.removeExtra(EXTRA_ACTION_TOKEN);
-                        }
+//                        if (intent.hasExtra(EXTRA_ACTION_TOKEN)) {
+//                            final boolean success = true;
+//                            final Action assistAction = new AssistActionBuilder()
+//                                .setActionToken(intent.getStringExtra(EXTRA_ACTION_TOKEN))
+//                                .setActionStatus(success ? Action.Builder.STATUS_TYPE_COMPLETED : Action.Builder.STATUS_TYPE_FAILED)
+//                                .build();
+//                            FirebaseUserActions.getInstance(this).end(assistAction);
+//                            intent.removeExtra(EXTRA_ACTION_TOKEN);
+//                        }
                         return true;
                     }
 
@@ -7480,20 +7482,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 }
                 if (rightActionBarLayout != null) {
                     rightActionBarLayout.animateThemedValues(theme, accentId, nightTheme, instant);
-                }
-            }
-        } else if (id == NotificationCenter.notificationsCountUpdated) {
-            if (sideMenu != null) {
-                Integer accountNum = (Integer) args[0];
-                int count = sideMenu.getChildCount();
-                for (int a = 0; a < count; a++) {
-                    View child = sideMenu.getChildAt(a);
-                    if (child instanceof DrawerUserCell) {
-                        if (((DrawerUserCell) child).getAccountNumber() == accountNum) {
-                            child.invalidate();
-                            break;
-                        }
-                    }
                 }
             }
         } else if (id == NotificationCenter.fileLoaded) {
