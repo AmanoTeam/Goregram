@@ -4232,6 +4232,7 @@ public class AndroidUtilities {
             String realMimeType = null;
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             MimeTypeMap myMime = MimeTypeMap.getSingleton();
             int idx = fileName == null ? -1 : fileName.lastIndexOf('.');
             if (idx != -1) {
