@@ -536,7 +536,7 @@ public class AvatarConstructorFragment extends BaseFragment {
     }
 
     private boolean isLocked() {
-        if (UserConfig.getInstance(currentAccount).isPremium()) return false;
+        if (UserConfig.getInstance(currentAccount).isReallyPremium()) return false;
         if (previewView.backgroundGradient != null && previewView.backgroundGradient.premium || previewView.isCustomGradient) {
             return true;
         }
@@ -1063,12 +1063,12 @@ public class AvatarConstructorFragment extends BaseFragment {
                     if (holder.getItemViewType() == VIEW_TYPE_GRADIENT) {
                         view.setCustom(false);
                         final BackgroundGradient gradient = gradients.get(position);
-                        view.setLocked(gradient.premium && !UserConfig.getInstance(currentAccount).isPremium());
+                        view.setLocked(gradient.premium && !UserConfig.getInstance(currentAccount).isReallyPremium());
                         view.setGradient(gradient);
                         view.setSelectedInternal(selectedItemId == gradients.get(position).stableId, true);
                     } else {
                         view.setCustom(true);
-                        view.setLocked(!UserConfig.getInstance(currentAccount).isPremium());
+                        view.setLocked(!UserConfig.getInstance(currentAccount).isReallyPremium());
                         view.setGradient(customSelectedGradient);
                         view.setSelectedInternal(selectedItemId == 1, true);
                     }

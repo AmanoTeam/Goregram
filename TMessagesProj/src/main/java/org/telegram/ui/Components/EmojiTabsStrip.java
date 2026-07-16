@@ -74,7 +74,7 @@ public class EmojiTabsStrip extends ScrollableHorizontalScrollView {
     };
     private int settingsDrawableId = R.drawable.smiles_tab_settings;
 
-    private boolean forceTabsShow = !UserConfig.getInstance(UserConfig.selectedAccount).isPremium();
+    private boolean forceTabsShow = !UserConfig.getInstance(UserConfig.selectedAccount).isReallyPremium();
     private boolean showSelected = true;
     private AnimatedFloat showSelectedAlpha;
 
@@ -530,7 +530,7 @@ public class EmojiTabsStrip extends ScrollableHorizontalScrollView {
         }
         appearCount = emojiPacks.size();
         final boolean includeFeatured = doIncludeFeatured();
-        final boolean isPremium = UserConfig.getInstance(UserConfig.selectedAccount).isPremium() || allowEmojisForNonPremium();
+        final boolean isPremium = UserConfig.getInstance(UserConfig.selectedAccount).isReallyPremium() || allowEmojisForNonPremium();
 
         ArrayList<EmojiTabButton> attachedEmojiPacks = new ArrayList<>();
 

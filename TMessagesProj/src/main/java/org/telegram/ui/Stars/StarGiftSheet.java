@@ -1136,7 +1136,7 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
     private ColoredImageSpan lockSpan;
     private boolean shownWearInfo;
     private void onWearPressed(View v) {
-        if (UserConfig.getInstance(currentAccount).isPremium() && (isWorn(currentAccount, getUniqueGift()) || shownWearInfo)) {
+        if (UserConfig.getInstance(currentAccount).isReallyPremium() && (isWorn(currentAccount, getUniqueGift()) || shownWearInfo)) {
             toggleWear();
             return;
         }
@@ -1146,7 +1146,7 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
         final String product = gift.title + " #" + LocaleController.formatNumber(gift.num, ',');
         wearTitle.setText(LocaleController.formatString(R.string.Gift2WearTitle, product));
         SpannableStringBuilder buttonText = new SpannableStringBuilder(getString(R.string.Gift2WearStart));
-        if (!UserConfig.getInstance(currentAccount).isPremium()) {
+        if (!UserConfig.getInstance(currentAccount).isReallyPremium()) {
             buttonText.append(" l");
             if (lockSpan == null) {
                 lockSpan = new ColoredImageSpan(R.drawable.msg_mini_lock3);
@@ -1170,7 +1170,7 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
         final String product = gift.title + " #" + LocaleController.formatNumber(gift.num, ',');
         wearTitle.setText(LocaleController.formatString(R.string.Gift2WearTitle, product));
         SpannableStringBuilder buttonText = new SpannableStringBuilder(getString(R.string.Gift2WearStart));
-        if (dialogId == UserConfig.getInstance(currentAccount).getClientUserId() && !UserConfig.getInstance(currentAccount).isPremium()) {
+        if (dialogId == UserConfig.getInstance(currentAccount).getClientUserId() && !UserConfig.getInstance(currentAccount).isReallyPremium()) {
             buttonText.append(" l");
             if (lockSpan == null) {
                 lockSpan = new ColoredImageSpan(R.drawable.msg_mini_lock3);
@@ -1222,7 +1222,7 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
         } else {
             final long did = getDialogId();
             if (did >= 0) {
-                if (!UserConfig.getInstance(currentAccount).isPremium()) {
+                if (!UserConfig.getInstance(currentAccount).isReallyPremium()) {
                     getBulletinFactory()
                         .createSimpleBulletinDetail(R.raw.star_premium_2, AndroidUtilities.premiumText(getString(R.string.Gift2ActionWearNeededPremium), () -> {
                             new PremiumFeatureBottomSheet(getDummyFragment(), PremiumPreviewFragment.PREMIUM_FEATURE_EMOJI_STATUS, false).show();

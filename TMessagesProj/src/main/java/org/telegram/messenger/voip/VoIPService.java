@@ -2476,7 +2476,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 															restricterdUsersBottomSheet.setRestrictedUsers(null, users2, premiumBlockedUsers, premiumInviteBlockedUsers, link);
 															restricterdUsersBottomSheet.show();
 														};
-														if (UserConfig.getInstance(currentAccount).isPremium()) {
+														if (UserConfig.getInstance(currentAccount).isReallyPremium()) {
 															showLimitSheet.run();
 														} else {
 															ConnectionsManager.getInstance(currentAccount).sendRequest(req3, (res3, err3) -> AndroidUtilities.runOnUIThread(() -> {
@@ -2570,7 +2570,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 													restricterdUsersBottomSheet.setRestrictedUsers(null, users2, premiumBlockedUsers, premiumInviteBlockedUsers, link);
 													restricterdUsersBottomSheet.show();
 												};
-												if (UserConfig.getInstance(currentAccount).isPremium()) {
+												if (UserConfig.getInstance(currentAccount).isReallyPremium()) {
 													showLimitSheet.run();
 												} else {
 													ConnectionsManager.getInstance(currentAccount).sendRequest(req3, (res3, err3) -> AndroidUtilities.runOnUIThread(() -> {

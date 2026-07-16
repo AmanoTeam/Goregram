@@ -1215,7 +1215,7 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
         if (containerView == null) {
             return;
         }
-        if (!UserConfig.getInstance(currentAccount).isPremium() && MessageObject.isPremiumEmojiPack(stickerSet)) {
+        if (!UserConfig.getInstance(currentAccount).isReallyPremium() && MessageObject.isPremiumEmojiPack(stickerSet)) {
 //            descriptionTextView = new TextView(getContext());
 //            descriptionTextView.setTextColor(getThemedColor(Theme.key_chat_emojiPanelTrendingDescription));
 //            descriptionTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
@@ -1475,7 +1475,7 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
             }
             layoutManager.setSpanCount(adapter.stickersPerRow);
 
-            if (stickerSet != null && stickerSet.set != null && stickerSet.set.emojis && !UserConfig.getInstance(currentAccount).isPremium() && customButtonDelegate == null) {
+            if (stickerSet != null && stickerSet.set != null && stickerSet.set.emojis && !UserConfig.getInstance(currentAccount).isReallyPremium() && customButtonDelegate == null) {
                 boolean hasPremiumEmoji = false;
                 if (stickerSet.documents != null) {
                     for (int i = 0; i < stickerSet.documents.size(); ++i) {

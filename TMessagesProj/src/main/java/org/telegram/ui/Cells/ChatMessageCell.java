@@ -12661,7 +12661,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             !currentMessageObject.isRepostPreview &&
             (!currentMessageObject.isOutOwner() || currentMessageObject.isSent()) &&
             (
-                UserConfig.getInstance(currentAccount).isPremium()
+                UserConfig.getInstance(currentAccount).isReallyPremium()
                 ||
                 TranscribeButton.isFreeTranscribeInChat(currentMessageObject)
                 ||
