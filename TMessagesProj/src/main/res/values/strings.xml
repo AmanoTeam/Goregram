@@ -7,6 +7,13 @@
     <string name="LanguageNameInEnglish">English</string>
     <string name="LanguageCode">en</string>
     <string name="ContinueOnThisLanguage">Continue in English</string>
+    <!--fork settings view-->
+    <string name="ForkSettingsTitle">Fork</string>
+    <string name="Miscellaneous">Miscellaneous</string>
+    <string name="SettingsGeneral">General</string>
+    <string name="SettingsGeneralInfo">General settings</string>
+    <string name="GhostMode">Spectator Mode</string>
+    <string name="GhostModeInfo">Stay invisible to other users until you choose to interact with them.</string>
     <!--signin view-->
     <string name="YourPhone">Your Phone</string>
     <string name="StartText">Please confirm your country code and enter your phone number.</string>
