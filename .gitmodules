@@ -24,3 +24,6 @@
 [submodule "TMessagesProj/jni/dav1d"]
 	path = TMessagesProj/jni/dav1d
 	url = https://github.com/videolan/dav1d
+[submodule "TMessagesProj/jni/tdlib"]
+	path = TMessagesProj/jni/tdlib
+	url = https://github.com/tdlib/td
