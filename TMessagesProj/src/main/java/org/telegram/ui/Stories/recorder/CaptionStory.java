@@ -97,7 +97,7 @@ public class CaptionStory extends CaptionContainerView {
                 }
             };
 
-            final boolean isPremium = UserConfig.getInstance(currentAccount).isPremium();
+            final boolean isPremium = UserConfig.getInstance(currentAccount).isReallyPremium();
 
             Utilities.Callback<Integer> showPremiumHint = isPremium ? null : period -> {
                 if (onPremiumHintShow != null) {

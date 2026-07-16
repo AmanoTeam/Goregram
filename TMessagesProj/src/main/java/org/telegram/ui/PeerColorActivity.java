@@ -736,7 +736,7 @@ public class PeerColorActivity extends BaseFragment implements NotificationCente
             button = new ButtonWithCounterView(getContext(), getResourceProvider());
             button.setRound();
             button.text.setHacks(true, true, true);
-            button.setText(isChannel ? buttonUnlocked : (!getUserConfig().isPremium() ? buttonLocked : (selectedEmojiCollectible != null ? buttonCollectible : buttonUnlocked)), false);
+            button.setText(isChannel ? buttonUnlocked : (!getUserConfig().isReallyPremium() ? buttonLocked : (selectedEmojiCollectible != null ? buttonCollectible : buttonUnlocked)), false);
             button.setOnClickListener(v -> buttonClick());
             buttonContainer.addView(button, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.FILL, 14, 14.66f, 14, 14));
 
@@ -1232,7 +1232,7 @@ public class PeerColorActivity extends BaseFragment implements NotificationCente
                     button.setSubText(null, animated);
                 }
             } else {
-                button.setText(!getUserConfig().isPremium() && !isChannel ? buttonLocked : (selectedEmojiCollectible != null ? buttonCollectible : buttonUnlocked), animated);
+                button.setText(!getUserConfig().isReallyPremium() && !isChannel ? buttonLocked : (selectedEmojiCollectible != null ? buttonCollectible : buttonUnlocked), animated);
                 button.setSubText(null, animated);
             }
         }
@@ -1682,7 +1682,7 @@ public class PeerColorActivity extends BaseFragment implements NotificationCente
 
     @Override
     public boolean onBackPressed(boolean invoked) {
-        if (!isChannel && hasUnsavedChanged() && getUserConfig().isPremium()) {
+        if (!isChannel && hasUnsavedChanged() && getUserConfig().isReallyPremium()) {
             if (invoked) showUnsavedAlert();
             return false;
         }
@@ -1691,7 +1691,7 @@ public class PeerColorActivity extends BaseFragment implements NotificationCente
 
     @Override
     public boolean isSwipeBackEnabled(MotionEvent event) {
-        if (!isChannel && hasUnsavedChanged() && getUserConfig().isPremium()) {
+        if (!isChannel && hasUnsavedChanged() && getUserConfig().isReallyPremium()) {
             return false;
         }
         return super.isSwipeBackEnabled(event);
@@ -1722,7 +1722,7 @@ public class PeerColorActivity extends BaseFragment implements NotificationCente
         if (isChannel) {
             finishFragment();
         } else {
-            if (!getUserConfig().isPremium()) {
+            if (!getUserConfig().isReallyPremium()) {
                 showDialog(new PremiumFeatureBottomSheet(PeerColorActivity.this, PremiumPreviewFragment.PREMIUM_FEATURE_NAME_COLOR, true));
                 return;
             }
@@ -1789,7 +1789,7 @@ public class PeerColorActivity extends BaseFragment implements NotificationCente
     private boolean applyingName, applyingProfile;
     private boolean applying;
     private void apply() {
-        if (applying || !isChannel && !getUserConfig().isPremium()) {
+        if (applying || !isChannel && !getUserConfig().isReallyPremium()) {
             return;
         }
 

@@ -2250,7 +2250,7 @@ public class StoriesController {
             }
             TLObject req;
 
-            final int captionLimit = UserConfig.getInstance(currentAccount).isPremium() ? MessagesController.getInstance(currentAccount).storyCaptionLengthLimitPremium : MessagesController.getInstance(currentAccount).storyCaptionLengthLimitDefault;
+            final int captionLimit = UserConfig.getInstance(currentAccount).isReallyPremium() ? MessagesController.getInstance(currentAccount).storyCaptionLengthLimitPremium : MessagesController.getInstance(currentAccount).storyCaptionLengthLimitDefault;
             if (edit) {
                 if (entry.botId != 0) {
                     TL_bots.editPreviewMedia editPreviewMedia = new TL_bots.editPreviewMedia();
@@ -4475,7 +4475,7 @@ public class StoriesController {
     private StoryLimit storyLimitCached;
 
     public StoryLimit checkStoryLimit() {
-        final int countLimit = UserConfig.getInstance(currentAccount).isPremium() ?
+        final int countLimit = UserConfig.getInstance(currentAccount).isReallyPremium() ?
             MessagesController.getInstance(currentAccount).storyExpiringLimitPremium :
             MessagesController.getInstance(currentAccount).storyExpiringLimitDefault;
 

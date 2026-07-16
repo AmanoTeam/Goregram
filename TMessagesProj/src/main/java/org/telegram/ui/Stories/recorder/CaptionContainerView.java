@@ -369,7 +369,7 @@ public class CaptionContainerView extends FrameLayout {
                 limitTextView.cancelAnimation();
                 limitTextView.setText(limitText);
                 limitTextView.setTextColor(codePointCount >= limit ? 0xffEC7777 : 0xffffffff);
-                if (codePointCount > limit && !UserConfig.getInstance(currentAccount).isPremium() && codePointCount < getCaptionPremiumLimit() && codePointCount > lastLength && (captionLimitToast() || MessagesController.getInstance(currentAccount).premiumFeaturesBlocked())) {
+                if (codePointCount > limit && !UserConfig.getInstance(currentAccount).isReallyPremium() && codePointCount < getCaptionPremiumLimit() && codePointCount > lastLength && (captionLimitToast() || MessagesController.getInstance(currentAccount).premiumFeaturesBlocked())) {
                     AndroidUtilities.shakeViewSpring(limitTextView, shiftDp = -shiftDp);
                     BotWebViewVibrationEffect.APP_ERROR.vibrate();
                 }
@@ -832,7 +832,7 @@ public class CaptionContainerView extends FrameLayout {
     }
 
     protected int getCaptionLimit() {
-        return UserConfig.getInstance(currentAccount).isPremium() ? getCaptionPremiumLimit() : getCaptionDefaultLimit();
+        return UserConfig.getInstance(currentAccount).isReallyPremium() ? getCaptionPremiumLimit() : getCaptionDefaultLimit();
     }
 
     protected int getCaptionDefaultLimit() {

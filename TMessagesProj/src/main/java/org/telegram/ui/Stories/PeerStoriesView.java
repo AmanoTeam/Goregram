@@ -2430,7 +2430,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
 
     private void createStealthModeItem(ActionBarPopupWindow.ActionBarPopupWindowLayout popupLayout) {
         if (isBotsPreview() || currentStory.isLive) return;
-        if (UserConfig.getInstance(currentAccount).isPremium()) {
+        if (UserConfig.getInstance(currentAccount).isReallyPremium()) {
             ActionBarMenuItem.addItem(popupLayout, R.drawable.msg_stories_stealth2, getString(R.string.StealthModeButton), false, resourcesProvider).setOnClickListener(v -> {
                 if (stealthModeIsActive) {
                     StealthModeAlert.showStealthModeEnabledBulletin();
@@ -4221,7 +4221,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
             isSelf = dialogId == UserConfig.getInstance(currentAccount).getClientUserId();
             final TLRPC.User user = MessagesController.getInstance(currentAccount).getUser(dialogId);
             final TL_account.RequirementToContact r = MessagesController.getInstance(currentAccount).isUserContactBlocked(dialogId);
-            isPremiumBlocked = !UserConfig.getInstance(currentAccount).isPremium() && DialogObject.isPremiumBlocked(r);
+            isPremiumBlocked = !UserConfig.getInstance(currentAccount).isReallyPremium() && DialogObject.isPremiumBlocked(r);
             starsPriceBlocked = DialogObject.getMessagesStarsPrice(r);
             avatarDrawable.setInfo(currentAccount, user);
             headerView.backupImageView.getImageReceiver().setForUserOrChat(user, avatarDrawable);
@@ -4843,7 +4843,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
             delegate.showDialog(sheet);
         } else if (id == NotificationCenter.userIsPremiumBlockedUpadted) {
             final TL_account.RequirementToContact r = MessagesController.getInstance(currentAccount).isUserContactBlocked(dialogId);
-            final boolean newPremiumBlocked = dialogId >= 0 && !UserConfig.getInstance(currentAccount).isPremium() && DialogObject.isPremiumBlocked(r);
+            final boolean newPremiumBlocked = dialogId >= 0 && !UserConfig.getInstance(currentAccount).isReallyPremium() && DialogObject.isPremiumBlocked(r);
             if (isPremiumBlocked != newPremiumBlocked || starsPriceBlocked != DialogObject.getMessagesStarsPrice(r)) {
                 isPremiumBlocked = newPremiumBlocked;
                 starsPriceBlocked = DialogObject.getMessagesStarsPrice(r);

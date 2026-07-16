@@ -269,7 +269,7 @@ public class SearchTagsList extends FrameLayout implements NotificationCenter.No
             if (position < 0 || position >= items.size()) {
                 return;
             }
-            if (!UserConfig.getInstance(currentAccount).isPremium()) {
+            if (!UserConfig.getInstance(currentAccount).isReallyPremium()) {
                 new PremiumFeatureBottomSheet(fragment, PremiumPreviewFragment.PREMIUM_FEATURE_SAVED_TAGS, true).show();
                 return;
             }
@@ -300,9 +300,9 @@ public class SearchTagsList extends FrameLayout implements NotificationCenter.No
             }
         });
         listView.setOnItemLongClickListener((view, position) -> {
-            if (position < 0 || position >= items.size() || !UserConfig.getInstance(currentAccount).isPremium())
+            if (position < 0 || position >= items.size() || !UserConfig.getInstance(currentAccount).isReallyPremium())
                 return false;
-            if (!UserConfig.getInstance(currentAccount).isPremium()) {
+            if (!UserConfig.getInstance(currentAccount).isReallyPremium()) {
                 new PremiumFeatureBottomSheet(fragment, PremiumPreviewFragment.PREMIUM_FEATURE_SAVED_TAGS, true).show();
                 return true;
             }
@@ -652,7 +652,7 @@ public class SearchTagsList extends FrameLayout implements NotificationCenter.No
             adapter.notifyDataSetChanged();
         }
 
-        if (shownPremiumLayout = !UserConfig.getInstance(currentAccount).isPremium()) {
+        if (shownPremiumLayout = !UserConfig.getInstance(currentAccount).isReallyPremium()) {
             createPremiumLayout();
             if (!notify) {
                 premiumLayout.setVisibility(View.VISIBLE);

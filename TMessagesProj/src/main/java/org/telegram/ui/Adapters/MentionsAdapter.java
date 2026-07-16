@@ -270,7 +270,7 @@ public class MentionsAdapter extends RecyclerListView.SelectionAdapter implement
         if (stickersMap != null && stickersMap.containsKey(key)) {
             return;
         }
-        if (!UserConfig.getInstance(currentAccount).isPremium() && MessageObject.isPremiumSticker(document)) {
+        if (!UserConfig.getInstance(currentAccount).isReallyPremium() && MessageObject.isPremiumSticker(document)) {
             return;
         }
         if (stickers == null) {
@@ -295,7 +295,7 @@ public class MentionsAdapter extends RecyclerListView.SelectionAdapter implement
             if (stickersMap != null && stickersMap.containsKey(key)) {
                 continue;
             }
-            if (!UserConfig.getInstance(currentAccount).isPremium() && MessageObject.isPremiumSticker(document)) {
+            if (!UserConfig.getInstance(currentAccount).isReallyPremium() && MessageObject.isPremiumSticker(document)) {
                 continue;
             }
             for (int b = 0, size2 = document.attributes.size(); b < size2; b++) {
@@ -1617,7 +1617,7 @@ public class MentionsAdapter extends RecyclerListView.SelectionAdapter implement
                 searchResultCommandsUsers = null;
                 notifyDataSetChanged();
                 delegate.needChangePanelVisibility(searchResultSuggestions != null && !searchResultSuggestions.isEmpty());
-            }, SharedConfig.suggestAnimatedEmoji && UserConfig.getInstance(currentAccount).isPremium());
+            }, SharedConfig.suggestAnimatedEmoji && UserConfig.getInstance(currentAccount).isReallyPremium());
         } else if (foundType == 4) {
             searchResultHashtags = null;
             searchResultUsernames = null;

@@ -5214,7 +5214,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     final String key = NotificationsController.getSharedPrefKey(dialogId, 0);
                     boolean muted = !NotificationsCustomSettingsActivity.areStoriesNotMuted(currentAccount, dialogId);
                     boolean isPremiumBlocked = MessagesController.getInstance(currentAccount).premiumFeaturesBlocked();
-                    boolean isPremium = UserConfig.getInstance(currentAccount).isPremium();
+                    boolean isPremium = UserConfig.getInstance(currentAccount).isReallyPremium();
                     boolean isUnread = MessagesController.getInstance(currentAccount).getStoriesController().hasUnreadStories(dialogId);
                     boolean isLive = MessagesController.getInstance(currentAccount).getStoriesController().hasLiveStory(dialogId);
                     CombinedDrawable stealthModeLockedDrawable = null;

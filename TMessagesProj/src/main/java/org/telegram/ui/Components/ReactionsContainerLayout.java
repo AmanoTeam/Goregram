@@ -1133,7 +1133,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
         }
         hasStar = false;
         if (type == TYPE_TAGS) {
-            allReactionsAvailable = UserConfig.getInstance(currentAccount).isPremium();
+            allReactionsAvailable = UserConfig.getInstance(currentAccount).isReallyPremium();
             fillRecentReactionsList(visibleReactions);
         } else if (type == TYPE_MESSAGE_EFFECTS) {
             allReactionsAvailable = true;
@@ -1179,8 +1179,8 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
             fillRecentReactionsList(visibleReactions);
         }
         filterReactions(visibleReactions);
-        showExpandableReactions = !hitLimit && (!allReactionsAvailable && visibleReactions.size() > 16 || allReactionsAvailable && !UserConfig.getInstance(currentAccount).isPremium() && MessagesController.getInstance(currentAccount).premiumFeaturesBlocked());
-        if (type == TYPE_TAGS && !UserConfig.getInstance(currentAccount).isPremium()) {
+        showExpandableReactions = !hitLimit && (!allReactionsAvailable && visibleReactions.size() > 16 || allReactionsAvailable && !UserConfig.getInstance(currentAccount).isReallyPremium() && MessagesController.getInstance(currentAccount).premiumFeaturesBlocked());
+        if (type == TYPE_TAGS && !UserConfig.getInstance(currentAccount).isReallyPremium()) {
             showExpandableReactions = false;
         }
         if (type == TYPE_STICKER_SET_EMOJI) {
@@ -1439,7 +1439,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
         } else {
             for (int i = 0; i < topReactions.size(); i++) {
                 ReactionsLayoutInBubble.VisibleReaction visibleReaction = ReactionsLayoutInBubble.VisibleReaction.fromTL(topReactions.get(i));
-                if (!hashSet.contains(visibleReaction) && (type == TYPE_TAGS || UserConfig.getInstance(currentAccount).isPremium() || visibleReaction.documentId == 0)) {
+                if (!hashSet.contains(visibleReaction) && (type == TYPE_TAGS || UserConfig.getInstance(currentAccount).isReallyPremium() || visibleReaction.documentId == 0)) {
                     hashSet.add(visibleReaction);
                     visibleReactions.add(visibleReaction);
                     added++;
@@ -1450,7 +1450,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
             }
         }
 
-        if (type != TYPE_TAGS || UserConfig.getInstance(currentAccount).isPremium()) {
+        if (type != TYPE_TAGS || UserConfig.getInstance(currentAccount).isReallyPremium()) {
             ArrayList<TLRPC.Reaction> recentReactions = MediaDataController.getInstance(currentAccount).getRecentReactions();
             for (int i = 0; i < recentReactions.size(); i++) {
                 ReactionsLayoutInBubble.VisibleReaction visibleReaction = ReactionsLayoutInBubble.VisibleReaction.fromTL(recentReactions.get(i));
@@ -1474,7 +1474,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
 
     private void checkPremiumReactions(List<TLRPC.TL_availableReaction> reactions) {
         premiumLockedReactions.clear();
-        if (UserConfig.getInstance(currentAccount).isPremium()) {
+        if (UserConfig.getInstance(currentAccount).isReallyPremium()) {
             return;
         }
         try {
@@ -2023,7 +2023,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
                 return;
             }
 
-            final boolean userIsPremium = UserConfig.getInstance(currentAccount).isPremium();
+            final boolean userIsPremium = UserConfig.getInstance(currentAccount).isReallyPremium();
             isLocked = type == TYPE_TAGS && !userIsPremium || type == TYPE_MESSAGE_EFFECTS && react.premium && !userIsPremium;
             if (isLocked && lockIconView == null) {
                 lockIconView = new PremiumLockIconView(getContext(), PremiumLockIconView.TYPE_STICKERS_PREMIUM_LOCKED);
