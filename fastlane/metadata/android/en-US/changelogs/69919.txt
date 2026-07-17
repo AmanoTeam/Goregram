@@ -1,0 +1,1 @@
+* Update to Telegram v12.9.2
