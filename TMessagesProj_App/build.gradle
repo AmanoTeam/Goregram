@@ -22,7 +22,7 @@ android {
     compileSdkVersion 35
     buildToolsVersion '35.0.0'
 
-    defaultConfig.applicationId = APP_PACKAGE
+    defaultConfig.applicationId = "com.amanoteam.flonne"
 
     sourceSets.main.jniLibs.srcDirs = ['../TMessagesProj/jni/']
 
@@ -43,7 +43,6 @@ android {
         debug {
             debuggable true
             jniDebuggable true
-            applicationIdSuffix ".beta"
             minifyEnabled false
             shrinkResources false
             multiDexEnabled true
@@ -54,7 +53,6 @@ android {
         standalone {
             debuggable false
             jniDebuggable false
-            applicationIdSuffix ".web"
             minifyEnabled true
             shrinkResources false
             multiDexEnabled true
