@@ -1,0 +1,75 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    branches:
+        - '**'
+  push:
+    branches:
+        - '**'
+
+permissions: write-all
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        target: ['gcc', 'clang']
+    steps:
+      - uses: actions/checkout@main
+        with:
+          submodules: true
+      - name: Set swap space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 30
+      - uses: actions/setup-java@main
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Install required dependencies
+        run: |
+          sudo apt install meson gperf
+      - name: Install android-gcc-cross
+        if: matrix.target == 'gcc'
+        run: |
+          declare -r PINO_TARBALL='/tmp/gcc.tar.xz'
+          declare -r PINO_URL='https://github.com/AmanoTeam/android-gcc-cross/releases/latest/download/x86_64-unknown-linux-gnu.tar.xz'
+          
+          curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${PINO_URL}" --output "${PINO_TARBALL}"
+          tar --directory="$(dirname "${PINO_TARBALL}")" --extract --file="${PINO_TARBALL}"
+                  
+          echo 'PINO_STATIC=true' >> "${GITHUB_ENV}"
+          echo 'PINO_NEON=true' >> "${GITHUB_ENV}"
+          echo 'PINO_ARM_MODE=true' >> "${GITHUB_ENV}"
+          #echo 'PINO_VERBOSE=true' >> "${GITHUB_ENV}"
+          echo 'PINO_LTO=full' >> "${GITHUB_ENV}"
+          echo 'PINO_OPT_LEVEL=2' >> "${GITHUB_ENV}"
+          echo 'PINO_HOME=/tmp/android-gcc-cross' >> "${GITHUB_ENV}"
+          # echo '/tmp/android-gcc-cross/bin' >> "${GITHUB_PATH}"
+          
+          /tmp/android-gcc-cross/bin/ndk-patch
+      - name: Build
+        run: |
+          ./gradlew assembleAfatRelease
+          mv TMessagesProj_App/build/outputs/apk/afat/release/app.apk app-release.apk
+      - name: Create logs
+        if: always()
+        run: |
+          tar --create --file=- '/var/tmp/obggcc' | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
+      - name: Upload logs
+        if:  always()
+        uses: actions/upload-artifact@main
+        with:
+          name: logs
+          if-no-files-found: error
+          path: |
+              /tmp/logs.tar.xz
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: build-${{ matrix.target }}
+          path: app-release.apk
