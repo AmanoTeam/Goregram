@@ -21,6 +21,12 @@ function build_one {
 	
 	INCLUDES=" -I${LIBVPXPREFIX}/include"
 	LIBS=" -L${LIBVPXPREFIX}/lib"
+	# NDK 27's libatomic.a is a 150-byte stub. The real atomic helpers
+	# (e.g. __aarch64_ldadd4_acq_rel) live in libclang_rt.builtins-<arch>-android.a
+	# which is what $CC -print-libgcc-file-name returns. Pass it via --extra-libs
+	# so it ends up AFTER the test .o in the link command (test_ld puts
+	# $extralibs at the very end), allowing the linker to resolve atomics.
+	EXTRA_LIBS="$(${CC} -print-libgcc-file-name)"
 
 	echo "Cleaning..."
 	rm -f config.h
@@ -45,12 +51,12 @@ function build_one {
 	--enable-static \
 	--enable-asm \
 	--enable-inline-asm \
-	--enable-x86asm \
 	--cross-prefix=$CROSS_PREFIX \
 	--sysroot="${LLVM_PREFIX}/sysroot" \
 	--extra-cflags="${INCLUDES} -Wl,-Bsymbolic -Os -DCONFIG_LINUX_PERF=0 -DANDROID $OPTIMIZE_CFLAGS -fPIE -pie --static -fPIC" \
 	--extra-cxxflags="${INCLUDES} -Wl,-Bsymbolic -Os -DCONFIG_LINUX_PERF=0 -DANDROID $OPTIMIZE_CFLAGS -fPIE -pie --static -fPIC" \
 	--extra-ldflags="${LIBS} -Wl,-Bsymbolic -Wl,-rpath-link=$PLATFORM/usr/lib -L$PLATFORM/usr/lib -nostdlib -lc -lm -ldl -fPIC" \
+	--extra-libs="${EXTRA_LIBS}" \
 	\
 	--enable-version3 \
 	--enable-gpl \
@@ -66,13 +72,10 @@ function build_one {
 	--disable-zlib \
 	--disable-avfilter \
 	--disable-avdevice \
-	--disable-postproc \
 	--disable-debug \
 	--disable-programs \
 	--disable-ffplay \
 	--disable-ffprobe \
-	--disable-postproc \
-	--disable-avdevice \
 	\
 	--enable-libvpx \
 	--enable-decoder=libvpx_vp9 \
@@ -82,7 +85,6 @@ function build_one {
 	--enable-bsf=vp9_raw_reorder \
 	--enable-runtime-cpudetect \
 	--enable-pthreads \
-	--enable-avresample \
 	--enable-swscale \
 	--enable-protocol=file \
 	--enable-decoder=opus \
@@ -92,7 +94,7 @@ function build_one {
 	--enable-decoder=mjpeg \
 	--enable-decoder=gif \
 	--enable-decoder=alac \
-	--enable-decoder=h265 \
+	--enable-decoder=hevc \
 	--enable-decoder=aac \
 	--enable-demuxer=mov \
 	--enable-demuxer=gif \
@@ -163,21 +165,22 @@ VERSION="4.9"
 function build {
 	for arg in "$@"; do
 		case "${arg}" in
-			x86_64)
-				ANDROID_API=21
+		x86_64)
+			ANDROID_API=21
 
-				ARCH=x86_64
-				ARCH_NAME=x86_64
-				PREBUILT_ARCH=x86_64
-				PREBUILT_MIDDLE=
-				CLANG_PREFIX=x86_64
-				BIN_MIDDLE=android
-				CPU=x86_64
-				PREFIX=./build/$CPU
-				LIBVPXPREFIX=../libvpx/build/$ARCH_NAME
-				ADDITIONAL_CONFIGURE_FLAG="--disable-asm"
-				build_one
-			;;
+			ARCH=x86_64
+			ARCH_NAME=x86_64
+			PREBUILT_ARCH=x86_64
+			PREBUILT_MIDDLE=
+			CLANG_PREFIX=x86_64
+			BIN_MIDDLE=android
+			CPU=x86_64
+			OPTIMIZE_CFLAGS=
+			PREFIX=./build/$CPU
+			LIBVPXPREFIX=../libvpx/build/$ARCH_NAME
+			ADDITIONAL_CONFIGURE_FLAG="--disable-asm"
+			build_one
+		;;
 			arm64)
 				ANDROID_API=21
 

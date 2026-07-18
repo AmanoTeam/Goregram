@@ -1,18 +1,39 @@
-From 6a841e89875400f2e2989f39b628dc9fa9654966 Mon Sep 17 00:00:00 2001
+From a8c4eaae1c0c0c7c0000d0e0c0fd0a0bc0fb0ca0 Mon Sep 17 00:00:00 2001
 From: thermatk <thermatk@thermatk.com>
 Date: Sat, 18 May 2019 22:39:24 +0200
 Subject: [PATCH] Compilation magic
 
+Rename the MOVContext `class` field to `clazz` so isom.h can be included
+from C++ translation units (where `class` is a reserved keyword), and
+drop the static inline ff_mov_get_lpcm_codec_id() helper that references
+the private ff_get_pcm_codec_id() symbol which is not visible to external
+builders. Replace the in-tree callers (mov.c, cafdec.c) with direct
+ff_get_pcm_codec_id() calls so libavformat still builds.
 ---
- libavformat/isom.h | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ libavformat/cafdec.c |  2 +-
+ libavformat/isom.h   | 16 +---------------
+ libavformat/mov.c    |  4 ++--
+ 3 files changed, 4 insertions(+), 18 deletions(-)
 
+diff --git a/libavformat/cafdec.c b/libavformat/cafdec.c
+index 8816e6b6dc..3172ddca3f 100644
+--- a/libavformat/cafdec.c
++++ b/libavformat/cafdec.c
+@@ -107,7 +107,7 @@ static int read_desc_chunk(AVFormatContext *s)
+ 
+     /* determine codec */
+     if (st->codecpar->codec_tag == MKTAG('l','p','c','m'))
+-        st->codecpar->codec_id = ff_mov_get_lpcm_codec_id(st->codecpar->bits_per_coded_sample, (flags ^ 0x2) | 0x4);
++        st->codecpar->codec_id = ff_get_pcm_codec_id(st->codecpar->bits_per_coded_sample, (flags ^ 0x2) & 1, (flags ^ 0x2) & 2, ((flags ^ 0x2) | 0x4) & 4 ? -1 : 0);
+     else
+         st->codecpar->codec_id = ff_codec_get_id(ff_codec_caf_tags, st->codecpar->codec_tag);
+     return 0;
 diff --git a/libavformat/isom.h b/libavformat/isom.h
-index 69452cae8e..51fd2a917f 100644
+index c7264defb6..1c625e5d03 100644
 --- a/libavformat/isom.h
 +++ b/libavformat/isom.h
-@@ -241,7 +241,7 @@ typedef struct MOVStreamContext {
- } MOVStreamContext;
+@@ -319,7 +319,7 @@ typedef struct HEIFGrid {
+ } HEIFGrid;
  
  typedef struct MOVContext {
 -    const AVClass *class; ///< class for private options
@@ -20,10 +41,14 @@ index 69452cae8e..51fd2a917f 100644
      AVFormatContext *fc;
      int time_scale;
      int64_t duration;     ///< duration of the longest track
-@@ -367,14 +367,5 @@ void ff_mov_write_chan(AVIOContext *pb, int64_t channel_layout);
-  * Compute codec id for 'lpcm' tag.
-  * See CoreAudioTypes and AudioStreamBasicDescription at Apple.
-  */
+@@ -463,20 +463,6 @@ void ff_mov_write_chan(AVIOContext *pb, int64_t channel_layout);
+ #define FF_MOV_FLAG_MFRA_DTS 1
+ #define FF_MOV_FLAG_MFRA_PTS 2
+ 
+-/**
+- * Compute codec id for 'lpcm' tag.
+- * See CoreAudioTypes and AudioStreamBasicDescription at Apple.
+- */
 -static inline enum AVCodecID ff_mov_get_lpcm_codec_id(int bps, int flags)
 -{
 -    /* lpcm flags:
@@ -33,8 +58,24 @@ index 69452cae8e..51fd2a917f 100644
 -     */
 -    return ff_get_pcm_codec_id(bps, flags & 1, flags & 2, flags & 4 ? -1 : 0);
 -}
- 
- #endif /* AVFORMAT_ISOM_H */
+-
+ #define MOV_ISMV_TTML_TAG MKTAG('d', 'f', 'x', 'p')
+ #define MOV_MP4_TTML_TAG  MKTAG('s', 't', 'p', 'p')
+ #define MOV_MP4_FPCM_TAG  MKTAG('f', 'p', 'c', 'm')
+diff --git a/libavformat/mov.c b/libavformat/mov.c
+index 386d2f00aa..bb7b3b57fd 100644
+--- a/libavformat/mov.c
++++ b/libavformat/mov.c
+@@ -2821,8 +2821,8 @@ static void mov_parse_stsd_audio(MOVContext *c, AVIOContext *pb,
+             sc->samples_per_frame = avio_rb32(pb);
+             if (st->codecpar->codec_tag == MKTAG('l','p','c','m'))
+                 st->codecpar->codec_id =
+-                    ff_mov_get_lpcm_codec_id(st->codecpar->bits_per_coded_sample,
+-                                             flags);
++                    ff_get_pcm_codec_id(st->codecpar->bits_per_coded_sample,
++                                        flags & 1, flags & 2, flags & 4 ? -1 : 0);
+         }
+         if (version == 0 || (version == 1 && sc->audio_cid != -2)) {
+             /* can't correctly handle variable sized packet as audio unit */
 -- 
-2.21.0
-
+2.45.0

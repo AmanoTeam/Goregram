@@ -1,6 +1,6 @@
 #include <jni.h>
 #include "libavformat/avio.h"
-#include "libavcodec/codec.h"
+#include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
 #include "libavcodec/avcodec.h"
 #include "c_utils.h"
@@ -48,7 +48,7 @@ JNIEXPORT jlong JNICALL Java_org_telegram_messenger_video_WebmEncoder_createEnco
         }
     }
 
-    AVCodec* codec = avcodec_find_encoder(AV_CODEC_ID_VP9);
+    const AVCodec* codec = avcodec_find_encoder(AV_CODEC_ID_VP9);
     if (!codec) {
         LOGE("vp9: no encoder found!");
         return 0;
@@ -152,7 +152,7 @@ JNIEXPORT jboolean JNICALL Java_org_telegram_messenger_video_WebmEncoder_writeFr
 
     int ret;
     AVPacket pkt;
-    av_init_packet(&pkt);
+    memset(&pkt, 0, sizeof(AVPacket));
     pkt.data = NULL;
     pkt.size = 0;
 
@@ -211,7 +211,7 @@ JNIEXPORT void JNICALL Java_org_telegram_messenger_video_WebmEncoder_stop(
         LOGE("vp9: failed to avcodec_send_frame %d", ret);
     }
     AVPacket pkt;
-    av_init_packet(&pkt);
+    memset(&pkt, 0, sizeof(AVPacket));
     pkt.data = NULL;
     pkt.size = 0;
 
