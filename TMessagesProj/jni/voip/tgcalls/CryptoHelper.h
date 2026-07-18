@@ -5,9 +5,7 @@ extern "C" {
 #include <cstdint>
 #include <openssl/sha.h>
 #include <openssl/aes.h>
-#ifndef OPENSSL_IS_BORINGSSL
 #include <openssl/modes.h>
-#endif
 #include <openssl/rand.h>
 #include <openssl/crypto.h>
 } // extern "C"

@@ -13,6 +13,11 @@ function build_one {
 	-DCMAKE_BUILD_TYPE=Release \
 	-DANDROID_NDK=${NDK} \
 	-DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake \
+	-DLIBRESSL_SKIP_INSTALL=ON \
+	-DLIBRESSL_APPS=OFF \
+	-DLIBRESSL_TESTS=OFF \
+	-DENABLE_NC=OFF \
+	-DENABLE_ASM=ON \
 	../..
 
 	echo "Building..."
@@ -23,8 +28,8 @@ function build_one {
 
 function checkPreRequisites {
 
-	if ! [ -d "boringssl" ] || ! [ "$(ls -A boringssl)" ]; then
-		echo -e "\033[31mFailed! Submodule 'boringssl' not found!\033[0m"
+	if ! [ -d "libressl" ] || ! [ "$(ls -A libressl)" ]; then
+		echo -e "\033[31mFailed! Submodule 'libressl' not found!\033[0m"
 		echo -e "\033[31mTry to run: 'git submodule init && git submodule update'\033[0m"
 		exit
 	fi
@@ -38,7 +43,13 @@ function checkPreRequisites {
 ANDROID_NDK=$NDK
 checkPreRequisites
 
-cd boringssl
+cd libressl
+
+if [ ! -f include/openssl/aes.h ] || [ ! -f configure ]; then
+	echo "Bootstrapping LibreSSL portable sources..."
+	./update.sh
+	./autogen.sh
+fi
 
 rm -rf build
 mkdir build

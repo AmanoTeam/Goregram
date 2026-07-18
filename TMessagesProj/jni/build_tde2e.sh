@@ -54,9 +54,9 @@ for arch in "${architectures[@]}"; do
 		-D ANDROID_PLATFORM='android-21' \
 		-D CMAKE_BUILD_TYPE='Release' \
 		-D CMAKE_INSTALL_PREFIX="${install_directory}" \
-		-D OPENSSL_INCLUDE_DIR="${app_directory}/boringssl/include" \
-		-D OPENSSL_CRYPTO_LIBRARY="${app_directory}/boringssl/build/${arch}/crypto/libcrypto.a" \
-		-D OPENSSL_SSL_LIBRARY="${app_directory}/boringssl/build/${arch}/ssl/libssl.a" \
+		-D OPENSSL_INCLUDE_DIR="${app_directory}/libressl/include" \
+		-D OPENSSL_CRYPTO_LIBRARY="${app_directory}/libressl/build/${arch}/crypto/libcrypto.a" \
+		-D OPENSSL_SSL_LIBRARY="${app_directory}/libressl/build/${arch}/ssl/libssl.a" \
 		-DTD_E2E_ONLY=ON \
 		-B "${build_directory}" \
 		-S "${source_directory}"
