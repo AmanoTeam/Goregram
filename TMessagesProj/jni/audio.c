@@ -726,7 +726,7 @@ JNIEXPORT void JNICALL Java_org_telegram_ui_Stories_recorder_FfmpegAudioWaveform
         return;
     }
 
-    AVCodec *codec = NULL;
+    const AVCodec *codec = NULL;
     int audioStreamIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
     if (audioStreamIndex < 0) {
         LOGD("av_find_best_stream error %s", av_err2str(audioStreamIndex));
