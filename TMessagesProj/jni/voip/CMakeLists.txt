@@ -52,7 +52,7 @@ target_include_directories(tgvoip PUBLIC
         third_party/xiph/opus/silk/fixed
         third_party/xiph/opus/celt
         third_party/xiph/opus
-        boringssl/include
+        libressl/include
         voip/webrtc
         voip/tgcalls
         voip/libtgvoip
@@ -336,7 +336,7 @@ target_compile_definitions(tgcalls_tp PUBLIC
 target_include_directories(tgcalls_tp PUBLIC
         ./
         voip
-        boringssl/include/
+        libressl/include/
         voip/tgcalls/
         voip/webrtc/
         third_party/xiph/opus/include
@@ -474,7 +474,6 @@ add_library(tgcalls STATIC
         voip/webrtc/rtc_base/openssl_key_pair.cc
         voip/webrtc/rtc_base/crc32.cc
         voip/webrtc/rtc_base/checks.cc
-        voip/webrtc/rtc_base/boringssl_certificate.cc
         voip/webrtc/rtc_base/physical_socket_server.cc
         voip/webrtc/rtc_base/numerics/exp_filter.cc
         voip/webrtc/rtc_base/numerics/event_based_exponential_moving_average.cc
@@ -499,7 +498,6 @@ add_library(tgcalls STATIC
         voip/webrtc/rtc_base/async_packet_socket.cc
         voip/webrtc/rtc_base/rtc_certificate.cc
         voip/webrtc/rtc_base/server_socket_adapters.cc
-        voip/webrtc/rtc_base/boringssl_identity.cc
         voip/webrtc/rtc_base/stream.cc
         voip/webrtc/rtc_base/unique_id_generator.cc
         voip/webrtc/rtc_base/random.cc
@@ -1700,7 +1698,7 @@ target_compile_definitions(tgcalls PUBLIC
 target_include_directories(tgcalls PUBLIC
         ./
         voip
-        boringssl/include
+        libressl/include
         voip/tgcalls
         voip/rnnoise/include
         voip/webrtc
@@ -1873,7 +1871,7 @@ target_include_directories(voipandroid PUBLIC
         ./
         voip
         rlottie/src/lottie
-        boringssl/include
+        libressl/include
         voip/tgcalls
         voip/webrtc
         third_party/xiph/opus/include
