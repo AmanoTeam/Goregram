@@ -1,0 +1,25 @@
+From e8a562f57ee71e1ac70bdbe33b3ef00a50ec53a5 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sun, 19 Jul 2026 04:03:46 +0000
+Subject: [PATCH] Add missing includes
+
+---
+ crypto/cpu_intel.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/crypto/cpu_intel.cc b/crypto/cpu_intel.cc
+index 3d1180abb..4ebd32755 100644
+--- a/crypto/cpu_intel.cc
++++ b/crypto/cpu_intel.cc
+@@ -19,7 +19,7 @@
+ 
+ #include <errno.h>
+ #include <inttypes.h>
+-#include <limits.h>
++#include <climits>
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-- 
+2.54.0
+
