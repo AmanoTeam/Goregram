@@ -1,33 +1,24 @@
-From b3958bdfcc9c753477fdf6e0da799c1c4e4077f1 Mon Sep 17 00:00:00 2001
-From: Marcus Hoffmann <bubu@bubu1.eu>
-Date: Tue, 31 Jul 2018 17:15:39 +0200
+From 4237c70ce00f7209fe4a2cdfc47e2d4523bf2284 Mon Sep 17 00:00:00 2001
+From: root
+ <root@runnervm3jd5f.x4bj4itynosevhbe4vv11xkrfg.phxx.internal.cloudapp.net>
+Date: Sat, 18 Jul 2026 10:20:22 +0000
 Subject: [PATCH] add aes ige mode
 
+Adds AES-IGE and AES-bi-IGE encryption/decryption modes as used by
+Telegram's MTProto protocol.
 ---
- crypto/fipsmodule/CMakeLists.txt |   2 +
- crypto/fipsmodule/aes/aes_ige.c  | 323 +++++++++++++++++++++++++++++++
- include/openssl/aes.h            |   9 +
- 3 files changed, 334 insertions(+)
- create mode 100644 crypto/fipsmodule/aes/aes_ige.c
+ crypto/fipsmodule/aes/aes_ige.cc | 323 +++++++++++++++++++++++++++++++
+ gen/sources.cmake                |   1 +
+ gen/sources.json                 |   3 +-
+ include/openssl/aes.h            |  14 ++
+ 4 files changed, 340 insertions(+), 1 deletion(-)
+ create mode 100644 crypto/fipsmodule/aes/aes_ige.cc
 
-diff --git a/crypto/fipsmodule/CMakeLists.txt b/crypto/fipsmodule/CMakeLists.txt
-index 30823755..b349572c 100644
---- a/crypto/fipsmodule/CMakeLists.txt
-+++ b/crypto/fipsmodule/CMakeLists.txt
-@@ -198,6 +198,8 @@ else()
-     bcm.c
-     fips_shared_support.c
- 
-+    aes/aes_ige.c
-+
-     ${BCM_ASM_SOURCES}
-   )
-
-diff --git a/crypto/fipsmodule/aes/aes_ige.c b/crypto/fipsmodule/aes/aes_ige.c
+diff --git a/crypto/fipsmodule/aes/aes_ige.cc b/crypto/fipsmodule/aes/aes_ige.cc
 new file mode 100644
-index 00000000..b425c7d6
+index 000000000..a1c1d5e54
 --- /dev/null
-+++ b/crypto/fipsmodule/aes/aes_ige.c
++++ b/crypto/fipsmodule/aes/aes_ige.cc
 @@ -0,0 +1,323 @@
 +/* crypto/aes/aes_ige.c -*- mode:C; c-file-style: "eay" -*- */
 +/* ====================================================================
@@ -81,8 +72,8 @@ index 00000000..b425c7d6
 + */
 +
 +#include <openssl/aes.h>
++
 +#include <assert.h>
-+#include <memory.h>
 +#include <string.h>
 +
 +#define N_WORDS (AES_BLOCK_SIZE / sizeof(unsigned long))
@@ -108,8 +99,8 @@ index 00000000..b425c7d6
 +/* N.B. The IV for this mode is _twice_ the block size */
 +
 +void AES_ige_encrypt(const unsigned char *in, unsigned char *out,
-+					 size_t length, const AES_KEY *key,
-+					 unsigned char *ivec, const int enc)
++                     size_t length, const AES_KEY *key,
++                     unsigned char *ivec, const int enc)
 +	{
 +	size_t n;
 +	size_t len = length;
@@ -242,9 +233,9 @@ index 00000000..b425c7d6
 +/* N.B. The IV for this mode is _four times_ the block size */
 +
 +void AES_bi_ige_encrypt(const unsigned char *in, unsigned char *out,
-+						size_t length, const AES_KEY *key,
-+						const AES_KEY *key2, const unsigned char *ivec,
-+						const int enc)
++                        size_t length, const AES_KEY *key,
++                        const AES_KEY *key2, const unsigned char *ivec,
++                        const int enc)
 +	{
 +	size_t n;
 +	size_t len = length;
@@ -352,26 +343,62 @@ index 00000000..b425c7d6
 +			}
 +		}
 +	}
+diff --git a/gen/sources.cmake b/gen/sources.cmake
+index 117ba3ffb..16ae05cbf 100644
+--- a/gen/sources.cmake
++++ b/gen/sources.cmake
+@@ -308,6 +308,7 @@ set(
+   CRYPTO_SOURCES
+ 
+   crypto/aes/aes.cc
++  crypto/fipsmodule/aes/aes_ige.cc
+   crypto/asn1/a_bitstr.cc
+   crypto/asn1/a_bool.cc
+   crypto/asn1/a_d2i_fp.cc
+diff --git a/gen/sources.json b/gen/sources.json
+index 97b70e554..c89510e00 100644
+--- a/gen/sources.json
++++ b/gen/sources.json
+@@ -274,6 +274,7 @@
+   "crypto": {
+     "srcs": [
+       "crypto/aes/aes.cc",
++      "crypto/fipsmodule/aes/aes_ige.cc",
+       "crypto/asn1/a_bitstr.cc",
+       "crypto/asn1/a_bool.cc",
+       "crypto/asn1/a_d2i_fp.cc",
+@@ -3020,4 +3021,4 @@
+       "crypto/rand/urandom_test.cc"
+     ]
+   }
+-}
+\ No newline at end of file
++}
 diff --git a/include/openssl/aes.h b/include/openssl/aes.h
-index 11565854..0130fec5 100644
+index 5dd0cfdcb..5fb1585ae 100644
 --- a/include/openssl/aes.h
 +++ b/include/openssl/aes.h
-@@ -138,6 +138,15 @@ OPENSSL_EXPORT void AES_cfb128_encrypt(const uint8_t *in, uint8_t *out,
+@@ -116,6 +116,20 @@ OPENSSL_EXPORT void AES_cfb128_encrypt(const uint8_t *in, uint8_t *out,
                                         size_t len, const AES_KEY *key,
                                         uint8_t *ivec, int *num, int enc);
  
-+/* NB: the IV is _two_ blocks long */
-+OPENSSL_EXPORT void AES_ige_encrypt(const unsigned char *in, unsigned char *out,
++// AES_ige_encrypt encrypts (or decrypts, if |enc| == AES_DECRYPT) |length|
++// bytes from |in| to |out| using IGE mode. The IV is twice the block size.
++// This function may be called in-place with |in| equal to |out|.
++OPENSSL_EXPORT void AES_ige_encrypt(const uint8_t *in, uint8_t *out,
 +                                    size_t length, const AES_KEY *key,
-+                                    unsigned char *ivec, const int enc);
-+/* NB: the IV is _four_ blocks long */
-+OPENSSL_EXPORT void AES_bi_ige_encrypt(const unsigned char *in, unsigned char *out,
++                                    uint8_t *ivec, const int enc);
++
++// AES_bi_ige_encrypt encrypts (or decrypts, if |enc| == AES_DECRYPT) |length|
++// bytes from |in| to |out| using bi-IGE mode. The IV is four times the block
++// size and |key2| is the second AES key.
++OPENSSL_EXPORT void AES_bi_ige_encrypt(const uint8_t *in, uint8_t *out,
 +                                       size_t length, const AES_KEY *key,
-+                                       const AES_KEY *key2, const unsigned char *ivec,
-+                                       const int enc);
++                                       const AES_KEY *key2,
++                                       const uint8_t *ivec, const int enc);
  
  // AES key wrap.
  //
 -- 
-2.17.1
+2.54.0
 

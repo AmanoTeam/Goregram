@@ -1,0 +1,569 @@
+From e6d4e8243bfea4c4d78cd49f2a94a78920155f4d Mon Sep 17 00:00:00 2001
+From: root
+ <root@runnervm3jd5f.x4bj4itynosevhbe4vv11xkrfg.phxx.internal.cloudapp.net>
+Date: Sat, 18 Jul 2026 10:30:49 +0000
+Subject: [PATCH] only build what we need
+
+Remove decrepit library, pki library, and bssl tool from the build
+to reduce build output to just crypto and ssl libraries needed by
+Telegram.
+---
+ CMakeLists.txt    |  42 --------------
+ build.json        | 136 -------------------------------------------
+ gen/sources.cmake | 144 ----------------------------------------------
+ gen/sources.json  | 136 -------------------------------------------
+ 4 files changed, 458 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0a47b8113..455831a7a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -621,29 +621,6 @@ set_property(TARGET ssl PROPERTY EXPORT_NAME SSL)
+ target_link_libraries(ssl crypto)
+ target_compile_definitions(ssl PRIVATE -DBORINGSSL_IMPLEMENTATION)
+ 
+-add_library(decrepit ${DECREPIT_SOURCES})
+-target_link_libraries(decrepit ssl crypto)
+-target_compile_definitions(decrepit PRIVATE -DBORINGSSL_IMPLEMENTATION)
+-
+-if(APPLE)
+-  set(PKI_CXX_FLAGS "-fno-aligned-new")
+-endif()
+-add_library(pki ${PKI_SOURCES})
+-target_link_libraries(pki crypto)
+-target_compile_options(pki PRIVATE ${PKI_CXX_FLAGS})
+-target_compile_definitions(pki PRIVATE -DBORINGSSL_IMPLEMENTATION)
+-if(MSVC)
+-  # libpki has a DLL C++ interface, where this warning is expected:
+-  set(PKI_MSVC_DISABLED_WARNINGS_LIST
+-      "-wd4251" # assignment within conditional expression
+-      )
+-  target_compile_options(pki PUBLIC
+-    "$<$<COMPILE_LANGUAGE:C,CXX>:${PKI_MSVC_DISABLED_WARNINGS_LIST}>")
+-endif()
+-
+-add_executable(bssl ${BSSL_SOURCES})
+-target_link_libraries(bssl ssl crypto)
+-
+ if(FUZZ)
+   # TODO(crbug.com/42290412): Drive this build with build.json and flatten.
+   add_subdirectory(fuzz)
+@@ -654,27 +631,8 @@ if(RUST_BINDINGS)
+   add_subdirectory(rust)
+ endif()
+ 
+-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+-  set(HANDSHAKER_ARGS "-handshaker-path" $<TARGET_FILE:handshaker>)
+-endif()
+-
+-if(BORINGSSL_PREFIX)
+-  require_go()
+-  add_custom_target(
+-    verify_boringssl_prefix ALL
+-    COMMENT "Verifying symbol prefixing"
+-    COMMAND ${GO_EXECUTABLE}
+-            run ${CMAKE_CURRENT_SOURCE_DIR}/util/audit_symbols.go
+-            -ignore-symbols-with ${BORINGSSL_PREFIX}
+-            $<TARGET_FILE:crypto>
+-    DEPENDS crypto
+-    USES_TERMINAL
+-  )
+-endif()
+-
+ if(INSTALL_ENABLED)
+   install(TARGETS crypto ssl EXPORT OpenSSLTargets)
+-  install(TARGETS bssl)
+   install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+   install(EXPORT OpenSSLTargets
+           FILE OpenSSLTargets.cmake
+diff --git a/build.json b/build.json
+index 61a9cf71c..bd29bc802 100644
+--- a/build.json
++++ b/build.json
+@@ -721,93 +721,6 @@
+             }
+         ]
+     },
+-    "pki": {
+-        "srcs": [
+-            "pki/cert_error_id.cc",
+-            "pki/cert_error_params.cc",
+-            "pki/cert_errors.cc",
+-            "pki/cert_issuer_source_static.cc",
+-            "pki/certificate.cc",
+-            "pki/certificate_policies.cc",
+-            "pki/common_cert_errors.cc",
+-            "pki/crl.cc",
+-            "pki/encode_values.cc",
+-            "pki/extended_key_usage.cc",
+-            "pki/general_names.cc",
+-            "pki/input.cc",
+-            "pki/ip_util.cc",
+-            "pki/merkle_tree.cc",
+-            "pki/name_constraints.cc",
+-            "pki/ocsp.cc",
+-            "pki/parse_certificate.cc",
+-            "pki/parse_name.cc",
+-            "pki/parse_values.cc",
+-            "pki/parsed_certificate.cc",
+-            "pki/parser.cc",
+-            "pki/path_builder.cc",
+-            "pki/pem.cc",
+-            "pki/revocation_util.cc",
+-            "pki/signature_algorithm.cc",
+-            "pki/simple_path_builder_delegate.cc",
+-            "pki/string_util.cc",
+-            "pki/trust_store.cc",
+-            "pki/trust_store_collection.cc",
+-            "pki/trust_store_in_memory.cc",
+-            "pki/verify.cc",
+-            "pki/verify_certificate_chain.cc",
+-            "pki/verify_error.cc",
+-            "pki/verify_name_match.cc",
+-            "pki/verify_signed_data.cc"
+-        ],
+-        "hdrs": [
+-            "include/openssl/pki/certificate.h",
+-            "include/openssl/pki/ocsp.h",
+-            "include/openssl/pki/signature_verify_cache.h",
+-            "include/openssl/pki/verify.h",
+-            "include/openssl/pki/verify_error.h"
+-        ],
+-        "internal_hdrs": [
+-            "pki/cert_error_id.h",
+-            "pki/cert_error_params.h",
+-            "pki/cert_errors.h",
+-            "pki/cert_issuer_source.h",
+-            "pki/cert_issuer_source_static.h",
+-            "pki/cert_issuer_source_sync_unittest.h",
+-            "pki/certificate_policies.h",
+-            "pki/common_cert_errors.h",
+-            "pki/crl.h",
+-            "pki/encode_values.h",
+-            "pki/extended_key_usage.h",
+-            "pki/general_names.h",
+-            "pki/input.h",
+-            "pki/ip_util.h",
+-            "pki/merkle_tree.h",
+-            "pki/mock_signature_verify_cache.h",
+-            "pki/name_constraints.h",
+-            "pki/nist_pkits_unittest.h",
+-            "pki/ocsp.h",
+-            "pki/parse_certificate.h",
+-            "pki/parse_name.h",
+-            "pki/parse_values.h",
+-            "pki/parsed_certificate.h",
+-            "pki/parser.h",
+-            "pki/path_builder.h",
+-            "pki/pem.h",
+-            "pki/revocation_util.h",
+-            "pki/signature_algorithm.h",
+-            "pki/simple_path_builder_delegate.h",
+-            "pki/string_util.h",
+-            "pki/test_helpers.h",
+-            "pki/testdata/nist-pkits/pkits_testcases-inl.h",
+-            "pki/trust_store.h",
+-            "pki/trust_store_collection.h",
+-            "pki/trust_store_in_memory.h",
+-            "pki/verify_certificate_chain.h",
+-            "pki/verify_certificate_chain_typed_unittest.h",
+-            "pki/verify_name_match.h",
+-            "pki/verify_signed_data.h"
+-        ]
+-    },
+     "ssl": {
+         "srcs": [
+             "ssl/bio_ssl.cc",
+@@ -861,55 +774,6 @@
+             "ssl/internal.h"
+         ]
+     },
+-    "decrepit": {
+-        "srcs": [
+-            "decrepit/bio/base64_bio.cc",
+-            "decrepit/blowfish/blowfish.cc",
+-            "decrepit/cast/cast.cc",
+-            "decrepit/cast/cast_tables.cc",
+-            "decrepit/cfb/cfb.cc",
+-            "decrepit/des/cfb64ede.cc",
+-            "decrepit/dh/dh_decrepit.cc",
+-            "decrepit/dsa/dsa_decrepit.cc",
+-            "decrepit/evp/dss1.cc",
+-            "decrepit/evp/evp_do_all.cc",
+-            "decrepit/obj/obj_decrepit.cc",
+-            "decrepit/rc4/rc4_decrepit.cc",
+-            "decrepit/ripemd/ripemd.cc",
+-            "decrepit/rsa/rsa_decrepit.cc",
+-            "decrepit/ssl/ssl_decrepit.cc",
+-            "decrepit/x509/x509_decrepit.cc",
+-            "decrepit/xts/xts.cc"
+-        ],
+-        "internal_hdrs": [
+-            "decrepit/cast/internal.h",
+-            "decrepit/macros.h"
+-        ]
+-    },
+-    "bssl": {
+-        "srcs": [
+-            "tool/args.cc",
+-            "tool/ciphers.cc",
+-            "tool/client.cc",
+-            "tool/const.cc",
+-            "tool/digest.cc",
+-            "tool/fd.cc",
+-            "tool/file.cc",
+-            "tool/generate_ech.cc",
+-            "tool/generate_ed25519.cc",
+-            "tool/genrsa.cc",
+-            "tool/pkcs12.cc",
+-            "tool/rand.cc",
+-            "tool/server.cc",
+-            "tool/sign.cc",
+-            "tool/tool.cc",
+-            "tool/transport_common.cc"
+-        ],
+-        "internal_hdrs": [
+-            "tool/internal.h",
+-            "tool/transport_common.h"
+-        ]
+-    },
+     "fuzz": {
+         "srcs": [
+             "fuzz/*.cc"
+diff --git a/gen/sources.cmake b/gen/sources.cmake
+index 4a8c163a1..9efd486be 100644
+--- a/gen/sources.cmake
++++ b/gen/sources.cmake
+@@ -245,33 +245,7 @@ set(
+ 
+ 
+ 
+-set(
+-  BSSL_SOURCES
+-
+-  tool/args.cc
+-  tool/ciphers.cc
+-  tool/client.cc
+-  tool/const.cc
+-  tool/digest.cc
+-  tool/fd.cc
+-  tool/file.cc
+-  tool/generate_ech.cc
+-  tool/generate_ed25519.cc
+-  tool/genrsa.cc
+-  tool/pkcs12.cc
+-  tool/rand.cc
+-  tool/server.cc
+-  tool/sign.cc
+-  tool/tool.cc
+-  tool/transport_common.cc
+-)
+ 
+-set(
+-  BSSL_INTERNAL_HEADERS
+-
+-  tool/internal.h
+-  tool/transport_common.h
+-)
+ 
+ set(
+   CRYPTO_SOURCES
+@@ -745,34 +719,7 @@ set(
+ 
+ 
+ 
+-set(
+-  DECREPIT_SOURCES
+ 
+-  decrepit/bio/base64_bio.cc
+-  decrepit/blowfish/blowfish.cc
+-  decrepit/cast/cast.cc
+-  decrepit/cast/cast_tables.cc
+-  decrepit/cfb/cfb.cc
+-  decrepit/des/cfb64ede.cc
+-  decrepit/dh/dh_decrepit.cc
+-  decrepit/dsa/dsa_decrepit.cc
+-  decrepit/evp/dss1.cc
+-  decrepit/evp/evp_do_all.cc
+-  decrepit/obj/obj_decrepit.cc
+-  decrepit/rc4/rc4_decrepit.cc
+-  decrepit/ripemd/ripemd.cc
+-  decrepit/rsa/rsa_decrepit.cc
+-  decrepit/ssl/ssl_decrepit.cc
+-  decrepit/x509/x509_decrepit.cc
+-  decrepit/xts/xts.cc
+-)
+-
+-set(
+-  DECREPIT_INTERNAL_HEADERS
+-
+-  decrepit/cast/internal.h
+-  decrepit/macros.h
+-)
+ 
+ 
+ set(
+@@ -842,99 +789,8 @@ set(
+   util/fipstools/acvp/modulewrapper/modulewrapper.h
+ )
+ 
+-set(
+-  PKI_SOURCES
+-
+-  pki/cert_error_id.cc
+-  pki/cert_error_params.cc
+-  pki/cert_errors.cc
+-  pki/cert_issuer_source_static.cc
+-  pki/certificate.cc
+-  pki/certificate_policies.cc
+-  pki/common_cert_errors.cc
+-  pki/crl.cc
+-  pki/encode_values.cc
+-  pki/extended_key_usage.cc
+-  pki/general_names.cc
+-  pki/input.cc
+-  pki/ip_util.cc
+-  pki/merkle_tree.cc
+-  pki/name_constraints.cc
+-  pki/ocsp.cc
+-  pki/parse_certificate.cc
+-  pki/parse_name.cc
+-  pki/parse_values.cc
+-  pki/parsed_certificate.cc
+-  pki/parser.cc
+-  pki/path_builder.cc
+-  pki/pem.cc
+-  pki/revocation_util.cc
+-  pki/signature_algorithm.cc
+-  pki/simple_path_builder_delegate.cc
+-  pki/string_util.cc
+-  pki/trust_store.cc
+-  pki/trust_store_collection.cc
+-  pki/trust_store_in_memory.cc
+-  pki/verify.cc
+-  pki/verify_certificate_chain.cc
+-  pki/verify_error.cc
+-  pki/verify_name_match.cc
+-  pki/verify_signed_data.cc
+-)
+-
+-set(
+-  PKI_HEADERS
+ 
+-  include/openssl/pki/certificate.h
+-  include/openssl/pki/ocsp.h
+-  include/openssl/pki/signature_verify_cache.h
+-  include/openssl/pki/verify.h
+-  include/openssl/pki/verify_error.h
+-)
+ 
+-set(
+-  PKI_INTERNAL_HEADERS
+-
+-  pki/cert_error_id.h
+-  pki/cert_error_params.h
+-  pki/cert_errors.h
+-  pki/cert_issuer_source.h
+-  pki/cert_issuer_source_static.h
+-  pki/cert_issuer_source_sync_unittest.h
+-  pki/certificate_policies.h
+-  pki/common_cert_errors.h
+-  pki/crl.h
+-  pki/encode_values.h
+-  pki/extended_key_usage.h
+-  pki/general_names.h
+-  pki/input.h
+-  pki/ip_util.h
+-  pki/merkle_tree.h
+-  pki/mock_signature_verify_cache.h
+-  pki/name_constraints.h
+-  pki/nist_pkits_unittest.h
+-  pki/ocsp.h
+-  pki/parse_certificate.h
+-  pki/parse_name.h
+-  pki/parse_values.h
+-  pki/parsed_certificate.h
+-  pki/parser.h
+-  pki/path_builder.h
+-  pki/pem.h
+-  pki/revocation_util.h
+-  pki/signature_algorithm.h
+-  pki/simple_path_builder_delegate.h
+-  pki/string_util.h
+-  pki/test_helpers.h
+-  pki/testdata/nist-pkits/pkits_testcases-inl.h
+-  pki/trust_store.h
+-  pki/trust_store_collection.h
+-  pki/trust_store_in_memory.h
+-  pki/verify_certificate_chain.h
+-  pki/verify_certificate_chain_typed_unittest.h
+-  pki/verify_name_match.h
+-  pki/verify_signed_data.h
+-)
+ 
+ 
+ 
+diff --git a/gen/sources.json b/gen/sources.json
+index a813f8de3..dc4b78525 100644
+--- a/gen/sources.json
++++ b/gen/sources.json
+@@ -218,30 +218,6 @@
+       "gen/bcm/x86_64-mont5-win.asm"
+     ]
+   },
+-  "bssl": {
+-    "srcs": [
+-      "tool/args.cc",
+-      "tool/ciphers.cc",
+-      "tool/client.cc",
+-      "tool/const.cc",
+-      "tool/digest.cc",
+-      "tool/fd.cc",
+-      "tool/file.cc",
+-      "tool/generate_ech.cc",
+-      "tool/generate_ed25519.cc",
+-      "tool/genrsa.cc",
+-      "tool/pkcs12.cc",
+-      "tool/rand.cc",
+-      "tool/server.cc",
+-      "tool/sign.cc",
+-      "tool/tool.cc",
+-      "tool/transport_common.cc"
+-    ],
+-    "internal_hdrs": [
+-      "tool/internal.h",
+-      "tool/transport_common.h"
+-    ]
+-  },
+   "crypto": {
+     "srcs": [
+       "crypto/aes/aes.cc",
+@@ -698,31 +674,6 @@
+       "gen/crypto/md5-x86_64-win.asm"
+     ]
+   },
+-  "decrepit": {
+-    "srcs": [
+-      "decrepit/bio/base64_bio.cc",
+-      "decrepit/blowfish/blowfish.cc",
+-      "decrepit/cast/cast.cc",
+-      "decrepit/cast/cast_tables.cc",
+-      "decrepit/cfb/cfb.cc",
+-      "decrepit/des/cfb64ede.cc",
+-      "decrepit/dh/dh_decrepit.cc",
+-      "decrepit/dsa/dsa_decrepit.cc",
+-      "decrepit/evp/dss1.cc",
+-      "decrepit/evp/evp_do_all.cc",
+-      "decrepit/obj/obj_decrepit.cc",
+-      "decrepit/rc4/rc4_decrepit.cc",
+-      "decrepit/ripemd/ripemd.cc",
+-      "decrepit/rsa/rsa_decrepit.cc",
+-      "decrepit/ssl/ssl_decrepit.cc",
+-      "decrepit/x509/x509_decrepit.cc",
+-      "decrepit/xts/xts.cc"
+-    ],
+-    "internal_hdrs": [
+-      "decrepit/cast/internal.h",
+-      "decrepit/macros.h"
+-    ]
+-  },
+   "entropy_modulewrapper": {
+     "srcs": [
+       "util/fipstools/acvp/entropy_modulewrapper/main.cc",
+@@ -781,93 +732,6 @@
+       "util/fipstools/acvp/modulewrapper/modulewrapper.h"
+     ]
+   },
+-  "pki": {
+-    "srcs": [
+-      "pki/cert_error_id.cc",
+-      "pki/cert_error_params.cc",
+-      "pki/cert_errors.cc",
+-      "pki/cert_issuer_source_static.cc",
+-      "pki/certificate.cc",
+-      "pki/certificate_policies.cc",
+-      "pki/common_cert_errors.cc",
+-      "pki/crl.cc",
+-      "pki/encode_values.cc",
+-      "pki/extended_key_usage.cc",
+-      "pki/general_names.cc",
+-      "pki/input.cc",
+-      "pki/ip_util.cc",
+-      "pki/merkle_tree.cc",
+-      "pki/name_constraints.cc",
+-      "pki/ocsp.cc",
+-      "pki/parse_certificate.cc",
+-      "pki/parse_name.cc",
+-      "pki/parse_values.cc",
+-      "pki/parsed_certificate.cc",
+-      "pki/parser.cc",
+-      "pki/path_builder.cc",
+-      "pki/pem.cc",
+-      "pki/revocation_util.cc",
+-      "pki/signature_algorithm.cc",
+-      "pki/simple_path_builder_delegate.cc",
+-      "pki/string_util.cc",
+-      "pki/trust_store.cc",
+-      "pki/trust_store_collection.cc",
+-      "pki/trust_store_in_memory.cc",
+-      "pki/verify.cc",
+-      "pki/verify_certificate_chain.cc",
+-      "pki/verify_error.cc",
+-      "pki/verify_name_match.cc",
+-      "pki/verify_signed_data.cc"
+-    ],
+-    "hdrs": [
+-      "include/openssl/pki/certificate.h",
+-      "include/openssl/pki/ocsp.h",
+-      "include/openssl/pki/signature_verify_cache.h",
+-      "include/openssl/pki/verify.h",
+-      "include/openssl/pki/verify_error.h"
+-    ],
+-    "internal_hdrs": [
+-      "pki/cert_error_id.h",
+-      "pki/cert_error_params.h",
+-      "pki/cert_errors.h",
+-      "pki/cert_issuer_source.h",
+-      "pki/cert_issuer_source_static.h",
+-      "pki/cert_issuer_source_sync_unittest.h",
+-      "pki/certificate_policies.h",
+-      "pki/common_cert_errors.h",
+-      "pki/crl.h",
+-      "pki/encode_values.h",
+-      "pki/extended_key_usage.h",
+-      "pki/general_names.h",
+-      "pki/input.h",
+-      "pki/ip_util.h",
+-      "pki/merkle_tree.h",
+-      "pki/mock_signature_verify_cache.h",
+-      "pki/name_constraints.h",
+-      "pki/nist_pkits_unittest.h",
+-      "pki/ocsp.h",
+-      "pki/parse_certificate.h",
+-      "pki/parse_name.h",
+-      "pki/parse_values.h",
+-      "pki/parsed_certificate.h",
+-      "pki/parser.h",
+-      "pki/path_builder.h",
+-      "pki/pem.h",
+-      "pki/revocation_util.h",
+-      "pki/signature_algorithm.h",
+-      "pki/simple_path_builder_delegate.h",
+-      "pki/string_util.h",
+-      "pki/test_helpers.h",
+-      "pki/testdata/nist-pkits/pkits_testcases-inl.h",
+-      "pki/trust_store.h",
+-      "pki/trust_store_collection.h",
+-      "pki/trust_store_in_memory.h",
+-      "pki/verify_certificate_chain.h",
+-      "pki/verify_certificate_chain_typed_unittest.h",
+-      "pki/verify_name_match.h",
+-      "pki/verify_signed_data.h"
+-    ]
+-  },
+   "rust_bssl_crypto": {
+     "srcs": [
+       "rust/bssl-crypto/src/aead.rs",
+-- 
+2.54.0
+

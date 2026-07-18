@@ -1,191 +1,584 @@
-From 0c5b28e45c9b0e59499f402f7f1c39039d69d5a2 Mon Sep 17 00:00:00 2001
-From: thermatk <thermatk@thermatk.com>
-Date: Sat, 13 Apr 2024 15:59:50 +0200
+From e52afc5db72f0d9854e5b6a1fb072efb45546ecc Mon Sep 17 00:00:00 2001
+From: root
+ <root@runnervm3jd5f.x4bj4itynosevhbe4vv11xkrfg.phxx.internal.cloudapp.net>
+Date: Sat, 18 Jul 2026 10:28:23 +0000
 Subject: [PATCH] do not build tests
 
+Remove googletest targets, test executables, test source lists, and
+run_tests target from the build system to reduce build time and
+dependencies.
 ---
- CMakeLists.txt    |  123 +--
- build.json        |  256 -------
- gen/sources.cmake | 1838 ---------------------------------------------
- gen/sources.json  | 1817 --------------------------------------------
- 4 files changed, 4 insertions(+), 4030 deletions(-)
+ CMakeLists.txt    |  190 -----
+ build.json        |  565 ++++---------
+ gen/sources.cmake | 2067 ---------------------------------------------
+ gen/sources.json  | 2047 --------------------------------------------
+ 4 files changed, 187 insertions(+), 4682 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 39352d684..944383e64 100644
+index bab3d89dd..0a47b8113 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -452,34 +452,6 @@ if(USE_CUSTOM_LIBCXX)
-   target_link_libraries(libcxx libcxxabi)
+@@ -29,28 +29,10 @@ include(gen/sources.cmake)
+ enable_language(C)
+ enable_language(CXX)
+ 
+-# TODO(crbug,com/389897612): Register tests with CTest. For now, we include this
+-# only to pick up the standard |BUILD_TESTING| option.
+-include(CTest)
+ include(GNUInstallDirs)
+ 
+ set(INSTALL_ENABLED 1)
+ 
+-if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT CMAKE_CROSSCOMPILING AND
+-   BUILD_TESTING)
+-  find_package(PkgConfig QUIET)
+-  if (PkgConfig_FOUND)
+-    pkg_check_modules(LIBUNWIND libunwind-generic>=1.3.0)
+-    if(LIBUNWIND_FOUND)
+-      add_definitions(-DBORINGSSL_HAVE_LIBUNWIND)
+-    else()
+-      message("libunwind not found. Disabling unwind tests.")
+-    endif()
+-  else()
+-    message("pkgconfig not found. Disabling unwind tests.")
+-  endif()
+-endif()
+-
+ string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
+ if(NOT FIPS)
+   if(CMAKE_BUILD_TYPE_LOWER STREQUAL "relwithassert" OR
+@@ -371,47 +353,7 @@ if(USE_CUSTOM_LIBCXX)
+          FILE ${PROJECT_BINARY_DIR}/bssl_test_only.cmake)
  endif()
  
--# Add minimal googletest targets. The provided one has many side-effects, and
--# googletest has a very straightforward build.
--add_library(
--  boringssl_gtest
--  third_party/googletest/googlemock/src/gmock-all.cc
--  third_party/googletest/googletest/src/gtest-all.cc
--)
--if(USE_CUSTOM_LIBCXX)
--  target_link_libraries(boringssl_gtest libcxx)
--endif()
--target_include_directories(
+-if(BUILD_TESTING)
+-  # Add minimal googletest targets. The provided one has many side-effects, and
+-  # googletest has a very straightforward build.
+-  add_library(
 -    boringssl_gtest
--    PUBLIC
--    third_party/googletest/googlemock/include
--    third_party/googletest/googletest/include
--    PRIVATE
--    third_party/googletest/googlemock
--    third_party/googletest/googletest
--)
--
--# Declare a dummy target to build all unit tests. Test targets should inject
--# themselves as dependencies next to the target definition.
--add_custom_target(all_tests)
--
--add_subdirectory(ssl/test)
--add_subdirectory(util/fipstools)
--add_subdirectory(util/fipstools/acvp/modulewrapper)
--
- if(OPENSSL_ASM)
-   set(CRYPTO_SOURCES_ASM_USED ${CRYPTO_SOURCES_ASM})
-   set(BCM_SOURCES_ASM_USED ${BCM_SOURCES_ASM})
-@@ -614,37 +586,6 @@ target_link_libraries(ssl crypto)
- add_library(decrepit ${DECREPIT_SOURCES})
- target_link_libraries(decrepit crypto ssl)
+-    STATIC
+-    third_party/googletest/googlemock/src/gmock-all.cc
+-    third_party/googletest/googletest/src/gtest-all.cc
+-  )
+-  target_include_directories(
+-      boringssl_gtest
+-      PUBLIC
+-      third_party/googletest/googlemock/include
+-      third_party/googletest/googletest/include
+-      PRIVATE
+-      third_party/googletest/googlemock
+-      third_party/googletest/googletest
+-  )
  
--add_library(test_support_lib STATIC
--            ${TEST_SUPPORT_SOURCES} ${TEST_SUPPORT_SOURCES_ASM_USED})
--if(LIBUNWIND_FOUND)
--  target_compile_options(test_support_lib PRIVATE ${LIBUNWIND_CFLAGS_OTHER})
--  target_include_directories(test_support_lib PRIVATE ${LIBUNWIND_INCLUDE_DIRS})
--  target_link_libraries(test_support_lib ${LIBUNWIND_LDFLAGS})
+-  # Wrap this in a function for variable scoping. Switch to block() when our
+-  # minimum CMake is at least CMake 3.25.
+-  function(add_google_benchmark)
+-    set(GOOGLETEST_PATH "${PROJECT_SOURCE_DIR}/third_party/googletest")
+-    set(BENCHMARK_DOWNLOAD_DEPENDENCIES OFF)
+-    set(BENCHMARK_ENABLE_TESTING OFF)
+-    set(BENCHMARK_ENABLE_INSTALL OFF)
+-    set(BENCHMARK_INSTALL_DOCS OFF)
+-    if(USE_CUSTOM_LIBCXX)
+-      # benchmark's feature testing does not pick up the custom STL.
+-      set(HAVE_STD_REGEX 1)
+-    endif()
+-    if(DEFINED CMAKE_OSX_SYSROOT)
+-      # CMAKE_CROSSCOMPILING is not correctly set when using CMAKE_OSX_SYSROOT
+-      # to specify iOS vs macOS. Set CMAKE_CROSSCOMPILING so benchmark feature
+-      # detection does not try to run its test programs.
+-      set(CMAKE_CROSSCOMPILING 1)
+-    endif()
+-    add_subdirectory(third_party/benchmark)
+-  endfunction()
+-  add_google_benchmark()
 -endif()
--if(WIN32)
--  target_link_libraries(test_support_lib dbghelp)
--endif()
--target_link_libraries(test_support_lib boringssl_gtest crypto)
--
--# urandom_test is a separate binary because it needs to be able to observe the
--# PRNG initialisation, which means that it can't have other tests running before
--# it does.
--add_executable(urandom_test ${URANDOM_TEST_SOURCES})
--target_link_libraries(urandom_test test_support_lib boringssl_gtest crypto)
--add_dependencies(all_tests urandom_test)
--
--add_executable(crypto_test ${CRYPTO_TEST_SOURCES})
--target_link_libraries(crypto_test test_support_lib boringssl_gtest crypto)
--add_dependencies(all_tests crypto_test)
--
--add_executable(ssl_test ${SSL_TEST_SOURCES})
--target_link_libraries(ssl_test test_support_lib boringssl_gtest ssl crypto)
--add_dependencies(all_tests ssl_test)
--add_executable(decrepit_test ${DECREPIT_TEST_SOURCES})
--target_link_libraries(decrepit_test test_support_lib boringssl_gtest
--                      decrepit crypto)
--add_dependencies(all_tests decrepit_test)
--
- if(APPLE)
-   set(PKI_CXX_FLAGS "-fno-aligned-new")
+ 
+ if(FUZZ AND LIBFUZZER_FROM_DEPS)
+   file(GLOB LIBFUZZER_SOURCES "util/bot/libFuzzer/*.cpp")
+@@ -699,76 +641,9 @@ if(MSVC)
+     "$<$<COMPILE_LANGUAGE:C,CXX>:${PKI_MSVC_DISABLED_WARNINGS_LIST}>")
  endif()
-@@ -652,13 +593,9 @@ endif()
- add_library(pki ${PKI_SOURCES})
- target_link_libraries(pki crypto)
  
--add_executable(pki_test ${PKI_TEST_SOURCES})
--target_link_libraries(pki_test test_support_lib boringssl_gtest pki crypto)
--add_dependencies(all_tests pki_test)
+-if(BUILD_TESTING)
+-  add_library(test_support_lib STATIC
+-              ${TEST_SUPPORT_SOURCES} ${TEST_SUPPORT_SOURCES_ASM_USED})
+-  if(LIBUNWIND_FOUND)
+-    target_compile_options(test_support_lib PRIVATE ${LIBUNWIND_CFLAGS_OTHER})
+-    target_include_directories(test_support_lib PRIVATE ${LIBUNWIND_INCLUDE_DIRS})
+-    target_link_libraries(test_support_lib ${LIBUNWIND_LDFLAGS})
+-  endif()
+-  if(WIN32)
+-    target_link_libraries(test_support_lib dbghelp)
+-  endif()
+-  target_link_libraries(test_support_lib boringssl_gtest crypto)
 -
- # The PKI library requires C++17.
- set_target_properties(
--  pki pki_test
-+  pki
-   PROPERTIES
-   CXX_STANDARD 17
-   CXX_STANDARD_REQUIRED YES
-@@ -670,9 +607,9 @@ target_link_libraries(bssl ssl crypto)
- # Historically, targets were built in subdirectories. For compatibility with
- # existing tools, we, for now, copy the targets into the subdirectories. This
- # will be removed sometime in 2024.
--copy_post_build(crypto crypto crypto_test urandom_test)
--copy_post_build(ssl ssl ssl_test)
--copy_post_build(decrepit decrepit decrepit_test)
-+copy_post_build(crypto crypto)
-+copy_post_build(ssl ssl)
-+copy_post_build(decrepit decrepit)
- copy_post_build(tool bssl)
+-  # Declare a dummy target to build all unit tests. Test targets should inject
+-  # themselves as dependencies next to the target definition.
+-  add_custom_target(boringssl_all_tests)
+-
+-  # TODO(crbug.com/42290412): Drive this build with build.json and flatten.
+-  add_subdirectory(ssl/test)
+-
+-  # urandom_test is a separate binary because it needs to be able to observe the
+-  # PRNG initialisation, which means that it can't have other tests running before
+-  # it does.
+-  add_executable(urandom_test ${URANDOM_TEST_SOURCES})
+-  target_link_libraries(urandom_test test_support_lib boringssl_gtest crypto)
+-  add_dependencies(boringssl_all_tests urandom_test)
+-
+-  add_executable(crypto_test ${CRYPTO_TEST_SOURCES})
+-  target_link_libraries(crypto_test test_support_lib boringssl_gtest crypto)
+-  add_dependencies(boringssl_all_tests crypto_test)
+-
+-  add_executable(ssl_test ${SSL_TEST_SOURCES})
+-  target_link_libraries(ssl_test test_support_lib boringssl_gtest ssl crypto)
+-  add_dependencies(boringssl_all_tests ssl_test)
+-
+-  add_executable(decrepit_test ${DECREPIT_TEST_SOURCES})
+-  target_link_libraries(decrepit_test test_support_lib boringssl_gtest
+-                        decrepit ssl crypto)
+-  add_dependencies(boringssl_all_tests decrepit_test)
+-
+-  add_executable(pki_test ${PKI_TEST_SOURCES})
+-  target_link_libraries(pki_test test_support_lib boringssl_gtest pki crypto)
+-  target_compile_options(pki_test PRIVATE ${PKI_CXX_FLAGS})
+-  add_dependencies(boringssl_all_tests pki_test)
+-
+-  add_executable(test_fips util/fipstools/test_fips.cc)
+-  target_link_libraries(test_fips crypto)
+-
+-  add_executable(jitter_deltas util/fipstools/entropy/jitter_deltas.cc)
+-  target_link_libraries(jitter_deltas crypto)
+-
+-  add_executable(bssl_bench ${BENCH_SOURCES})
+-  target_link_libraries(bssl_bench ssl pki crypto benchmark::benchmark)
+-endif()
+-
+-if(FIPS)
+-  add_executable(modulewrapper ${MODULEWRAPPER_SOURCES})
+-  target_link_libraries(modulewrapper crypto)
+-  add_executable(entropy_modulewrapper ${ENTROPY_MODULEWRAPPER_SOURCES})
+-  target_link_libraries(entropy_modulewrapper crypto)
+-endif()
+-
+ add_executable(bssl ${BSSL_SOURCES})
+ target_link_libraries(bssl ssl crypto)
  
+-if(BUILD_TESTING)
+-  add_executable(generate_mldsa_certs pki/testdata/verify_unittest/generate_mldsa_certs.cc)
+-  target_link_libraries(generate_mldsa_certs crypto)
+-endif()
+-
  if(FUZZ)
-@@ -700,58 +637,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+   # TODO(crbug.com/42290412): Drive this build with build.json and flatten.
+   add_subdirectory(fuzz)
+@@ -783,81 +658,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
    set(HANDSHAKER_ARGS "-handshaker-path" $<TARGET_FILE:handshaker>)
  endif()
  
--if(FIPS)
--  add_custom_target(
--    acvp_tests
--    COMMAND ${GO_EXECUTABLE} build -o ${CMAKE_CURRENT_BINARY_DIR}/acvptool
--            boringssl.googlesource.com/boringssl/util/fipstools/acvp/acvptool
--    COMMAND ${GO_EXECUTABLE} build -o ${CMAKE_CURRENT_BINARY_DIR}/testmodulewrapper
--            boringssl.googlesource.com/boringssl/util/fipstools/acvp/acvptool/testmodulewrapper
--    COMMAND cd util/fipstools/acvp/acvptool/test &&
--            ${GO_EXECUTABLE} run check_expected.go
--            -tool ${CMAKE_CURRENT_BINARY_DIR}/acvptool
--            -module-wrappers modulewrapper:$<TARGET_FILE:modulewrapper>,testmodulewrapper:${CMAKE_CURRENT_BINARY_DIR}/testmodulewrapper
--            -tests tests.json
--    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
--    DEPENDS modulewrapper
--    USES_TERMINAL)
--
--  add_custom_target(
--    fips_specific_tests_if_any
--    DEPENDS acvp_tests
--  )
--else()
--  add_custom_target(fips_specific_tests_if_any)
--endif()
--
--file(STRINGS util/go_tests.txt GO_TESTS)
--set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
--             util/go_tests.txt)
--
--if(GO_EXECUTABLE)
--  add_custom_target(
--      run_tests
--      COMMAND ${CMAKE_COMMAND} -E echo "Running Go tests"
--      COMMAND ${GO_EXECUTABLE} test ${GO_TESTS}
--      COMMAND ${CMAKE_COMMAND} -E echo
--      COMMAND ${CMAKE_COMMAND} -E echo "Running unit tests"
--      COMMAND ${GO_EXECUTABLE} run util/all_tests.go -build-dir
--              ${CMAKE_CURRENT_BINARY_DIR}
--      COMMAND ${CMAKE_COMMAND} -E echo
--      COMMAND ${CMAKE_COMMAND} -E echo "Running SSL tests"
--      COMMAND cd ssl/test/runner &&
--              ${GO_EXECUTABLE} test -shim-path $<TARGET_FILE:bssl_shim>
--                ${HANDSHAKER_ARGS} ${RUNNER_ARGS}
+-if(BUILD_TESTING)
+-  if(FIPS)
+-    add_custom_target(
+-      acvp_tests
+-      COMMAND ${GO_EXECUTABLE} build -o ${CMAKE_CURRENT_BINARY_DIR}/acvptool
+-              boringssl.googlesource.com/boringssl.git/util/fipstools/acvp/acvptool
+-      COMMAND ${GO_EXECUTABLE} build -o ${CMAKE_CURRENT_BINARY_DIR}/testmodulewrapper
+-              boringssl.googlesource.com/boringssl.git/util/fipstools/acvp/acvptool/testmodulewrapper
+-      COMMAND cd util/fipstools/acvp/acvptool/test &&
+-              ${GO_EXECUTABLE} run check_expected.go
+-              -tool ${CMAKE_CURRENT_BINARY_DIR}/acvptool
+-              -module-wrappers modulewrapper:$<TARGET_FILE:modulewrapper>,testmodulewrapper:${CMAKE_CURRENT_BINARY_DIR}/testmodulewrapper
+-              -tests tests.json
 -      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
--      DEPENDS all_tests bssl_shim handshaker fips_specific_tests_if_any
+-      DEPENDS modulewrapper
 -      USES_TERMINAL)
--else()
--  add_custom_target(
--      run_tests
--      COMMAND ${CMAKE_COMMAND} -E echo "Running tests requires Go"
--      COMMAND ${CMAKE_COMMAND} -E false)
+-
+-    add_custom_target(
+-      fips_specific_tests_if_any
+-      DEPENDS acvp_tests
+-    )
+-  else()
+-    add_custom_target(fips_specific_tests_if_any)
+-  endif()
+-
+-  file(STRINGS util/go_tests.txt GO_TESTS)
+-  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+-              util/go_tests.txt)
+-
+-  # CMake target names can clash when projects are imported with
+-  # add_subdirectory. Only emit the run_tests target if we're the top-level
+-  # target. See https://crbug.com/428112180.
+-  #
+-  # Also disable on Visual Studio for now due to name clash.
+-  # See https://crbug.com/465077378.
+-  if(PROJECT_IS_TOP_LEVEL AND NOT CMAKE_GENERATOR MATCHES "^Visual Studio ")
+-    if(GO_EXECUTABLE)
+-      add_custom_target(
+-          run_unit_tests
+-          COMMAND ${CMAKE_COMMAND} -E echo
+-          COMMAND ${CMAKE_COMMAND} -E echo "Checking pregenerated files"
+-          COMMAND ${GO_EXECUTABLE} run ./util/pregenerate -check
+-          COMMAND ${CMAKE_COMMAND} -E echo
+-          COMMAND ${CMAKE_COMMAND} -E echo "Running Go tests"
+-          COMMAND ${GO_EXECUTABLE} test ${GO_TESTS}
+-          COMMAND ${CMAKE_COMMAND} -E echo
+-          COMMAND ${CMAKE_COMMAND} -E echo "Running unit tests"
+-          COMMAND ${GO_EXECUTABLE} run util/all_tests.go -build-dir
+-                  ${CMAKE_CURRENT_BINARY_DIR}
+-          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-          DEPENDS boringssl_all_tests fips_specific_tests_if_any
+-          USES_TERMINAL)
+-      add_custom_target(
+-          run_tests
+-          COMMAND ${CMAKE_COMMAND} -E echo
+-          COMMAND ${CMAKE_COMMAND} -E echo "Running SSL tests"
+-          COMMAND cd ssl/test/runner &&
+-                  ${GO_EXECUTABLE} test -shim-path $<TARGET_FILE:bssl_shim>
+-                    ${HANDSHAKER_ARGS} ${RUNNER_ARGS}
+-          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-          DEPENDS run_unit_tests bssl_shim handshaker
+-          USES_TERMINAL)
+-    else()
+-      add_custom_target(
+-          run_unit_tests
+-          COMMAND ${CMAKE_COMMAND} -E echo "Running tests requires Go"
+-          COMMAND ${CMAKE_COMMAND} -E false)
+-      add_custom_target(
+-          run_tests
+-          COMMAND ${CMAKE_COMMAND} -E echo "Running tests requires Go"
+-          COMMAND ${CMAKE_COMMAND} -E false)
+-    endif()
+-  endif()
 -endif()
 -
- if(INSTALL_ENABLED)
-   # CMake versions before 3.14 do not have default destination values. Executable
-   # and library targets that use a default destination should include this
+ if(BORINGSSL_PREFIX)
+   require_go()
+   add_custom_target(
 diff --git a/build.json b/build.json
-index 4003ac412..00d17f8a5 100644
+index f9e3a7e09..61a9cf71c 100644
 --- a/build.json
 +++ b/build.json
-@@ -728,261 +728,5 @@
-             "decrepit/x509/x509_decrepit.c",
-             "decrepit/xts/xts.c"
+@@ -1,15 +1,3 @@
+-// This file defines BoringSSL's build, expressed in terms of the input source
+-// files that BoringSSL developers edit. It is a JSON file with line comments,
+-// with line comments removed before parsing. It drives ./util/pregenerate which
+-// converts some of those inputs (e.g. perlasm files) into pre-generated
+-// outputs. This produces a more simplified build, which is then converted into
+-// build files of various syntaxes.
+-//
+-// When modifying this file, run `go run ./util/pregenerate`. See gen/README.md
+-// for more details, and util/pregenerate/build.go for the schema.
+-//
+-// TODO(crbug.com/boringssl/542): Moving build inputs to this file is still work
+-// in progress, so this file is currently incomplete.
+ {
+     "bcm": {
+         "srcs": [
+@@ -105,63 +93,175 @@
+             "third_party/fiat/asm/fiat_p256_adx_sqr.S"
+         ],
+         "perlasm_aarch64": [
+-            {"src": "crypto/fipsmodule/aes/asm/aesv8-armx.pl", "dst": "aesv8-armv8"},
+-            {"src": "crypto/fipsmodule/aes/asm/aesv8-gcm-armv8.pl"},
+-            {"src": "crypto/fipsmodule/bn/asm/armv8-mont.pl"},
+-            {"src": "crypto/fipsmodule/bn/asm/bn-armv8.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/ghash-neon-armv8.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/ghashv8-armx.pl", "dst": "ghashv8-armv8"},
+-            {"src": "crypto/fipsmodule/ec/asm/p256_beeu-armv8-asm.pl"},
+-            {"src": "crypto/fipsmodule/ec/asm/p256-armv8-asm.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha1-armv8.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha512-armv8.pl", "args": ["sha256"], "dst": "sha256-armv8"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha512-armv8.pl", "args": ["sha512"]},
+-            {"src": "crypto/fipsmodule/aes/asm/vpaes-armv8.pl"}
++            {
++                "src": "crypto/fipsmodule/aes/asm/aesv8-armx.pl",
++                "dst": "aesv8-armv8"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/aesv8-gcm-armv8.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/armv8-mont.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/bn-armv8.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/ghash-neon-armv8.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/ghashv8-armx.pl",
++                "dst": "ghashv8-armv8"
++            },
++            {
++                "src": "crypto/fipsmodule/ec/asm/p256_beeu-armv8-asm.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/ec/asm/p256-armv8-asm.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha1-armv8.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha512-armv8.pl",
++                "args": [
++                    "sha256"
++                ],
++                "dst": "sha256-armv8"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha512-armv8.pl",
++                "args": [
++                    "sha512"
++                ]
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/vpaes-armv8.pl"
++            }
+         ],
+         "perlasm_arm": [
+-            {"src": "crypto/fipsmodule/aes/asm/aesv8-armx.pl", "dst": "aesv8-armv7"},
+-            {"src": "crypto/fipsmodule/bn/asm/armv4-mont.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/bsaes-armv7.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/ghash-armv4.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/ghashv8-armx.pl", "dst": "ghashv8-armv7"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha1-armv4-large.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha256-armv4.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha512-armv4.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/vpaes-armv7.pl"}
++            {
++                "src": "crypto/fipsmodule/aes/asm/aesv8-armx.pl",
++                "dst": "aesv8-armv7"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/armv4-mont.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/bsaes-armv7.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/ghash-armv4.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/ghashv8-armx.pl",
++                "dst": "ghashv8-armv7"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha1-armv4-large.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha256-armv4.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha512-armv4.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/vpaes-armv7.pl"
++            }
+         ],
+         "perlasm_x86": [
+-            {"src": "crypto/fipsmodule/aes/asm/aesni-x86.pl"},
+-            {"src": "crypto/fipsmodule/bn/asm/bn-586.pl"},
+-            {"src": "crypto/fipsmodule/bn/asm/co-586.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/ghash-ssse3-x86.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/ghash-x86.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha1-586.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha256-586.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha512-586.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/vpaes-x86.pl"},
+-            {"src": "crypto/fipsmodule/bn/asm/x86-mont.pl"}
++            {
++                "src": "crypto/fipsmodule/aes/asm/aesni-x86.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/bn-586.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/co-586.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/ghash-ssse3-x86.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/ghash-x86.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha1-586.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha256-586.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha512-586.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/vpaes-x86.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/x86-mont.pl"
++            }
+         ],
+         "perlasm_x86_64": [
+-            {"src": "crypto/fipsmodule/aes/asm/aesni-gcm-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/aes-gcm-avx2-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/aes-gcm-avx512-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/aesni-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/ghash-ssse3-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/aes/asm/ghash-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/ec/asm/p256_beeu-x86_64-asm.pl"},
+-            {"src": "crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl"},
+-            {"src": "crypto/fipsmodule/rand/asm/rdrand-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/bn/asm/rsaz-avx2.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha1-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha512-x86_64.pl", "args": ["sha256"], "dst": "sha256-x86_64"},
+-            {"src": "crypto/fipsmodule/sha/asm/sha512-x86_64.pl", "args": ["sha512"]},
+-            {"src": "crypto/fipsmodule/aes/asm/vpaes-x86_64.pl"},
+-            {"src": "crypto/fipsmodule/bn/asm/x86_64-mont.pl"},
+-            {"src": "crypto/fipsmodule/bn/asm/x86_64-mont5.pl"}
++            {
++                "src": "crypto/fipsmodule/aes/asm/aesni-gcm-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/aes-gcm-avx2-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/aes-gcm-avx512-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/aesni-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/ghash-ssse3-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/ghash-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/ec/asm/p256_beeu-x86_64-asm.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/ec/asm/p256-x86_64-asm.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/rand/asm/rdrand-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/rsaz-avx2.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha1-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha512-x86_64.pl",
++                "args": [
++                    "sha256"
++                ],
++                "dst": "sha256-x86_64"
++            },
++            {
++                "src": "crypto/fipsmodule/sha/asm/sha512-x86_64.pl",
++                "args": [
++                    "sha512"
++                ]
++            },
++            {
++                "src": "crypto/fipsmodule/aes/asm/vpaes-x86_64.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/x86_64-mont.pl"
++            },
++            {
++                "src": "crypto/fipsmodule/bn/asm/x86_64-mont5.pl"
++            }
          ]
--    },
+     },
+     "crypto": {
+-      "srcs": [
++        "srcs": [
+             "crypto/aes/aes.cc",
+             "crypto/asn1/a_bitstr.cc",
+             "crypto/asn1/a_bool.cc",
+@@ -586,21 +686,39 @@
+             "third_party/fiat/asm/fiat_curve25519_adx_square.S"
+         ],
+         "perlasm_aarch64": [
+-            {"src": "crypto/chacha/asm/chacha-armv8.pl"},
+-            {"src": "crypto/cipher/asm/chacha20_poly1305_armv8.pl"}
++            {
++                "src": "crypto/chacha/asm/chacha-armv8.pl"
++            },
++            {
++                "src": "crypto/cipher/asm/chacha20_poly1305_armv8.pl"
++            }
+         ],
+         "perlasm_arm": [
+-            {"src": "crypto/chacha/asm/chacha-armv4.pl"}
++            {
++                "src": "crypto/chacha/asm/chacha-armv4.pl"
++            }
+         ],
+         "perlasm_x86": [
+-            {"src": "crypto/chacha/asm/chacha-x86.pl"},
+-            {"src": "crypto/md5/asm/md5-586.pl"}
++            {
++                "src": "crypto/chacha/asm/chacha-x86.pl"
++            },
++            {
++                "src": "crypto/md5/asm/md5-586.pl"
++            }
+         ],
+         "perlasm_x86_64": [
+-            {"src": "crypto/chacha/asm/chacha-x86_64.pl"},
+-            {"src": "crypto/cipher/asm/aes128gcmsiv-x86_64.pl"},
+-            {"src": "crypto/cipher/asm/chacha20_poly1305_x86_64.pl"},
+-            {"src": "crypto/md5/asm/md5-x86_64.pl"}
++            {
++                "src": "crypto/chacha/asm/chacha-x86_64.pl"
++            },
++            {
++                "src": "crypto/cipher/asm/aes128gcmsiv-x86_64.pl"
++            },
++            {
++                "src": "crypto/cipher/asm/chacha20_poly1305_x86_64.pl"
++            },
++            {
++                "src": "crypto/md5/asm/md5-x86_64.pl"
++            }
+         ]
+     },
+     "pki": {
+@@ -654,7 +772,6 @@
+             "pki/cert_errors.h",
+             "pki/cert_issuer_source.h",
+             "pki/cert_issuer_source_static.h",
+-            // TODO(crbug.com/boringssl/542): This should be in pki_tests.
+             "pki/cert_issuer_source_sync_unittest.h",
+             "pki/certificate_policies.h",
+             "pki/common_cert_errors.h",
+@@ -680,15 +797,12 @@
+             "pki/signature_algorithm.h",
+             "pki/simple_path_builder_delegate.h",
+             "pki/string_util.h",
+-            // TODO(crbug.com/boringssl/542): This should be in pki_tests.
+             "pki/test_helpers.h",
+-            // TODO(crbug.com/boringssl/542): This should be in pki_tests.
+             "pki/testdata/nist-pkits/pkits_testcases-inl.h",
+             "pki/trust_store.h",
+             "pki/trust_store_collection.h",
+             "pki/trust_store_in_memory.h",
+             "pki/verify_certificate_chain.h",
+-            // TODO(crbug.com/boringssl/542): This should be in pki_tests.
+             "pki/verify_certificate_chain_typed_unittest.h",
+             "pki/verify_name_match.h",
+             "pki/verify_signed_data.h"
+@@ -772,279 +886,6 @@
+             "decrepit/macros.h"
+         ]
+     },
 -    "test_support": {
 -        "srcs": [
 -            "crypto/test/abi_test.cc",
+-            "crypto/test/der_trailing_data.cc",
 -            "crypto/test/file_test.cc",
 -            "crypto/test/file_test_gtest.cc",
 -            "crypto/test/file_util.cc",
@@ -195,6 +588,7 @@ index 4003ac412..00d17f8a5 100644
 -        ],
 -        "internal_hdrs": [
 -            "crypto/test/abi_test.h",
+-            "crypto/test/der_trailing_data.h",
 -            "crypto/test/file_test.h",
 -            "crypto/test/file_util.h",
 -            "crypto/test/gtest_main.h",
@@ -237,8 +631,9 @@ index 4003ac412..00d17f8a5 100644
 -            "crypto/buf/buf_test.cc",
 -            "crypto/bytestring/bytestring_test.cc",
 -            "crypto/chacha/chacha_test.cc",
--            "crypto/cipher_extra/aead_test.cc",
--            "crypto/cipher_extra/cipher_test.cc",
+-            "crypto/cipher/aead_test.cc",
+-            "crypto/cipher/cipher_test.cc",
+-            "crypto/cms/cms_test.cc",
 -            "crypto/compiler_test.cc",
 -            "crypto/conf/conf_test.cc",
 -            "crypto/constant_time_test.cc",
@@ -247,66 +642,73 @@ index 4003ac412..00d17f8a5 100644
 -            "crypto/curve25519/ed25519_test.cc",
 -            "crypto/curve25519/spake25519_test.cc",
 -            "crypto/curve25519/x25519_test.cc",
--            "crypto/ecdh_extra/ecdh_test.cc",
--            "crypto/dh_extra/dh_test.cc",
--            "crypto/digest_extra/digest_test.cc",
+-            "crypto/dh/dh_test.cc",
+-            "crypto/digest/digest_test.cc",
 -            "crypto/dsa/dsa_test.cc",
+-            "crypto/ecdh/ecdh_test.cc",
+-            "crypto/ecdsa/ecdsa_p1363_test.cc",
 -            "crypto/err/err_test.cc",
 -            "crypto/evp/evp_extra_test.cc",
 -            "crypto/evp/evp_test.cc",
 -            "crypto/evp/pbkdf_test.cc",
 -            "crypto/evp/scrypt_test.cc",
 -            "crypto/fipsmodule/aes/aes_test.cc",
+-            "crypto/fipsmodule/aes/gcm_test.cc",
 -            "crypto/fipsmodule/bn/bn_test.cc",
 -            "crypto/fipsmodule/cmac/cmac_test.cc",
 -            "crypto/fipsmodule/ec/ec_test.cc",
 -            "crypto/fipsmodule/ec/p256-nistz_test.cc",
 -            "crypto/fipsmodule/ec/p256_test.cc",
 -            "crypto/fipsmodule/ecdsa/ecdsa_test.cc",
+-            "crypto/fipsmodule/entropy/jitter_test.cc",
 -            "crypto/fipsmodule/hkdf/hkdf_test.cc",
--            "crypto/fipsmodule/md5/md5_test.cc",
--            "crypto/fipsmodule/modes/gcm_test.cc",
+-            "crypto/fipsmodule/keccak/keccak_test.cc",
 -            "crypto/fipsmodule/rand/ctrdrbg_test.cc",
--            "crypto/fipsmodule/rand/fork_detect_test.cc",
 -            "crypto/fipsmodule/service_indicator/service_indicator_test.cc",
 -            "crypto/fipsmodule/sha/sha_test.cc",
+-            "crypto/hmac/hmac_test.cc",
 -            "crypto/hpke/hpke_test.cc",
--            "crypto/hmac_extra/hmac_test.cc",
 -            "crypto/hrss/hrss_test.cc",
 -            "crypto/impl_dispatch_test.cc",
--            "crypto/keccak/keccak_test.cc",
 -            "crypto/kyber/kyber_test.cc",
 -            "crypto/lhash/lhash_test.cc",
+-            "crypto/md5/md5_test.cc",
+-            "crypto/mlkem/mlkem_test.cc",
 -            "crypto/obj/obj_test.cc",
 -            "crypto/pem/pem_test.cc",
+-            "crypto/mem_test.cc",
+-            "crypto/mldsa/mldsa_test.cc",
 -            "crypto/pkcs7/pkcs7_test.cc",
--            "crypto/pkcs8/pkcs8_test.cc",
 -            "crypto/pkcs8/pkcs12_test.cc",
+-            "crypto/pkcs8/pkcs8_test.cc",
 -            "crypto/poly1305/poly1305_test.cc",
 -            "crypto/pool/pool_test.cc",
--            "crypto/rand_extra/rand_test.cc",
--            "crypto/rand_extra/getentropy_test.cc",
+-            "crypto/rand/fork_detect_test.cc",
+-            "crypto/rand/getentropy_test.cc",
+-            "crypto/rand/rand_test.cc",
 -            "crypto/refcount_test.cc",
--            "crypto/rsa_extra/rsa_test.cc",
+-            "crypto/rsa/rsa_test.cc",
 -            "crypto/self_test.cc",
--            "crypto/stack/stack_test.cc",
 -            "crypto/siphash/siphash_test.cc",
--            "crypto/spx/spx_test.cc",
--            "crypto/thread_test.cc",
+-            "crypto/slhdsa/slhdsa_test.cc",
+-            "crypto/spake2plus/spake2plus_test.cc",
+-            "crypto/stack/stack_test.cc",
 -            "crypto/test/gtest_main.cc",
+-            "crypto/thread_test.cc",
 -            "crypto/trust_token/trust_token_test.cc",
--            "crypto/x509/tab_test.cc",
+-            "crypto/x509/x509_extension_test.cc",
 -            "crypto/x509/x509_test.cc",
--            "crypto/x509/x509_time_test.cc"
+-            "crypto/x509/x509_time_test.cc",
+-            "crypto/xwing/xwing_test.cc",
+-            "third_party/fiat/bedrock_platform_test.cc"
 -        ],
 -        "data": [
 -            "crypto/blake2/blake2b256_tests.txt",
--            "crypto/cipher_extra/test/*.txt",
--            "crypto/cipher_extra/test/nist_cavp/*.txt",
+-            "crypto/cipher/test/*.txt",
+-            "crypto/cipher/test/nist_cavp/*.txt",
 -            "crypto/curve25519/ed25519_tests.txt",
--            "crypto/ecdh_extra/ecdh_tests.txt",
--            "crypto/evp/evp_tests.txt",
--            "crypto/evp/scrypt_tests.txt",
+-            "crypto/ecdh/ecdh_tests.txt",
+-            "crypto/evp/test/*.txt",
 -            "crypto/fipsmodule/aes/aes_tests.txt",
 -            "crypto/fipsmodule/bn/test/*.txt",
 -            "crypto/fipsmodule/cmac/cavp_3des_cmac_tests.txt",
@@ -317,38 +719,68 @@ index 4003ac412..00d17f8a5 100644
 -            "crypto/fipsmodule/ec/p256-nistz_tests.txt",
 -            "crypto/fipsmodule/ecdsa/ecdsa_sign_tests.txt",
 -            "crypto/fipsmodule/ecdsa/ecdsa_verify_tests.txt",
--            "crypto/fipsmodule/modes/gcm_tests.txt",
+-            "crypto/fipsmodule/keccak/keccak_tests.txt",
 -            "crypto/fipsmodule/rand/ctrdrbg_vectors.txt",
--            "crypto/hmac_extra/hmac_tests.txt",
--            "crypto/hpke/hpke_test_vectors.txt",
--            "crypto/keccak/keccak_tests.txt",
+-            "crypto/fipsmodule/rand/ctrdrbg_df_vectors.txt",
+-            "crypto/hmac/hmac_tests.txt",
+-            "crypto/hpke/*.txt",
 -            "crypto/kyber/kyber_tests.txt",
+-            "crypto/mldsa/mldsa_nist_keygen_44_tests.txt",
+-            "crypto/mldsa/mldsa_nist_keygen_65_tests.txt",
+-            "crypto/mldsa/mldsa_nist_keygen_87_tests.txt",
+-            "crypto/mldsa/mldsa_nist_siggen_44_tests.txt",
+-            "crypto/mldsa/mldsa_nist_siggen_65_tests.txt",
+-            "crypto/mldsa/mldsa_nist_siggen_87_tests.txt",
+-            "crypto/mlkem/mlkem1024_decap_tests.txt",
+-            "crypto/mlkem/mlkem1024_encap_tests.txt",
+-            "crypto/mlkem/mlkem1024_keygen_tests.txt",
+-            "crypto/mlkem/mlkem1024_nist_decap_tests.txt",
+-            "crypto/mlkem/mlkem1024_nist_keygen_tests.txt",
+-            "crypto/mlkem/mlkem768_decap_tests.txt",
+-            "crypto/mlkem/mlkem768_encap_tests.txt",
+-            "crypto/mlkem/mlkem768_keygen_tests.txt",
+-            "crypto/mlkem/mlkem768_nist_decap_tests.txt",
+-            "crypto/mlkem/mlkem768_nist_keygen_tests.txt",
+-            "crypto/pkcs7/test/*.p7c",
+-            "crypto/pkcs7/test/*.p7s",
+-            "crypto/pkcs7/test/*.pem",
 -            "crypto/pkcs8/test/*.p12",
 -            "crypto/poly1305/poly1305_tests.txt",
+-            "crypto/rsa/test/*.pem",
 -            "crypto/siphash/siphash_tests.txt",
--            "crypto/spx/spx_tests.txt",
--            "crypto/spx/spx_tests_deterministic.txt",
+-            "crypto/slhdsa/slhdsa_sha2_128s_keygen.txt",
+-            "crypto/slhdsa/slhdsa_shake_256f_keygen.txt",
+-            "crypto/slhdsa/slhdsa_sha2_128s_prehash.txt",
+-            "crypto/slhdsa/slhdsa_sha2_128s_siggen.txt",
+-            "crypto/slhdsa/slhdsa_shake_256f_siggen.txt",
+-            "crypto/slhdsa/slhdsa_sha2_128s_sigver.txt",
+-            "crypto/slhdsa/slhdsa_shake_256f_sigver.txt",
 -            "crypto/x509/test/*.pem",
+-            "crypto/x509/test/*.pk8",
 -            "third_party/wycheproof_testvectors/*.txt"
+-        ],
+-        "internal_hdrs": [
+-            "third_party/fiat/bedrock_polyfill_platform.c.inc"
 -        ]
 -    },
 -    "urandom_test": {
 -        "srcs": [
--            "crypto/fipsmodule/rand/urandom_test.cc"
+-            "crypto/rand/urandom_test.cc"
 -        ]
 -    },
 -    "pki_test": {
 -        "srcs": [
 -            "crypto/test/gtest_main.cc",
 -            "pki/cert_issuer_source_static_unittest.cc",
--            "pki/certificate_unittest.cc",
 -            "pki/certificate_policies_unittest.cc",
+-            "pki/certificate_unittest.cc",
 -            "pki/crl_unittest.cc",
 -            "pki/encode_values_unittest.cc",
 -            "pki/extended_key_usage_unittest.cc",
 -            "pki/general_names_unittest.cc",
 -            "pki/input_unittest.cc",
 -            "pki/ip_util_unittest.cc",
+-            "pki/merkle_tree_unittest.cc",
 -            "pki/mock_signature_verify_cache.cc",
 -            "pki/name_constraints_unittest.cc",
 -            "pki/nist_pkits_unittest.cc",
@@ -371,7 +803,8 @@ index 4003ac412..00d17f8a5 100644
 -            "pki/verify_certificate_chain_pkits_unittest.cc",
 -            "pki/verify_certificate_chain_unittest.cc",
 -            "pki/verify_name_match_unittest.cc",
--            "pki/verify_signed_data_unittest.cc"
+-            "pki/verify_signed_data_unittest.cc",
+-            "pki/verify_unittest.cc"
 -        ],
 -        "data": [
 -            "pki/testdata/cert_issuer_source_static_unittest/*.pem",
@@ -390,8 +823,8 @@ index 4003ac412..00d17f8a5 100644
 -            "pki/testdata/verify_certificate_chain_unittest/pkits_errors/*.txt",
 -            "pki/testdata/verify_name_match_unittest/names/*.pem",
 -            "pki/testdata/verify_signed_data_unittest/*.pem",
--            "pki/testdata/verify_unittest/google-leaf.der",
--            "pki/testdata/verify_unittest/self-issued.pem"
+-            "pki/testdata/verify_unittest/*.der",
+-            "pki/testdata/verify_unittest/*.pem"
 -        ]
 -    },
 -    "ssl_test": {
@@ -399,6 +832,7 @@ index 4003ac412..00d17f8a5 100644
 -            "crypto/test/gtest_main.cc",
 -            "ssl/span_test.cc",
 -            "ssl/ssl_c_test.c",
+-            "ssl/ssl_internal_test.cc",
 -            "ssl/ssl_test.cc"
 -        ]
 -    },
@@ -414,38 +848,97 @@ index 4003ac412..00d17f8a5 100644
 -            "decrepit/xts/xts_test.cc"
 -        ]
 -    },
--    "bssl": {
--        "srcs": [
--            "tool/args.cc",
--            "tool/ciphers.cc",
--            "tool/client.cc",
--            "tool/const.cc",
--            "tool/digest.cc",
--            "tool/fd.cc",
--            "tool/file.cc",
--            "tool/generate_ech.cc",
--            "tool/generate_ed25519.cc",
--            "tool/genrsa.cc",
--            "tool/pkcs12.cc",
--            "tool/rand.cc",
--            "tool/server.cc",
--            "tool/sign.cc",
--            "tool/speed.cc",
--            "tool/tool.cc",
--            "tool/transport_common.cc"
--        ],
+     "bssl": {
+         "srcs": [
+             "tool/args.cc",
+@@ -1070,42 +911,10 @@
+         ]
+     },
+     "fuzz": {
+-        // TODO(crbug.com/42290554): Unlike the other targets, each source here
+-        // is expected to be built separately. When we migrate from libFuzzer to
+-        // FuzzTest, this will be moot.
+         "srcs": [
+             "fuzz/*.cc"
+         ]
+     },
+-    "bench": {
 -        "internal_hdrs": [
--            "tool/internal.h",
--            "tool/transport_common.h"
+-            "bench/internal.h"
+-        ],
+-        "srcs": [
+-            "bench/aead.cc",
+-            "bench/aes.cc",
+-            "bench/base64.cc",
+-            "bench/curve25519.cc",
+-            "bench/ecdh.cc",
+-            "bench/ecdsa.cc",
+-            "bench/hash.cc",
+-            "bench/hash_to_curve.cc",
+-            "bench/hrss.cc",
+-            "bench/main.cc",
+-            "bench/mldsa.cc",
+-            "bench/mlkem.cc",
+-            "bench/rand.cc",
+-            "bench/rsa.cc",
+-            "bench/rsakeygen.cc",
+-            "bench/scrypt.cc",
+-            "bench/selftest.cc",
+-            "bench/siphash.cc",
+-            "bench/slhdsa.cc",
+-            "bench/spake2.cc",
+-            "bench/trust_token.cc",
+-            "bench/x509.cc"
 -        ]
-     }
- }
+-    },
+     "rust_bssl_sys": {
+         "srcs": [
+             "rust/bssl-sys/src/*.rs"
 diff --git a/gen/sources.cmake b/gen/sources.cmake
-index c73ecf1a9..522e3b135 100644
+index 16ae05cbf..4a8c163a1 100644
 --- a/gen/sources.cmake
 +++ b/gen/sources.cmake
-@@ -698,323 +698,6 @@ set(
-   gen/crypto/chacha20_poly1305_x86_64-win.asm
+@@ -243,38 +243,7 @@ set(
+   gen/bcm/x86_64-mont5-win.asm
+ )
+ 
+-set(
+-  BENCH_SOURCES
+-
+-  bench/aead.cc
+-  bench/aes.cc
+-  bench/base64.cc
+-  bench/curve25519.cc
+-  bench/ecdh.cc
+-  bench/ecdsa.cc
+-  bench/hash.cc
+-  bench/hash_to_curve.cc
+-  bench/hrss.cc
+-  bench/main.cc
+-  bench/mldsa.cc
+-  bench/mlkem.cc
+-  bench/rand.cc
+-  bench/rsa.cc
+-  bench/rsakeygen.cc
+-  bench/scrypt.cc
+-  bench/selftest.cc
+-  bench/siphash.cc
+-  bench/slhdsa.cc
+-  bench/spake2.cc
+-  bench/trust_token.cc
+-  bench/x509.cc
+-)
+ 
+-set(
+-  BENCH_INTERNAL_HEADERS
+-
+-  bench/internal.h
+-)
+ 
+ set(
+   BSSL_SOURCES
+@@ -773,444 +742,8 @@ set(
+   gen/crypto/md5-x86_64-win.asm
  )
  
 -set(
@@ -459,8 +952,9 @@ index c73ecf1a9..522e3b135 100644
 -  crypto/buf/buf_test.cc
 -  crypto/bytestring/bytestring_test.cc
 -  crypto/chacha/chacha_test.cc
--  crypto/cipher_extra/aead_test.cc
--  crypto/cipher_extra/cipher_test.cc
+-  crypto/cipher/aead_test.cc
+-  crypto/cipher/cipher_test.cc
+-  crypto/cms/cms_test.cc
 -  crypto/compiler_test.cc
 -  crypto/conf/conf_test.cc
 -  crypto/constant_time_test.cc
@@ -469,36 +963,40 @@ index c73ecf1a9..522e3b135 100644
 -  crypto/curve25519/ed25519_test.cc
 -  crypto/curve25519/spake25519_test.cc
 -  crypto/curve25519/x25519_test.cc
--  crypto/dh_extra/dh_test.cc
--  crypto/digest_extra/digest_test.cc
+-  crypto/dh/dh_test.cc
+-  crypto/digest/digest_test.cc
 -  crypto/dsa/dsa_test.cc
--  crypto/ecdh_extra/ecdh_test.cc
+-  crypto/ecdh/ecdh_test.cc
+-  crypto/ecdsa/ecdsa_p1363_test.cc
 -  crypto/err/err_test.cc
 -  crypto/evp/evp_extra_test.cc
 -  crypto/evp/evp_test.cc
 -  crypto/evp/pbkdf_test.cc
 -  crypto/evp/scrypt_test.cc
 -  crypto/fipsmodule/aes/aes_test.cc
+-  crypto/fipsmodule/aes/gcm_test.cc
 -  crypto/fipsmodule/bn/bn_test.cc
 -  crypto/fipsmodule/cmac/cmac_test.cc
 -  crypto/fipsmodule/ec/ec_test.cc
 -  crypto/fipsmodule/ec/p256-nistz_test.cc
 -  crypto/fipsmodule/ec/p256_test.cc
 -  crypto/fipsmodule/ecdsa/ecdsa_test.cc
+-  crypto/fipsmodule/entropy/jitter_test.cc
 -  crypto/fipsmodule/hkdf/hkdf_test.cc
--  crypto/fipsmodule/md5/md5_test.cc
--  crypto/fipsmodule/modes/gcm_test.cc
+-  crypto/fipsmodule/keccak/keccak_test.cc
 -  crypto/fipsmodule/rand/ctrdrbg_test.cc
--  crypto/fipsmodule/rand/fork_detect_test.cc
 -  crypto/fipsmodule/service_indicator/service_indicator_test.cc
 -  crypto/fipsmodule/sha/sha_test.cc
--  crypto/hmac_extra/hmac_test.cc
+-  crypto/hmac/hmac_test.cc
 -  crypto/hpke/hpke_test.cc
 -  crypto/hrss/hrss_test.cc
 -  crypto/impl_dispatch_test.cc
--  crypto/keccak/keccak_test.cc
 -  crypto/kyber/kyber_test.cc
 -  crypto/lhash/lhash_test.cc
+-  crypto/md5/md5_test.cc
+-  crypto/mem_test.cc
+-  crypto/mldsa/mldsa_test.cc
+-  crypto/mlkem/mlkem_test.cc
 -  crypto/obj/obj_test.cc
 -  crypto/pem/pem_test.cc
 -  crypto/pkcs7/pkcs7_test.cc
@@ -506,61 +1004,82 @@ index c73ecf1a9..522e3b135 100644
 -  crypto/pkcs8/pkcs8_test.cc
 -  crypto/poly1305/poly1305_test.cc
 -  crypto/pool/pool_test.cc
--  crypto/rand_extra/getentropy_test.cc
--  crypto/rand_extra/rand_test.cc
+-  crypto/rand/fork_detect_test.cc
+-  crypto/rand/getentropy_test.cc
+-  crypto/rand/rand_test.cc
 -  crypto/refcount_test.cc
--  crypto/rsa_extra/rsa_test.cc
+-  crypto/rsa/rsa_test.cc
 -  crypto/self_test.cc
 -  crypto/siphash/siphash_test.cc
--  crypto/spx/spx_test.cc
+-  crypto/slhdsa/slhdsa_test.cc
+-  crypto/spake2plus/spake2plus_test.cc
 -  crypto/stack/stack_test.cc
 -  crypto/test/gtest_main.cc
 -  crypto/thread_test.cc
 -  crypto/trust_token/trust_token_test.cc
--  crypto/x509/tab_test.cc
+-  crypto/x509/x509_extension_test.cc
 -  crypto/x509/x509_test.cc
 -  crypto/x509/x509_time_test.cc
+-  crypto/xwing/xwing_test.cc
+-  third_party/fiat/bedrock_platform_test.cc
 -)
+ 
+-set(
+-  CRYPTO_TEST_INTERNAL_HEADERS
 -
+-  third_party/fiat/bedrock_polyfill_platform.c.inc
+-)
+ 
 -set(
 -  CRYPTO_TEST_DATA
 -
 -  crypto/blake2/blake2b256_tests.txt
--  crypto/cipher_extra/test/aes_128_cbc_sha1_tls_implicit_iv_tests.txt
--  crypto/cipher_extra/test/aes_128_cbc_sha1_tls_tests.txt
--  crypto/cipher_extra/test/aes_128_ccm_bluetooth_8_tests.txt
--  crypto/cipher_extra/test/aes_128_ccm_bluetooth_tests.txt
--  crypto/cipher_extra/test/aes_128_ccm_matter_tests.txt
--  crypto/cipher_extra/test/aes_128_ctr_hmac_sha256.txt
--  crypto/cipher_extra/test/aes_128_gcm_randnonce_tests.txt
--  crypto/cipher_extra/test/aes_128_gcm_siv_tests.txt
--  crypto/cipher_extra/test/aes_128_gcm_tests.txt
--  crypto/cipher_extra/test/aes_192_gcm_tests.txt
--  crypto/cipher_extra/test/aes_256_cbc_sha1_tls_implicit_iv_tests.txt
--  crypto/cipher_extra/test/aes_256_cbc_sha1_tls_tests.txt
--  crypto/cipher_extra/test/aes_256_ctr_hmac_sha256.txt
--  crypto/cipher_extra/test/aes_256_gcm_randnonce_tests.txt
--  crypto/cipher_extra/test/aes_256_gcm_siv_tests.txt
--  crypto/cipher_extra/test/aes_256_gcm_tests.txt
--  crypto/cipher_extra/test/chacha20_poly1305_tests.txt
--  crypto/cipher_extra/test/cipher_tests.txt
--  crypto/cipher_extra/test/des_ede3_cbc_sha1_tls_implicit_iv_tests.txt
--  crypto/cipher_extra/test/des_ede3_cbc_sha1_tls_tests.txt
--  crypto/cipher_extra/test/nist_cavp/aes_128_cbc.txt
--  crypto/cipher_extra/test/nist_cavp/aes_128_ctr.txt
--  crypto/cipher_extra/test/nist_cavp/aes_128_gcm.txt
--  crypto/cipher_extra/test/nist_cavp/aes_192_cbc.txt
--  crypto/cipher_extra/test/nist_cavp/aes_192_ctr.txt
--  crypto/cipher_extra/test/nist_cavp/aes_256_cbc.txt
--  crypto/cipher_extra/test/nist_cavp/aes_256_ctr.txt
--  crypto/cipher_extra/test/nist_cavp/aes_256_gcm.txt
--  crypto/cipher_extra/test/nist_cavp/tdes_cbc.txt
--  crypto/cipher_extra/test/nist_cavp/tdes_ecb.txt
--  crypto/cipher_extra/test/xchacha20_poly1305_tests.txt
+-  crypto/cipher/test/aes_128_cbc_sha1_tls_implicit_iv_tests.txt
+-  crypto/cipher/test/aes_128_cbc_sha1_tls_tests.txt
+-  crypto/cipher/test/aes_128_cbc_sha256_tls_tests.txt
+-  crypto/cipher/test/aes_128_ccm_bluetooth_8_tests.txt
+-  crypto/cipher/test/aes_128_ccm_bluetooth_tests.txt
+-  crypto/cipher/test/aes_128_ccm_matter_tests.txt
+-  crypto/cipher/test/aes_128_ctr_hmac_sha256.txt
+-  crypto/cipher/test/aes_128_eax_test.txt
+-  crypto/cipher/test/aes_128_gcm_randnonce_tests.txt
+-  crypto/cipher/test/aes_128_gcm_siv_tests.txt
+-  crypto/cipher/test/aes_128_gcm_tests.txt
+-  crypto/cipher/test/aes_192_gcm_tests.txt
+-  crypto/cipher/test/aes_256_cbc_sha1_tls_implicit_iv_tests.txt
+-  crypto/cipher/test/aes_256_cbc_sha1_tls_tests.txt
+-  crypto/cipher/test/aes_256_ctr_hmac_sha256.txt
+-  crypto/cipher/test/aes_256_eax_test.txt
+-  crypto/cipher/test/aes_256_gcm_randnonce_tests.txt
+-  crypto/cipher/test/aes_256_gcm_siv_tests.txt
+-  crypto/cipher/test/aes_256_gcm_tests.txt
+-  crypto/cipher/test/chacha20_poly1305_tests.txt
+-  crypto/cipher/test/cipher_tests.txt
+-  crypto/cipher/test/des_ede3_cbc_sha1_tls_implicit_iv_tests.txt
+-  crypto/cipher/test/des_ede3_cbc_sha1_tls_tests.txt
+-  crypto/cipher/test/nist_cavp/aes_128_cbc.txt
+-  crypto/cipher/test/nist_cavp/aes_128_ctr.txt
+-  crypto/cipher/test/nist_cavp/aes_128_gcm.txt
+-  crypto/cipher/test/nist_cavp/aes_192_cbc.txt
+-  crypto/cipher/test/nist_cavp/aes_192_ctr.txt
+-  crypto/cipher/test/nist_cavp/aes_256_cbc.txt
+-  crypto/cipher/test/nist_cavp/aes_256_ctr.txt
+-  crypto/cipher/test/nist_cavp/aes_256_gcm.txt
+-  crypto/cipher/test/nist_cavp/tdes_cbc.txt
+-  crypto/cipher/test/nist_cavp/tdes_ecb.txt
+-  crypto/cipher/test/xchacha20_poly1305_tests.txt
 -  crypto/curve25519/ed25519_tests.txt
--  crypto/ecdh_extra/ecdh_tests.txt
--  crypto/evp/evp_tests.txt
--  crypto/evp/scrypt_tests.txt
+-  crypto/ecdh/ecdh_tests.txt
+-  crypto/evp/test/dh_tests.txt
+-  crypto/evp/test/ec_tests.txt
+-  crypto/evp/test/ed25519_tests.txt
+-  crypto/evp/test/evp_tests.txt
+-  crypto/evp/test/mldsa_tests.txt
+-  crypto/evp/test/mlkem_tests.txt
+-  crypto/evp/test/rsa_tests.txt
+-  crypto/evp/test/scrypt_tests.txt
+-  crypto/evp/test/x25519_tests.txt
+-  crypto/evp/test/xwing_tests.txt
 -  crypto/fipsmodule/aes/aes_tests.txt
 -  crypto/fipsmodule/bn/test/exp_tests.txt
 -  crypto/fipsmodule/bn/test/gcd_tests.txt
@@ -581,12 +1100,40 @@ index c73ecf1a9..522e3b135 100644
 -  crypto/fipsmodule/ec/p256-nistz_tests.txt
 -  crypto/fipsmodule/ecdsa/ecdsa_sign_tests.txt
 -  crypto/fipsmodule/ecdsa/ecdsa_verify_tests.txt
--  crypto/fipsmodule/modes/gcm_tests.txt
+-  crypto/fipsmodule/keccak/keccak_tests.txt
+-  crypto/fipsmodule/rand/ctrdrbg_df_vectors.txt
 -  crypto/fipsmodule/rand/ctrdrbg_vectors.txt
--  crypto/hmac_extra/hmac_tests.txt
+-  crypto/hmac/hmac_tests.txt
 -  crypto/hpke/hpke_test_vectors.txt
--  crypto/keccak/keccak_tests.txt
+-  crypto/hpke/hpke_test_vectors_pq.txt
 -  crypto/kyber/kyber_tests.txt
+-  crypto/mldsa/mldsa_nist_keygen_44_tests.txt
+-  crypto/mldsa/mldsa_nist_keygen_65_tests.txt
+-  crypto/mldsa/mldsa_nist_keygen_87_tests.txt
+-  crypto/mldsa/mldsa_nist_siggen_44_tests.txt
+-  crypto/mldsa/mldsa_nist_siggen_65_tests.txt
+-  crypto/mldsa/mldsa_nist_siggen_87_tests.txt
+-  crypto/mlkem/mlkem1024_decap_tests.txt
+-  crypto/mlkem/mlkem1024_encap_tests.txt
+-  crypto/mlkem/mlkem1024_keygen_tests.txt
+-  crypto/mlkem/mlkem1024_nist_decap_tests.txt
+-  crypto/mlkem/mlkem1024_nist_keygen_tests.txt
+-  crypto/mlkem/mlkem768_decap_tests.txt
+-  crypto/mlkem/mlkem768_encap_tests.txt
+-  crypto/mlkem/mlkem768_keygen_tests.txt
+-  crypto/mlkem/mlkem768_nist_decap_tests.txt
+-  crypto/mlkem/mlkem768_nist_keygen_tests.txt
+-  crypto/pkcs7/test/nss.p7c
+-  crypto/pkcs7/test/openssl_crl.p7c
+-  crypto/pkcs7/test/sign_cert.pem
+-  crypto/pkcs7/test/sign_cert2.pem
+-  crypto/pkcs7/test/sign_key.pem
+-  crypto/pkcs7/test/sign_sha1.p7s
+-  crypto/pkcs7/test/sign_sha1_key_id.p7s
+-  crypto/pkcs7/test/sign_sha256.p7s
+-  crypto/pkcs7/test/sign_sha256_cert2.p7s
+-  crypto/pkcs7/test/sign_sha256_key_id.p7s
+-  crypto/pkcs7/test/windows.p7c
 -  crypto/pkcs8/test/bad1.p12
 -  crypto/pkcs8/test/bad2.p12
 -  crypto/pkcs8/test/bad3.p12
@@ -602,9 +1149,26 @@ index c73ecf1a9..522e3b135 100644
 -  crypto/pkcs8/test/unicode_password.p12
 -  crypto/pkcs8/test/windows.p12
 -  crypto/poly1305/poly1305_tests.txt
+-  crypto/rsa/test/rsa16384.pem
+-  crypto/rsa/test/rsa16384pub.pem
+-  crypto/rsa/test/rsa16385.pem
+-  crypto/rsa/test/rsa16385pub.pem
+-  crypto/rsa/test/rsa511.pem
+-  crypto/rsa/test/rsa511pub.pem
+-  crypto/rsa/test/rsa512.pem
+-  crypto/rsa/test/rsa512pub.pem
+-  crypto/rsa/test/rsa8192.pem
+-  crypto/rsa/test/rsa8192pub.pem
+-  crypto/rsa/test/rsa8193.pem
+-  crypto/rsa/test/rsa8193pub.pem
 -  crypto/siphash/siphash_tests.txt
--  crypto/spx/spx_tests.txt
--  crypto/spx/spx_tests_deterministic.txt
+-  crypto/slhdsa/slhdsa_sha2_128s_keygen.txt
+-  crypto/slhdsa/slhdsa_sha2_128s_prehash.txt
+-  crypto/slhdsa/slhdsa_sha2_128s_siggen.txt
+-  crypto/slhdsa/slhdsa_sha2_128s_sigver.txt
+-  crypto/slhdsa/slhdsa_shake_256f_keygen.txt
+-  crypto/slhdsa/slhdsa_shake_256f_siggen.txt
+-  crypto/slhdsa/slhdsa_shake_256f_sigver.txt
 -  crypto/x509/test/basic_constraints_ca.pem
 -  crypto/x509/test/basic_constraints_ca_pathlen_0.pem
 -  crypto/x509/test/basic_constraints_ca_pathlen_1.pem
@@ -681,6 +1245,7 @@ index c73ecf1a9..522e3b135 100644
 -  crypto/x509/test/pss_sha256_wrong_trailer.pem
 -  crypto/x509/test/pss_sha384.pem
 -  crypto/x509/test/pss_sha512.pem
+-  crypto/x509/test/rsa_pss_sha256_key.pk8
 -  crypto/x509/test/some_names1.pem
 -  crypto/x509/test/some_names2.pem
 -  crypto/x509/test/some_names3.pem
@@ -691,25 +1256,53 @@ index c73ecf1a9..522e3b135 100644
 -  crypto/x509/test/trailing_data_leaf_name_constraints.pem
 -  crypto/x509/test/trailing_data_leaf_subject_alt_name.pem
 -  crypto/x509/test/trailing_data_leaf_subject_key_identifier.pem
+-  crypto/x509/test/unusual_tbs_critical_ber.pem
+-  crypto/x509/test/unusual_tbs_critical_false_not_omitted.pem
+-  crypto/x509/test/unusual_tbs_empty_extension_not_omitted.pem
+-  crypto/x509/test/unusual_tbs_key.pem
+-  crypto/x509/test/unusual_tbs_null_sigalg_param.pem
+-  crypto/x509/test/unusual_tbs_uid_both.pem
+-  crypto/x509/test/unusual_tbs_uid_issuer.pem
+-  crypto/x509/test/unusual_tbs_uid_subject.pem
+-  crypto/x509/test/unusual_tbs_v1_not_omitted.pem
+-  crypto/x509/test/unusual_tbs_wrong_attribute_order.pem
 -  third_party/wycheproof_testvectors/aes_cbc_pkcs5_test.txt
 -  third_party/wycheproof_testvectors/aes_cmac_test.txt
+-  third_party/wycheproof_testvectors/aes_eax_test.txt
 -  third_party/wycheproof_testvectors/aes_gcm_siv_test.txt
 -  third_party/wycheproof_testvectors/aes_gcm_test.txt
+-  third_party/wycheproof_testvectors/aes_kwp_test.txt
+-  third_party/wycheproof_testvectors/aes_wrap_test.txt
 -  third_party/wycheproof_testvectors/chacha20_poly1305_test.txt
--  third_party/wycheproof_testvectors/dsa_test.txt
+-  third_party/wycheproof_testvectors/dsa_2048_224_sha224_p1363_test.txt
+-  third_party/wycheproof_testvectors/dsa_2048_224_sha224_test.txt
+-  third_party/wycheproof_testvectors/dsa_2048_224_sha256_p1363_test.txt
+-  third_party/wycheproof_testvectors/dsa_2048_224_sha256_test.txt
+-  third_party/wycheproof_testvectors/dsa_2048_256_sha256_p1363_test.txt
+-  third_party/wycheproof_testvectors/dsa_2048_256_sha256_test.txt
+-  third_party/wycheproof_testvectors/dsa_3072_256_sha256_p1363_test.txt
+-  third_party/wycheproof_testvectors/dsa_3072_256_sha256_test.txt
 -  third_party/wycheproof_testvectors/ecdh_secp224r1_test.txt
 -  third_party/wycheproof_testvectors/ecdh_secp256r1_test.txt
 -  third_party/wycheproof_testvectors/ecdh_secp384r1_test.txt
 -  third_party/wycheproof_testvectors/ecdh_secp521r1_test.txt
+-  third_party/wycheproof_testvectors/ecdsa_secp224r1_sha224_p1363_test.txt
 -  third_party/wycheproof_testvectors/ecdsa_secp224r1_sha224_test.txt
+-  third_party/wycheproof_testvectors/ecdsa_secp224r1_sha256_p1363_test.txt
 -  third_party/wycheproof_testvectors/ecdsa_secp224r1_sha256_test.txt
+-  third_party/wycheproof_testvectors/ecdsa_secp224r1_sha512_p1363_test.txt
 -  third_party/wycheproof_testvectors/ecdsa_secp224r1_sha512_test.txt
+-  third_party/wycheproof_testvectors/ecdsa_secp256r1_sha256_p1363_test.txt
 -  third_party/wycheproof_testvectors/ecdsa_secp256r1_sha256_test.txt
+-  third_party/wycheproof_testvectors/ecdsa_secp256r1_sha512_p1363_test.txt
 -  third_party/wycheproof_testvectors/ecdsa_secp256r1_sha512_test.txt
+-  third_party/wycheproof_testvectors/ecdsa_secp384r1_sha384_p1363_test.txt
 -  third_party/wycheproof_testvectors/ecdsa_secp384r1_sha384_test.txt
+-  third_party/wycheproof_testvectors/ecdsa_secp384r1_sha512_p1363_test.txt
 -  third_party/wycheproof_testvectors/ecdsa_secp384r1_sha512_test.txt
+-  third_party/wycheproof_testvectors/ecdsa_secp521r1_sha512_p1363_test.txt
 -  third_party/wycheproof_testvectors/ecdsa_secp521r1_sha512_test.txt
--  third_party/wycheproof_testvectors/eddsa_test.txt
+-  third_party/wycheproof_testvectors/ed25519_test.txt
 -  third_party/wycheproof_testvectors/hkdf_sha1_test.txt
 -  third_party/wycheproof_testvectors/hkdf_sha256_test.txt
 -  third_party/wycheproof_testvectors/hkdf_sha384_test.txt
@@ -719,8 +1312,23 @@ index c73ecf1a9..522e3b135 100644
 -  third_party/wycheproof_testvectors/hmac_sha256_test.txt
 -  third_party/wycheproof_testvectors/hmac_sha384_test.txt
 -  third_party/wycheproof_testvectors/hmac_sha512_test.txt
--  third_party/wycheproof_testvectors/kw_test.txt
--  third_party/wycheproof_testvectors/kwp_test.txt
+-  third_party/wycheproof_testvectors/mldsa_44_sign_noseed_test.txt
+-  third_party/wycheproof_testvectors/mldsa_44_sign_seed_test.txt
+-  third_party/wycheproof_testvectors/mldsa_44_verify_test.txt
+-  third_party/wycheproof_testvectors/mldsa_65_sign_noseed_test.txt
+-  third_party/wycheproof_testvectors/mldsa_65_sign_seed_test.txt
+-  third_party/wycheproof_testvectors/mldsa_65_verify_test.txt
+-  third_party/wycheproof_testvectors/mldsa_87_sign_noseed_test.txt
+-  third_party/wycheproof_testvectors/mldsa_87_sign_seed_test.txt
+-  third_party/wycheproof_testvectors/mldsa_87_verify_test.txt
+-  third_party/wycheproof_testvectors/mlkem_1024_encaps_test.txt
+-  third_party/wycheproof_testvectors/mlkem_1024_keygen_seed_test.txt
+-  third_party/wycheproof_testvectors/mlkem_1024_semi_expanded_decaps_test.txt
+-  third_party/wycheproof_testvectors/mlkem_1024_test.txt
+-  third_party/wycheproof_testvectors/mlkem_768_encaps_test.txt
+-  third_party/wycheproof_testvectors/mlkem_768_keygen_seed_test.txt
+-  third_party/wycheproof_testvectors/mlkem_768_semi_expanded_decaps_test.txt
+-  third_party/wycheproof_testvectors/mlkem_768_test.txt
 -  third_party/wycheproof_testvectors/primality_test.txt
 -  third_party/wycheproof_testvectors/rsa_oaep_2048_sha1_mgf1sha1_test.txt
 -  third_party/wycheproof_testvectors/rsa_oaep_2048_sha224_mgf1sha1_test.txt
@@ -740,8 +1348,13 @@ index c73ecf1a9..522e3b135 100644
 -  third_party/wycheproof_testvectors/rsa_oaep_4096_sha512_mgf1sha1_test.txt
 -  third_party/wycheproof_testvectors/rsa_oaep_4096_sha512_mgf1sha512_test.txt
 -  third_party/wycheproof_testvectors/rsa_oaep_misc_test.txt
+-  third_party/wycheproof_testvectors/rsa_pkcs1_1024_sig_gen_test.txt
+-  third_party/wycheproof_testvectors/rsa_pkcs1_1536_sig_gen_test.txt
+-  third_party/wycheproof_testvectors/rsa_pkcs1_2048_sig_gen_test.txt
 -  third_party/wycheproof_testvectors/rsa_pkcs1_2048_test.txt
+-  third_party/wycheproof_testvectors/rsa_pkcs1_3072_sig_gen_test.txt
 -  third_party/wycheproof_testvectors/rsa_pkcs1_3072_test.txt
+-  third_party/wycheproof_testvectors/rsa_pkcs1_4096_sig_gen_test.txt
 -  third_party/wycheproof_testvectors/rsa_pkcs1_4096_test.txt
 -  third_party/wycheproof_testvectors/rsa_pss_2048_sha1_mgf1_20_test.txt
 -  third_party/wycheproof_testvectors/rsa_pss_2048_sha256_mgf1_0_test.txt
@@ -750,7 +1363,6 @@ index c73ecf1a9..522e3b135 100644
 -  third_party/wycheproof_testvectors/rsa_pss_4096_sha256_mgf1_32_test.txt
 -  third_party/wycheproof_testvectors/rsa_pss_4096_sha512_mgf1_32_test.txt
 -  third_party/wycheproof_testvectors/rsa_pss_misc_test.txt
--  third_party/wycheproof_testvectors/rsa_sig_gen_misc_test.txt
 -  third_party/wycheproof_testvectors/rsa_signature_2048_sha224_test.txt
 -  third_party/wycheproof_testvectors/rsa_signature_2048_sha256_test.txt
 -  third_party/wycheproof_testvectors/rsa_signature_2048_sha384_test.txt
@@ -758,18 +1370,20 @@ index c73ecf1a9..522e3b135 100644
 -  third_party/wycheproof_testvectors/rsa_signature_3072_sha256_test.txt
 -  third_party/wycheproof_testvectors/rsa_signature_3072_sha384_test.txt
 -  third_party/wycheproof_testvectors/rsa_signature_3072_sha512_test.txt
+-  third_party/wycheproof_testvectors/rsa_signature_4096_sha256_test.txt
 -  third_party/wycheproof_testvectors/rsa_signature_4096_sha384_test.txt
 -  third_party/wycheproof_testvectors/rsa_signature_4096_sha512_test.txt
--  third_party/wycheproof_testvectors/rsa_signature_test.txt
+-  third_party/wycheproof_testvectors/rsa_signature_8192_sha256_test.txt
+-  third_party/wycheproof_testvectors/rsa_signature_8192_sha384_test.txt
+-  third_party/wycheproof_testvectors/rsa_signature_8192_sha512_test.txt
 -  third_party/wycheproof_testvectors/x25519_test.txt
 -  third_party/wycheproof_testvectors/xchacha20_poly1305_test.txt
 -)
--
+ 
  set(
    DECREPIT_SOURCES
- 
-@@ -1037,19 +720,6 @@ set(
-   decrepit/xts/xts.c
+@@ -1241,18 +774,6 @@ set(
+   decrepit/macros.h
  )
  
 -set(
@@ -784,11 +1398,10 @@ index c73ecf1a9..522e3b135 100644
 -  decrepit/ripemd/ripemd_test.cc
 -  decrepit/xts/xts_test.cc
 -)
--
- set(
-   PKI_SOURCES
  
-@@ -1142,1446 +812,6 @@ set(
+ set(
+   ENTROPY_MODULEWRAPPER_SOURCES
+@@ -1415,1524 +936,7 @@ set(
    pki/verify_signed_data.h
  )
  
@@ -805,6 +1418,7 @@ index c73ecf1a9..522e3b135 100644
 -  pki/general_names_unittest.cc
 -  pki/input_unittest.cc
 -  pki/ip_util_unittest.cc
+-  pki/merkle_tree_unittest.cc
 -  pki/mock_signature_verify_cache.cc
 -  pki/name_constraints_unittest.cc
 -  pki/nist_pkits_unittest.cc
@@ -828,8 +1442,9 @@ index c73ecf1a9..522e3b135 100644
 -  pki/verify_certificate_chain_unittest.cc
 -  pki/verify_name_match_unittest.cc
 -  pki/verify_signed_data_unittest.cc
+-  pki/verify_unittest.cc
 -)
--
+ 
 -set(
 -  PKI_TEST_DATA
 -
@@ -1612,7 +2227,9 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/ocsp_unittest/bad_ocsp_type.pem
 -  pki/testdata/ocsp_unittest/bad_signature.pem
 -  pki/testdata/ocsp_unittest/bad_status.pem
+-  pki/testdata/ocsp_unittest/future_response.pem
 -  pki/testdata/ocsp_unittest/good_response.pem
+-  pki/testdata/ocsp_unittest/good_response_invalid_serial.pem
 -  pki/testdata/ocsp_unittest/good_response_next_update.pem
 -  pki/testdata/ocsp_unittest/good_response_sha256.pem
 -  pki/testdata/ocsp_unittest/has_critical_ct_extension.pem
@@ -1621,20 +2238,27 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/ocsp_unittest/has_extension.pem
 -  pki/testdata/ocsp_unittest/has_single_extension.pem
 -  pki/testdata/ocsp_unittest/has_version.pem
+-  pki/testdata/ocsp_unittest/invalid_response.pem
+-  pki/testdata/ocsp_unittest/invalid_response_data.pem
 -  pki/testdata/ocsp_unittest/malformed_request.pem
 -  pki/testdata/ocsp_unittest/missing_response.pem
 -  pki/testdata/ocsp_unittest/multiple_response.pem
+-  pki/testdata/ocsp_unittest/multiple_response_good_revoked.pem
 -  pki/testdata/ocsp_unittest/no_response.pem
 -  pki/testdata/ocsp_unittest/ocsp_extra_certs.pem
 -  pki/testdata/ocsp_unittest/ocsp_sign_bad_indirect.pem
 -  pki/testdata/ocsp_unittest/ocsp_sign_direct.pem
 -  pki/testdata/ocsp_unittest/ocsp_sign_indirect.pem
 -  pki/testdata/ocsp_unittest/ocsp_sign_indirect_missing.pem
+-  pki/testdata/ocsp_unittest/old_response.pem
 -  pki/testdata/ocsp_unittest/other_response.pem
+-  pki/testdata/ocsp_unittest/produced_early_response.pem
+-  pki/testdata/ocsp_unittest/produced_late_response.pem
 -  pki/testdata/ocsp_unittest/responder_id.pem
 -  pki/testdata/ocsp_unittest/responder_name.pem
 -  pki/testdata/ocsp_unittest/revoke_response.pem
 -  pki/testdata/ocsp_unittest/revoke_response_reason.pem
+-  pki/testdata/ocsp_unittest/stale_response.pem
 -  pki/testdata/ocsp_unittest/unknown_response.pem
 -  pki/testdata/parse_certificate_unittest/authority_key_identifier/empty_sequence.pem
 -  pki/testdata/parse_certificate_unittest/authority_key_identifier/extra_contents_after_extension_sequence.pem
@@ -1756,6 +2380,17 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/path_builder_unittest/key_id_prioritization/int_no_ski_c.pem
 -  pki/testdata/path_builder_unittest/key_id_prioritization/root.pem
 -  pki/testdata/path_builder_unittest/key_id_prioritization/target.pem
+-  pki/testdata/path_builder_unittest/mtc/leaf.pem
+-  pki/testdata/path_builder_unittest/mtc/mtc-ica.pem
+-  pki/testdata/path_builder_unittest/mtc/mtc-leaf.pem
+-  pki/testdata/path_builder_unittest/mtc_plants04/leaf.pem
+-  pki/testdata/path_builder_unittest/mtc_plants04/mtc-ica.pem
+-  pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone-3cosigners.pem
+-  pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone-cosigner_wrong_order.pem
+-  pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone-duplicate_ca_signer.pem
+-  pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone-no_ca_signer.pem
+-  pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone.pem
+-  pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf.pem
 -  pki/testdata/path_builder_unittest/multi-root-A-by-B.pem
 -  pki/testdata/path_builder_unittest/multi-root-B-by-C.pem
 -  pki/testdata/path_builder_unittest/multi-root-B-by-F.pem
@@ -1801,16 +2436,40 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-basic-constraints-not-critical/main.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/any.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/clientauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/clientauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/clientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/serverauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/serverauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/serverauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/any.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/c2pamanifest.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/c2patimestamp.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/clientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/serverauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/any.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/c2pamanifest.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/c2patimestamp.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/clientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/serverauth.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/any.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/clientauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/clientauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/clientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/serverauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/serverauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/serverauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth-extra/any.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth-extra/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth-extra/mlsclientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/any.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/clientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/mlsclientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/serverauth.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha1-chain.pem
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha1-eku-any.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha1-eku-clientAuth-strict.test
@@ -1823,6 +2482,8 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha256-eku-clientAuth.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha256-eku-serverAuth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha256-eku-serverAuth.test
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-invalid-spki/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/intermediate-invalid-spki/main.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-lacks-basic-constraints/chain.pem
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-lacks-basic-constraints/main.test
 -  pki/testdata/verify_certificate_chain_unittest/intermediate-lacks-signing-key-usage/chain.pem
@@ -2022,8 +2683,11 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/verify_certificate_chain_unittest/target-and-intermediate/unspecified-trust-root.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-any/any.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-any/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/target-eku-any/clientauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-any/clientauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-any/clientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/target-eku-any/mlsclientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/target-eku-any/serverauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-any/serverauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-any/serverauth.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-clientauth/any.test
@@ -2034,14 +2698,19 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-clientauth/serverauth.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-many/any.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-many/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/target-eku-many/clientauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-many/clientauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-many/clientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/target-eku-many/mlsclientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/target-eku-many/serverauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-many/serverauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-many/serverauth.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-none/any.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-none/chain.pem
+-  pki/testdata/verify_certificate_chain_unittest/target-eku-none/clientauth-strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-none/clientauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-none/clientauth.test
+-  pki/testdata/verify_certificate_chain_unittest/target-eku-none/mlsclientauth.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-none/serverauth-strict.test
 -  pki/testdata/verify_certificate_chain_unittest/target-eku-none/serverauth.test
 -  pki/testdata/verify_certificate_chain_unittest/target-has-512bit-rsa-key/chain.pem
@@ -2062,6 +2731,7 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/verify_certificate_chain_unittest/target-msapplicationpolicies-no-eku/main.test
 -  pki/testdata/verify_certificate_chain_unittest/target-not-end-entity/chain.pem
 -  pki/testdata/verify_certificate_chain_unittest/target-not-end-entity/main.test
+-  pki/testdata/verify_certificate_chain_unittest/target-not-end-entity/strict-leaf.test
 -  pki/testdata/verify_certificate_chain_unittest/target-not-end-entity/strict.test
 -  pki/testdata/verify_certificate_chain_unittest/target-only/chain.pem
 -  pki/testdata/verify_certificate_chain_unittest/target-only/trusted_anchor.test
@@ -2212,6 +2882,12 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/verify_signed_data_unittest/ecdsa-secp384r1-sha256-corrupted-data.pem
 -  pki/testdata/verify_signed_data_unittest/ecdsa-secp384r1-sha256.pem
 -  pki/testdata/verify_signed_data_unittest/ecdsa-using-rsa-key.pem
+-  pki/testdata/verify_signed_data_unittest/mldsa-44-spki-params-null.pem
+-  pki/testdata/verify_signed_data_unittest/mldsa-44.pem
+-  pki/testdata/verify_signed_data_unittest/mldsa-65-spki-params-null.pem
+-  pki/testdata/verify_signed_data_unittest/mldsa-65.pem
+-  pki/testdata/verify_signed_data_unittest/mldsa-87-spki-params-null.pem
+-  pki/testdata/verify_signed_data_unittest/mldsa-87.pem
 -  pki/testdata/verify_signed_data_unittest/rsa-pkcs1-sha1-bad-key-der-length.pem
 -  pki/testdata/verify_signed_data_unittest/rsa-pkcs1-sha1-bad-key-der-null.pem
 -  pki/testdata/verify_signed_data_unittest/rsa-pkcs1-sha1-key-params-absent.pem
@@ -2228,14 +2904,29 @@ index c73ecf1a9..522e3b135 100644
 -  pki/testdata/verify_signed_data_unittest/rsa-pss-sha256.pem
 -  pki/testdata/verify_signed_data_unittest/rsa-using-ec-key.pem
 -  pki/testdata/verify_signed_data_unittest/rsa2048-pkcs1-sha512.pem
+-  pki/testdata/verify_unittest/google-intermediate1.der
+-  pki/testdata/verify_unittest/google-intermediate2.der
 -  pki/testdata/verify_unittest/google-leaf.der
+-  pki/testdata/verify_unittest/lencr-intermediate-r3.der
+-  pki/testdata/verify_unittest/lencr-leaf.der
+-  pki/testdata/verify_unittest/lencr-root-dst-x3.der
+-  pki/testdata/verify_unittest/lencr-root-x1-cross-signed.der
+-  pki/testdata/verify_unittest/lencr-root-x1.der
+-  pki/testdata/verify_unittest/mldsa-intermediate.pem
+-  pki/testdata/verify_unittest/mldsa-leaf.pem
+-  pki/testdata/verify_unittest/mldsa-root.pem
+-  pki/testdata/verify_unittest/mozilla_roots.der
+-  pki/testdata/verify_unittest/mtc-leaf-b.pem
+-  pki/testdata/verify_unittest/mtc-leaf-bitflip.pem
+-  pki/testdata/verify_unittest/mtc-leaf-c.pem
+-  pki/testdata/verify_unittest/mtc-leaf-unused-bit.pem
+-  pki/testdata/verify_unittest/mtc-leaf.pem
 -  pki/testdata/verify_unittest/self-issued.pem
 -)
--
- set(
-   SSL_SOURCES
  
-@@ -2640,71 +870,3 @@ set(
+ set(
+   RUST_BSSL_CRYPTO_SOURCES
+@@ -3050,74 +1054,3 @@ set(
  
    ssl/internal.h
  )
@@ -2246,6 +2937,7 @@ index c73ecf1a9..522e3b135 100644
 -  crypto/test/gtest_main.cc
 -  ssl/span_test.cc
 -  ssl/ssl_c_test.c
+-  ssl/ssl_internal_test.cc
 -  ssl/ssl_test.cc
 -)
 -
@@ -2253,6 +2945,7 @@ index c73ecf1a9..522e3b135 100644
 -  TEST_SUPPORT_SOURCES
 -
 -  crypto/test/abi_test.cc
+-  crypto/test/der_trailing_data.cc
 -  crypto/test/file_test.cc
 -  crypto/test/file_test_gtest.cc
 -  crypto/test/file_util.cc
@@ -2265,6 +2958,7 @@ index c73ecf1a9..522e3b135 100644
 -  TEST_SUPPORT_INTERNAL_HEADERS
 -
 -  crypto/test/abi_test.h
+-  crypto/test/der_trailing_data.h
 -  crypto/test/file_test.h
 -  crypto/test/file_util.h
 -  crypto/test/gtest_main.h
@@ -2305,14 +2999,50 @@ index c73ecf1a9..522e3b135 100644
 -set(
 -  URANDOM_TEST_SOURCES
 -
--  crypto/fipsmodule/rand/urandom_test.cc
+-  crypto/rand/urandom_test.cc
 -)
 diff --git a/gen/sources.json b/gen/sources.json
-index 56a0f4f71..f445e74fb 100644
+index c89510e00..a813f8de3 100644
 --- a/gen/sources.json
 +++ b/gen/sources.json
-@@ -656,319 +656,6 @@
-       "gen/crypto/chacha20_poly1305_x86_64-win.asm"
+@@ -218,35 +218,6 @@
+       "gen/bcm/x86_64-mont5-win.asm"
+     ]
+   },
+-  "bench": {
+-    "srcs": [
+-      "bench/aead.cc",
+-      "bench/aes.cc",
+-      "bench/base64.cc",
+-      "bench/curve25519.cc",
+-      "bench/ecdh.cc",
+-      "bench/ecdsa.cc",
+-      "bench/hash.cc",
+-      "bench/hash_to_curve.cc",
+-      "bench/hrss.cc",
+-      "bench/main.cc",
+-      "bench/mldsa.cc",
+-      "bench/mlkem.cc",
+-      "bench/rand.cc",
+-      "bench/rsa.cc",
+-      "bench/rsakeygen.cc",
+-      "bench/scrypt.cc",
+-      "bench/selftest.cc",
+-      "bench/siphash.cc",
+-      "bench/slhdsa.cc",
+-      "bench/spake2.cc",
+-      "bench/trust_token.cc",
+-      "bench/x509.cc"
+-    ],
+-    "internal_hdrs": [
+-      "bench/internal.h"
+-    ]
+-  },
+   "bssl": {
+     "srcs": [
+       "tool/args.cc",
+@@ -727,438 +698,6 @@
+       "gen/crypto/md5-x86_64-win.asm"
      ]
    },
 -  "crypto_test": {
@@ -2325,8 +3055,9 @@ index 56a0f4f71..f445e74fb 100644
 -      "crypto/buf/buf_test.cc",
 -      "crypto/bytestring/bytestring_test.cc",
 -      "crypto/chacha/chacha_test.cc",
--      "crypto/cipher_extra/aead_test.cc",
--      "crypto/cipher_extra/cipher_test.cc",
+-      "crypto/cipher/aead_test.cc",
+-      "crypto/cipher/cipher_test.cc",
+-      "crypto/cms/cms_test.cc",
 -      "crypto/compiler_test.cc",
 -      "crypto/conf/conf_test.cc",
 -      "crypto/constant_time_test.cc",
@@ -2335,36 +3066,40 @@ index 56a0f4f71..f445e74fb 100644
 -      "crypto/curve25519/ed25519_test.cc",
 -      "crypto/curve25519/spake25519_test.cc",
 -      "crypto/curve25519/x25519_test.cc",
--      "crypto/dh_extra/dh_test.cc",
--      "crypto/digest_extra/digest_test.cc",
+-      "crypto/dh/dh_test.cc",
+-      "crypto/digest/digest_test.cc",
 -      "crypto/dsa/dsa_test.cc",
--      "crypto/ecdh_extra/ecdh_test.cc",
+-      "crypto/ecdh/ecdh_test.cc",
+-      "crypto/ecdsa/ecdsa_p1363_test.cc",
 -      "crypto/err/err_test.cc",
 -      "crypto/evp/evp_extra_test.cc",
 -      "crypto/evp/evp_test.cc",
 -      "crypto/evp/pbkdf_test.cc",
 -      "crypto/evp/scrypt_test.cc",
 -      "crypto/fipsmodule/aes/aes_test.cc",
+-      "crypto/fipsmodule/aes/gcm_test.cc",
 -      "crypto/fipsmodule/bn/bn_test.cc",
 -      "crypto/fipsmodule/cmac/cmac_test.cc",
 -      "crypto/fipsmodule/ec/ec_test.cc",
 -      "crypto/fipsmodule/ec/p256-nistz_test.cc",
 -      "crypto/fipsmodule/ec/p256_test.cc",
 -      "crypto/fipsmodule/ecdsa/ecdsa_test.cc",
+-      "crypto/fipsmodule/entropy/jitter_test.cc",
 -      "crypto/fipsmodule/hkdf/hkdf_test.cc",
--      "crypto/fipsmodule/md5/md5_test.cc",
--      "crypto/fipsmodule/modes/gcm_test.cc",
+-      "crypto/fipsmodule/keccak/keccak_test.cc",
 -      "crypto/fipsmodule/rand/ctrdrbg_test.cc",
--      "crypto/fipsmodule/rand/fork_detect_test.cc",
 -      "crypto/fipsmodule/service_indicator/service_indicator_test.cc",
 -      "crypto/fipsmodule/sha/sha_test.cc",
--      "crypto/hmac_extra/hmac_test.cc",
+-      "crypto/hmac/hmac_test.cc",
 -      "crypto/hpke/hpke_test.cc",
 -      "crypto/hrss/hrss_test.cc",
 -      "crypto/impl_dispatch_test.cc",
--      "crypto/keccak/keccak_test.cc",
 -      "crypto/kyber/kyber_test.cc",
 -      "crypto/lhash/lhash_test.cc",
+-      "crypto/md5/md5_test.cc",
+-      "crypto/mem_test.cc",
+-      "crypto/mldsa/mldsa_test.cc",
+-      "crypto/mlkem/mlkem_test.cc",
 -      "crypto/obj/obj_test.cc",
 -      "crypto/pem/pem_test.cc",
 -      "crypto/pkcs7/pkcs7_test.cc",
@@ -2372,58 +3107,76 @@ index 56a0f4f71..f445e74fb 100644
 -      "crypto/pkcs8/pkcs8_test.cc",
 -      "crypto/poly1305/poly1305_test.cc",
 -      "crypto/pool/pool_test.cc",
--      "crypto/rand_extra/getentropy_test.cc",
--      "crypto/rand_extra/rand_test.cc",
+-      "crypto/rand/fork_detect_test.cc",
+-      "crypto/rand/getentropy_test.cc",
+-      "crypto/rand/rand_test.cc",
 -      "crypto/refcount_test.cc",
--      "crypto/rsa_extra/rsa_test.cc",
+-      "crypto/rsa/rsa_test.cc",
 -      "crypto/self_test.cc",
 -      "crypto/siphash/siphash_test.cc",
--      "crypto/spx/spx_test.cc",
+-      "crypto/slhdsa/slhdsa_test.cc",
+-      "crypto/spake2plus/spake2plus_test.cc",
 -      "crypto/stack/stack_test.cc",
 -      "crypto/test/gtest_main.cc",
 -      "crypto/thread_test.cc",
 -      "crypto/trust_token/trust_token_test.cc",
--      "crypto/x509/tab_test.cc",
+-      "crypto/x509/x509_extension_test.cc",
 -      "crypto/x509/x509_test.cc",
--      "crypto/x509/x509_time_test.cc"
+-      "crypto/x509/x509_time_test.cc",
+-      "crypto/xwing/xwing_test.cc",
+-      "third_party/fiat/bedrock_platform_test.cc"
+-    ],
+-    "internal_hdrs": [
+-      "third_party/fiat/bedrock_polyfill_platform.c.inc"
 -    ],
 -    "data": [
 -      "crypto/blake2/blake2b256_tests.txt",
--      "crypto/cipher_extra/test/aes_128_cbc_sha1_tls_implicit_iv_tests.txt",
--      "crypto/cipher_extra/test/aes_128_cbc_sha1_tls_tests.txt",
--      "crypto/cipher_extra/test/aes_128_ccm_bluetooth_8_tests.txt",
--      "crypto/cipher_extra/test/aes_128_ccm_bluetooth_tests.txt",
--      "crypto/cipher_extra/test/aes_128_ccm_matter_tests.txt",
--      "crypto/cipher_extra/test/aes_128_ctr_hmac_sha256.txt",
--      "crypto/cipher_extra/test/aes_128_gcm_randnonce_tests.txt",
--      "crypto/cipher_extra/test/aes_128_gcm_siv_tests.txt",
--      "crypto/cipher_extra/test/aes_128_gcm_tests.txt",
--      "crypto/cipher_extra/test/aes_192_gcm_tests.txt",
--      "crypto/cipher_extra/test/aes_256_cbc_sha1_tls_implicit_iv_tests.txt",
--      "crypto/cipher_extra/test/aes_256_cbc_sha1_tls_tests.txt",
--      "crypto/cipher_extra/test/aes_256_ctr_hmac_sha256.txt",
--      "crypto/cipher_extra/test/aes_256_gcm_randnonce_tests.txt",
--      "crypto/cipher_extra/test/aes_256_gcm_siv_tests.txt",
--      "crypto/cipher_extra/test/aes_256_gcm_tests.txt",
--      "crypto/cipher_extra/test/chacha20_poly1305_tests.txt",
--      "crypto/cipher_extra/test/cipher_tests.txt",
--      "crypto/cipher_extra/test/des_ede3_cbc_sha1_tls_implicit_iv_tests.txt",
--      "crypto/cipher_extra/test/des_ede3_cbc_sha1_tls_tests.txt",
--      "crypto/cipher_extra/test/nist_cavp/aes_128_cbc.txt",
--      "crypto/cipher_extra/test/nist_cavp/aes_128_ctr.txt",
--      "crypto/cipher_extra/test/nist_cavp/aes_128_gcm.txt",
--      "crypto/cipher_extra/test/nist_cavp/aes_192_cbc.txt",
--      "crypto/cipher_extra/test/nist_cavp/aes_192_ctr.txt",
--      "crypto/cipher_extra/test/nist_cavp/aes_256_cbc.txt",
--      "crypto/cipher_extra/test/nist_cavp/aes_256_ctr.txt",
--      "crypto/cipher_extra/test/nist_cavp/aes_256_gcm.txt",
--      "crypto/cipher_extra/test/nist_cavp/tdes_cbc.txt",
--      "crypto/cipher_extra/test/nist_cavp/tdes_ecb.txt",
--      "crypto/cipher_extra/test/xchacha20_poly1305_tests.txt",
+-      "crypto/cipher/test/aes_128_cbc_sha1_tls_implicit_iv_tests.txt",
+-      "crypto/cipher/test/aes_128_cbc_sha1_tls_tests.txt",
+-      "crypto/cipher/test/aes_128_cbc_sha256_tls_tests.txt",
+-      "crypto/cipher/test/aes_128_ccm_bluetooth_8_tests.txt",
+-      "crypto/cipher/test/aes_128_ccm_bluetooth_tests.txt",
+-      "crypto/cipher/test/aes_128_ccm_matter_tests.txt",
+-      "crypto/cipher/test/aes_128_ctr_hmac_sha256.txt",
+-      "crypto/cipher/test/aes_128_eax_test.txt",
+-      "crypto/cipher/test/aes_128_gcm_randnonce_tests.txt",
+-      "crypto/cipher/test/aes_128_gcm_siv_tests.txt",
+-      "crypto/cipher/test/aes_128_gcm_tests.txt",
+-      "crypto/cipher/test/aes_192_gcm_tests.txt",
+-      "crypto/cipher/test/aes_256_cbc_sha1_tls_implicit_iv_tests.txt",
+-      "crypto/cipher/test/aes_256_cbc_sha1_tls_tests.txt",
+-      "crypto/cipher/test/aes_256_ctr_hmac_sha256.txt",
+-      "crypto/cipher/test/aes_256_eax_test.txt",
+-      "crypto/cipher/test/aes_256_gcm_randnonce_tests.txt",
+-      "crypto/cipher/test/aes_256_gcm_siv_tests.txt",
+-      "crypto/cipher/test/aes_256_gcm_tests.txt",
+-      "crypto/cipher/test/chacha20_poly1305_tests.txt",
+-      "crypto/cipher/test/cipher_tests.txt",
+-      "crypto/cipher/test/des_ede3_cbc_sha1_tls_implicit_iv_tests.txt",
+-      "crypto/cipher/test/des_ede3_cbc_sha1_tls_tests.txt",
+-      "crypto/cipher/test/nist_cavp/aes_128_cbc.txt",
+-      "crypto/cipher/test/nist_cavp/aes_128_ctr.txt",
+-      "crypto/cipher/test/nist_cavp/aes_128_gcm.txt",
+-      "crypto/cipher/test/nist_cavp/aes_192_cbc.txt",
+-      "crypto/cipher/test/nist_cavp/aes_192_ctr.txt",
+-      "crypto/cipher/test/nist_cavp/aes_256_cbc.txt",
+-      "crypto/cipher/test/nist_cavp/aes_256_ctr.txt",
+-      "crypto/cipher/test/nist_cavp/aes_256_gcm.txt",
+-      "crypto/cipher/test/nist_cavp/tdes_cbc.txt",
+-      "crypto/cipher/test/nist_cavp/tdes_ecb.txt",
+-      "crypto/cipher/test/xchacha20_poly1305_tests.txt",
 -      "crypto/curve25519/ed25519_tests.txt",
--      "crypto/ecdh_extra/ecdh_tests.txt",
--      "crypto/evp/evp_tests.txt",
--      "crypto/evp/scrypt_tests.txt",
+-      "crypto/ecdh/ecdh_tests.txt",
+-      "crypto/evp/test/dh_tests.txt",
+-      "crypto/evp/test/ec_tests.txt",
+-      "crypto/evp/test/ed25519_tests.txt",
+-      "crypto/evp/test/evp_tests.txt",
+-      "crypto/evp/test/mldsa_tests.txt",
+-      "crypto/evp/test/mlkem_tests.txt",
+-      "crypto/evp/test/rsa_tests.txt",
+-      "crypto/evp/test/scrypt_tests.txt",
+-      "crypto/evp/test/x25519_tests.txt",
+-      "crypto/evp/test/xwing_tests.txt",
 -      "crypto/fipsmodule/aes/aes_tests.txt",
 -      "crypto/fipsmodule/bn/test/exp_tests.txt",
 -      "crypto/fipsmodule/bn/test/gcd_tests.txt",
@@ -2444,12 +3197,40 @@ index 56a0f4f71..f445e74fb 100644
 -      "crypto/fipsmodule/ec/p256-nistz_tests.txt",
 -      "crypto/fipsmodule/ecdsa/ecdsa_sign_tests.txt",
 -      "crypto/fipsmodule/ecdsa/ecdsa_verify_tests.txt",
--      "crypto/fipsmodule/modes/gcm_tests.txt",
+-      "crypto/fipsmodule/keccak/keccak_tests.txt",
+-      "crypto/fipsmodule/rand/ctrdrbg_df_vectors.txt",
 -      "crypto/fipsmodule/rand/ctrdrbg_vectors.txt",
--      "crypto/hmac_extra/hmac_tests.txt",
+-      "crypto/hmac/hmac_tests.txt",
 -      "crypto/hpke/hpke_test_vectors.txt",
--      "crypto/keccak/keccak_tests.txt",
+-      "crypto/hpke/hpke_test_vectors_pq.txt",
 -      "crypto/kyber/kyber_tests.txt",
+-      "crypto/mldsa/mldsa_nist_keygen_44_tests.txt",
+-      "crypto/mldsa/mldsa_nist_keygen_65_tests.txt",
+-      "crypto/mldsa/mldsa_nist_keygen_87_tests.txt",
+-      "crypto/mldsa/mldsa_nist_siggen_44_tests.txt",
+-      "crypto/mldsa/mldsa_nist_siggen_65_tests.txt",
+-      "crypto/mldsa/mldsa_nist_siggen_87_tests.txt",
+-      "crypto/mlkem/mlkem1024_decap_tests.txt",
+-      "crypto/mlkem/mlkem1024_encap_tests.txt",
+-      "crypto/mlkem/mlkem1024_keygen_tests.txt",
+-      "crypto/mlkem/mlkem1024_nist_decap_tests.txt",
+-      "crypto/mlkem/mlkem1024_nist_keygen_tests.txt",
+-      "crypto/mlkem/mlkem768_decap_tests.txt",
+-      "crypto/mlkem/mlkem768_encap_tests.txt",
+-      "crypto/mlkem/mlkem768_keygen_tests.txt",
+-      "crypto/mlkem/mlkem768_nist_decap_tests.txt",
+-      "crypto/mlkem/mlkem768_nist_keygen_tests.txt",
+-      "crypto/pkcs7/test/nss.p7c",
+-      "crypto/pkcs7/test/openssl_crl.p7c",
+-      "crypto/pkcs7/test/sign_cert.pem",
+-      "crypto/pkcs7/test/sign_cert2.pem",
+-      "crypto/pkcs7/test/sign_key.pem",
+-      "crypto/pkcs7/test/sign_sha1.p7s",
+-      "crypto/pkcs7/test/sign_sha1_key_id.p7s",
+-      "crypto/pkcs7/test/sign_sha256.p7s",
+-      "crypto/pkcs7/test/sign_sha256_cert2.p7s",
+-      "crypto/pkcs7/test/sign_sha256_key_id.p7s",
+-      "crypto/pkcs7/test/windows.p7c",
 -      "crypto/pkcs8/test/bad1.p12",
 -      "crypto/pkcs8/test/bad2.p12",
 -      "crypto/pkcs8/test/bad3.p12",
@@ -2465,9 +3246,26 @@ index 56a0f4f71..f445e74fb 100644
 -      "crypto/pkcs8/test/unicode_password.p12",
 -      "crypto/pkcs8/test/windows.p12",
 -      "crypto/poly1305/poly1305_tests.txt",
+-      "crypto/rsa/test/rsa16384.pem",
+-      "crypto/rsa/test/rsa16384pub.pem",
+-      "crypto/rsa/test/rsa16385.pem",
+-      "crypto/rsa/test/rsa16385pub.pem",
+-      "crypto/rsa/test/rsa511.pem",
+-      "crypto/rsa/test/rsa511pub.pem",
+-      "crypto/rsa/test/rsa512.pem",
+-      "crypto/rsa/test/rsa512pub.pem",
+-      "crypto/rsa/test/rsa8192.pem",
+-      "crypto/rsa/test/rsa8192pub.pem",
+-      "crypto/rsa/test/rsa8193.pem",
+-      "crypto/rsa/test/rsa8193pub.pem",
 -      "crypto/siphash/siphash_tests.txt",
--      "crypto/spx/spx_tests.txt",
--      "crypto/spx/spx_tests_deterministic.txt",
+-      "crypto/slhdsa/slhdsa_sha2_128s_keygen.txt",
+-      "crypto/slhdsa/slhdsa_sha2_128s_prehash.txt",
+-      "crypto/slhdsa/slhdsa_sha2_128s_siggen.txt",
+-      "crypto/slhdsa/slhdsa_sha2_128s_sigver.txt",
+-      "crypto/slhdsa/slhdsa_shake_256f_keygen.txt",
+-      "crypto/slhdsa/slhdsa_shake_256f_siggen.txt",
+-      "crypto/slhdsa/slhdsa_shake_256f_sigver.txt",
 -      "crypto/x509/test/basic_constraints_ca.pem",
 -      "crypto/x509/test/basic_constraints_ca_pathlen_0.pem",
 -      "crypto/x509/test/basic_constraints_ca_pathlen_1.pem",
@@ -2544,6 +3342,7 @@ index 56a0f4f71..f445e74fb 100644
 -      "crypto/x509/test/pss_sha256_wrong_trailer.pem",
 -      "crypto/x509/test/pss_sha384.pem",
 -      "crypto/x509/test/pss_sha512.pem",
+-      "crypto/x509/test/rsa_pss_sha256_key.pk8",
 -      "crypto/x509/test/some_names1.pem",
 -      "crypto/x509/test/some_names2.pem",
 -      "crypto/x509/test/some_names3.pem",
@@ -2554,25 +3353,53 @@ index 56a0f4f71..f445e74fb 100644
 -      "crypto/x509/test/trailing_data_leaf_name_constraints.pem",
 -      "crypto/x509/test/trailing_data_leaf_subject_alt_name.pem",
 -      "crypto/x509/test/trailing_data_leaf_subject_key_identifier.pem",
+-      "crypto/x509/test/unusual_tbs_critical_ber.pem",
+-      "crypto/x509/test/unusual_tbs_critical_false_not_omitted.pem",
+-      "crypto/x509/test/unusual_tbs_empty_extension_not_omitted.pem",
+-      "crypto/x509/test/unusual_tbs_key.pem",
+-      "crypto/x509/test/unusual_tbs_null_sigalg_param.pem",
+-      "crypto/x509/test/unusual_tbs_uid_both.pem",
+-      "crypto/x509/test/unusual_tbs_uid_issuer.pem",
+-      "crypto/x509/test/unusual_tbs_uid_subject.pem",
+-      "crypto/x509/test/unusual_tbs_v1_not_omitted.pem",
+-      "crypto/x509/test/unusual_tbs_wrong_attribute_order.pem",
 -      "third_party/wycheproof_testvectors/aes_cbc_pkcs5_test.txt",
 -      "third_party/wycheproof_testvectors/aes_cmac_test.txt",
+-      "third_party/wycheproof_testvectors/aes_eax_test.txt",
 -      "third_party/wycheproof_testvectors/aes_gcm_siv_test.txt",
 -      "third_party/wycheproof_testvectors/aes_gcm_test.txt",
+-      "third_party/wycheproof_testvectors/aes_kwp_test.txt",
+-      "third_party/wycheproof_testvectors/aes_wrap_test.txt",
 -      "third_party/wycheproof_testvectors/chacha20_poly1305_test.txt",
--      "third_party/wycheproof_testvectors/dsa_test.txt",
+-      "third_party/wycheproof_testvectors/dsa_2048_224_sha224_p1363_test.txt",
+-      "third_party/wycheproof_testvectors/dsa_2048_224_sha224_test.txt",
+-      "third_party/wycheproof_testvectors/dsa_2048_224_sha256_p1363_test.txt",
+-      "third_party/wycheproof_testvectors/dsa_2048_224_sha256_test.txt",
+-      "third_party/wycheproof_testvectors/dsa_2048_256_sha256_p1363_test.txt",
+-      "third_party/wycheproof_testvectors/dsa_2048_256_sha256_test.txt",
+-      "third_party/wycheproof_testvectors/dsa_3072_256_sha256_p1363_test.txt",
+-      "third_party/wycheproof_testvectors/dsa_3072_256_sha256_test.txt",
 -      "third_party/wycheproof_testvectors/ecdh_secp224r1_test.txt",
 -      "third_party/wycheproof_testvectors/ecdh_secp256r1_test.txt",
 -      "third_party/wycheproof_testvectors/ecdh_secp384r1_test.txt",
 -      "third_party/wycheproof_testvectors/ecdh_secp521r1_test.txt",
+-      "third_party/wycheproof_testvectors/ecdsa_secp224r1_sha224_p1363_test.txt",
 -      "third_party/wycheproof_testvectors/ecdsa_secp224r1_sha224_test.txt",
+-      "third_party/wycheproof_testvectors/ecdsa_secp224r1_sha256_p1363_test.txt",
 -      "third_party/wycheproof_testvectors/ecdsa_secp224r1_sha256_test.txt",
+-      "third_party/wycheproof_testvectors/ecdsa_secp224r1_sha512_p1363_test.txt",
 -      "third_party/wycheproof_testvectors/ecdsa_secp224r1_sha512_test.txt",
+-      "third_party/wycheproof_testvectors/ecdsa_secp256r1_sha256_p1363_test.txt",
 -      "third_party/wycheproof_testvectors/ecdsa_secp256r1_sha256_test.txt",
+-      "third_party/wycheproof_testvectors/ecdsa_secp256r1_sha512_p1363_test.txt",
 -      "third_party/wycheproof_testvectors/ecdsa_secp256r1_sha512_test.txt",
+-      "third_party/wycheproof_testvectors/ecdsa_secp384r1_sha384_p1363_test.txt",
 -      "third_party/wycheproof_testvectors/ecdsa_secp384r1_sha384_test.txt",
+-      "third_party/wycheproof_testvectors/ecdsa_secp384r1_sha512_p1363_test.txt",
 -      "third_party/wycheproof_testvectors/ecdsa_secp384r1_sha512_test.txt",
+-      "third_party/wycheproof_testvectors/ecdsa_secp521r1_sha512_p1363_test.txt",
 -      "third_party/wycheproof_testvectors/ecdsa_secp521r1_sha512_test.txt",
--      "third_party/wycheproof_testvectors/eddsa_test.txt",
+-      "third_party/wycheproof_testvectors/ed25519_test.txt",
 -      "third_party/wycheproof_testvectors/hkdf_sha1_test.txt",
 -      "third_party/wycheproof_testvectors/hkdf_sha256_test.txt",
 -      "third_party/wycheproof_testvectors/hkdf_sha384_test.txt",
@@ -2582,8 +3409,23 @@ index 56a0f4f71..f445e74fb 100644
 -      "third_party/wycheproof_testvectors/hmac_sha256_test.txt",
 -      "third_party/wycheproof_testvectors/hmac_sha384_test.txt",
 -      "third_party/wycheproof_testvectors/hmac_sha512_test.txt",
--      "third_party/wycheproof_testvectors/kw_test.txt",
--      "third_party/wycheproof_testvectors/kwp_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_44_sign_noseed_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_44_sign_seed_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_44_verify_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_65_sign_noseed_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_65_sign_seed_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_65_verify_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_87_sign_noseed_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_87_sign_seed_test.txt",
+-      "third_party/wycheproof_testvectors/mldsa_87_verify_test.txt",
+-      "third_party/wycheproof_testvectors/mlkem_1024_encaps_test.txt",
+-      "third_party/wycheproof_testvectors/mlkem_1024_keygen_seed_test.txt",
+-      "third_party/wycheproof_testvectors/mlkem_1024_semi_expanded_decaps_test.txt",
+-      "third_party/wycheproof_testvectors/mlkem_1024_test.txt",
+-      "third_party/wycheproof_testvectors/mlkem_768_encaps_test.txt",
+-      "third_party/wycheproof_testvectors/mlkem_768_keygen_seed_test.txt",
+-      "third_party/wycheproof_testvectors/mlkem_768_semi_expanded_decaps_test.txt",
+-      "third_party/wycheproof_testvectors/mlkem_768_test.txt",
 -      "third_party/wycheproof_testvectors/primality_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_oaep_2048_sha1_mgf1sha1_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_oaep_2048_sha224_mgf1sha1_test.txt",
@@ -2603,8 +3445,13 @@ index 56a0f4f71..f445e74fb 100644
 -      "third_party/wycheproof_testvectors/rsa_oaep_4096_sha512_mgf1sha1_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_oaep_4096_sha512_mgf1sha512_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_oaep_misc_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_pkcs1_1024_sig_gen_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_pkcs1_1536_sig_gen_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_pkcs1_2048_sig_gen_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_pkcs1_2048_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_pkcs1_3072_sig_gen_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_pkcs1_3072_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_pkcs1_4096_sig_gen_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_pkcs1_4096_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_pss_2048_sha1_mgf1_20_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_pss_2048_sha256_mgf1_0_test.txt",
@@ -2613,7 +3460,6 @@ index 56a0f4f71..f445e74fb 100644
 -      "third_party/wycheproof_testvectors/rsa_pss_4096_sha256_mgf1_32_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_pss_4096_sha512_mgf1_32_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_pss_misc_test.txt",
--      "third_party/wycheproof_testvectors/rsa_sig_gen_misc_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_signature_2048_sha224_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_signature_2048_sha256_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_signature_2048_sha384_test.txt",
@@ -2621,18 +3467,21 @@ index 56a0f4f71..f445e74fb 100644
 -      "third_party/wycheproof_testvectors/rsa_signature_3072_sha256_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_signature_3072_sha384_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_signature_3072_sha512_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_signature_4096_sha256_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_signature_4096_sha384_test.txt",
 -      "third_party/wycheproof_testvectors/rsa_signature_4096_sha512_test.txt",
--      "third_party/wycheproof_testvectors/rsa_signature_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_signature_8192_sha256_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_signature_8192_sha384_test.txt",
+-      "third_party/wycheproof_testvectors/rsa_signature_8192_sha512_test.txt",
 -      "third_party/wycheproof_testvectors/x25519_test.txt",
 -      "third_party/wycheproof_testvectors/xchacha20_poly1305_test.txt"
 -    ]
 -  },
    "decrepit": {
      "srcs": [
-       "decrepit/bio/base64_bio.c",
-@@ -990,18 +677,6 @@
-       "decrepit/xts/xts.c"
+       "decrepit/bio/base64_bio.cc",
+@@ -1184,18 +723,6 @@
+       "decrepit/macros.h"
      ]
    },
 -  "decrepit_test": {
@@ -2647,10 +3496,10 @@ index 56a0f4f71..f445e74fb 100644
 -      "decrepit/xts/xts_test.cc"
 -    ]
 -  },
-   "pki": {
+   "entropy_modulewrapper": {
      "srcs": [
-       "pki/cert_error_id.cc",
-@@ -1087,1442 +762,6 @@
+       "util/fipstools/acvp/entropy_modulewrapper/main.cc",
+@@ -1341,1521 +868,6 @@
        "pki/verify_signed_data.h"
      ]
    },
@@ -2666,6 +3515,7 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/general_names_unittest.cc",
 -      "pki/input_unittest.cc",
 -      "pki/ip_util_unittest.cc",
+-      "pki/merkle_tree_unittest.cc",
 -      "pki/mock_signature_verify_cache.cc",
 -      "pki/name_constraints_unittest.cc",
 -      "pki/nist_pkits_unittest.cc",
@@ -2688,7 +3538,8 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/verify_certificate_chain_pkits_unittest.cc",
 -      "pki/verify_certificate_chain_unittest.cc",
 -      "pki/verify_name_match_unittest.cc",
--      "pki/verify_signed_data_unittest.cc"
+-      "pki/verify_signed_data_unittest.cc",
+-      "pki/verify_unittest.cc"
 -    ],
 -    "data": [
 -      "pki/testdata/cert_issuer_source_static_unittest/c1.pem",
@@ -3470,7 +4321,9 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/ocsp_unittest/bad_ocsp_type.pem",
 -      "pki/testdata/ocsp_unittest/bad_signature.pem",
 -      "pki/testdata/ocsp_unittest/bad_status.pem",
+-      "pki/testdata/ocsp_unittest/future_response.pem",
 -      "pki/testdata/ocsp_unittest/good_response.pem",
+-      "pki/testdata/ocsp_unittest/good_response_invalid_serial.pem",
 -      "pki/testdata/ocsp_unittest/good_response_next_update.pem",
 -      "pki/testdata/ocsp_unittest/good_response_sha256.pem",
 -      "pki/testdata/ocsp_unittest/has_critical_ct_extension.pem",
@@ -3479,20 +4332,27 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/ocsp_unittest/has_extension.pem",
 -      "pki/testdata/ocsp_unittest/has_single_extension.pem",
 -      "pki/testdata/ocsp_unittest/has_version.pem",
+-      "pki/testdata/ocsp_unittest/invalid_response.pem",
+-      "pki/testdata/ocsp_unittest/invalid_response_data.pem",
 -      "pki/testdata/ocsp_unittest/malformed_request.pem",
 -      "pki/testdata/ocsp_unittest/missing_response.pem",
 -      "pki/testdata/ocsp_unittest/multiple_response.pem",
+-      "pki/testdata/ocsp_unittest/multiple_response_good_revoked.pem",
 -      "pki/testdata/ocsp_unittest/no_response.pem",
 -      "pki/testdata/ocsp_unittest/ocsp_extra_certs.pem",
 -      "pki/testdata/ocsp_unittest/ocsp_sign_bad_indirect.pem",
 -      "pki/testdata/ocsp_unittest/ocsp_sign_direct.pem",
 -      "pki/testdata/ocsp_unittest/ocsp_sign_indirect.pem",
 -      "pki/testdata/ocsp_unittest/ocsp_sign_indirect_missing.pem",
+-      "pki/testdata/ocsp_unittest/old_response.pem",
 -      "pki/testdata/ocsp_unittest/other_response.pem",
+-      "pki/testdata/ocsp_unittest/produced_early_response.pem",
+-      "pki/testdata/ocsp_unittest/produced_late_response.pem",
 -      "pki/testdata/ocsp_unittest/responder_id.pem",
 -      "pki/testdata/ocsp_unittest/responder_name.pem",
 -      "pki/testdata/ocsp_unittest/revoke_response.pem",
 -      "pki/testdata/ocsp_unittest/revoke_response_reason.pem",
+-      "pki/testdata/ocsp_unittest/stale_response.pem",
 -      "pki/testdata/ocsp_unittest/unknown_response.pem",
 -      "pki/testdata/parse_certificate_unittest/authority_key_identifier/empty_sequence.pem",
 -      "pki/testdata/parse_certificate_unittest/authority_key_identifier/extra_contents_after_extension_sequence.pem",
@@ -3614,6 +4474,17 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/path_builder_unittest/key_id_prioritization/int_no_ski_c.pem",
 -      "pki/testdata/path_builder_unittest/key_id_prioritization/root.pem",
 -      "pki/testdata/path_builder_unittest/key_id_prioritization/target.pem",
+-      "pki/testdata/path_builder_unittest/mtc/leaf.pem",
+-      "pki/testdata/path_builder_unittest/mtc/mtc-ica.pem",
+-      "pki/testdata/path_builder_unittest/mtc/mtc-leaf.pem",
+-      "pki/testdata/path_builder_unittest/mtc_plants04/leaf.pem",
+-      "pki/testdata/path_builder_unittest/mtc_plants04/mtc-ica.pem",
+-      "pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone-3cosigners.pem",
+-      "pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone-cosigner_wrong_order.pem",
+-      "pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone-duplicate_ca_signer.pem",
+-      "pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone-no_ca_signer.pem",
+-      "pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf-standalone.pem",
+-      "pki/testdata/path_builder_unittest/mtc_plants04/mtc-leaf.pem",
 -      "pki/testdata/path_builder_unittest/multi-root-A-by-B.pem",
 -      "pki/testdata/path_builder_unittest/multi-root-B-by-C.pem",
 -      "pki/testdata/path_builder_unittest/multi-root-B-by-F.pem",
@@ -3659,16 +4530,40 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-basic-constraints-not-critical/main.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/any.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/clientauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/clientauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/clientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/serverauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/serverauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-any-and-clientauth/serverauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/any.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/c2pamanifest.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/c2patimestamp.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/clientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2pamanifest/serverauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/any.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/c2pamanifest.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/c2patimestamp.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/clientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-c2patimestamping/serverauth.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/any.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/clientauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/clientauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/clientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/serverauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/serverauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-clientauth/serverauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth-extra/any.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth-extra/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth-extra/mlsclientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/any.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/clientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/mlsclientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-mlsclientauth/serverauth.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha1-chain.pem",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha1-eku-any.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha1-eku-clientAuth-strict.test",
@@ -3681,6 +4576,8 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha256-eku-clientAuth.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha256-eku-serverAuth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-eku-server-gated-crypto/sha256-eku-serverAuth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-invalid-spki/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/intermediate-invalid-spki/main.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-lacks-basic-constraints/chain.pem",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-lacks-basic-constraints/main.test",
 -      "pki/testdata/verify_certificate_chain_unittest/intermediate-lacks-signing-key-usage/chain.pem",
@@ -3880,8 +4777,11 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/verify_certificate_chain_unittest/target-and-intermediate/unspecified-trust-root.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/any.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/clientauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/clientauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/clientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/mlsclientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/serverauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/serverauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-any/serverauth.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-clientauth/any.test",
@@ -3892,14 +4792,19 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-clientauth/serverauth.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/any.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/clientauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/clientauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/clientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/mlsclientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/serverauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/serverauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-many/serverauth.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-none/any.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-none/chain.pem",
+-      "pki/testdata/verify_certificate_chain_unittest/target-eku-none/clientauth-strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-none/clientauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-none/clientauth.test",
+-      "pki/testdata/verify_certificate_chain_unittest/target-eku-none/mlsclientauth.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-none/serverauth-strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-eku-none/serverauth.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-has-512bit-rsa-key/chain.pem",
@@ -3920,6 +4825,7 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/verify_certificate_chain_unittest/target-msapplicationpolicies-no-eku/main.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-not-end-entity/chain.pem",
 -      "pki/testdata/verify_certificate_chain_unittest/target-not-end-entity/main.test",
+-      "pki/testdata/verify_certificate_chain_unittest/target-not-end-entity/strict-leaf.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-not-end-entity/strict.test",
 -      "pki/testdata/verify_certificate_chain_unittest/target-only/chain.pem",
 -      "pki/testdata/verify_certificate_chain_unittest/target-only/trusted_anchor.test",
@@ -4070,6 +4976,12 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/verify_signed_data_unittest/ecdsa-secp384r1-sha256-corrupted-data.pem",
 -      "pki/testdata/verify_signed_data_unittest/ecdsa-secp384r1-sha256.pem",
 -      "pki/testdata/verify_signed_data_unittest/ecdsa-using-rsa-key.pem",
+-      "pki/testdata/verify_signed_data_unittest/mldsa-44-spki-params-null.pem",
+-      "pki/testdata/verify_signed_data_unittest/mldsa-44.pem",
+-      "pki/testdata/verify_signed_data_unittest/mldsa-65-spki-params-null.pem",
+-      "pki/testdata/verify_signed_data_unittest/mldsa-65.pem",
+-      "pki/testdata/verify_signed_data_unittest/mldsa-87-spki-params-null.pem",
+-      "pki/testdata/verify_signed_data_unittest/mldsa-87.pem",
 -      "pki/testdata/verify_signed_data_unittest/rsa-pkcs1-sha1-bad-key-der-length.pem",
 -      "pki/testdata/verify_signed_data_unittest/rsa-pkcs1-sha1-bad-key-der-null.pem",
 -      "pki/testdata/verify_signed_data_unittest/rsa-pkcs1-sha1-key-params-absent.pem",
@@ -4086,14 +4998,30 @@ index 56a0f4f71..f445e74fb 100644
 -      "pki/testdata/verify_signed_data_unittest/rsa-pss-sha256.pem",
 -      "pki/testdata/verify_signed_data_unittest/rsa-using-ec-key.pem",
 -      "pki/testdata/verify_signed_data_unittest/rsa2048-pkcs1-sha512.pem",
+-      "pki/testdata/verify_unittest/google-intermediate1.der",
+-      "pki/testdata/verify_unittest/google-intermediate2.der",
 -      "pki/testdata/verify_unittest/google-leaf.der",
+-      "pki/testdata/verify_unittest/lencr-intermediate-r3.der",
+-      "pki/testdata/verify_unittest/lencr-leaf.der",
+-      "pki/testdata/verify_unittest/lencr-root-dst-x3.der",
+-      "pki/testdata/verify_unittest/lencr-root-x1-cross-signed.der",
+-      "pki/testdata/verify_unittest/lencr-root-x1.der",
+-      "pki/testdata/verify_unittest/mldsa-intermediate.pem",
+-      "pki/testdata/verify_unittest/mldsa-leaf.pem",
+-      "pki/testdata/verify_unittest/mldsa-root.pem",
+-      "pki/testdata/verify_unittest/mozilla_roots.der",
+-      "pki/testdata/verify_unittest/mtc-leaf-b.pem",
+-      "pki/testdata/verify_unittest/mtc-leaf-bitflip.pem",
+-      "pki/testdata/verify_unittest/mtc-leaf-c.pem",
+-      "pki/testdata/verify_unittest/mtc-leaf-unused-bit.pem",
+-      "pki/testdata/verify_unittest/mtc-leaf.pem",
 -      "pki/testdata/verify_unittest/self-issued.pem"
 -    ]
 -  },
-   "ssl": {
+   "rust_bssl_crypto": {
      "srcs": [
-       "ssl/bio_ssl.cc",
-@@ -2574,61 +813,5 @@
+       "rust/bssl-crypto/src/aead.rs",
+@@ -2961,64 +973,5 @@
      "internal_hdrs": [
        "ssl/internal.h"
      ]
@@ -4103,12 +5031,14 @@ index 56a0f4f71..f445e74fb 100644
 -      "crypto/test/gtest_main.cc",
 -      "ssl/span_test.cc",
 -      "ssl/ssl_c_test.c",
+-      "ssl/ssl_internal_test.cc",
 -      "ssl/ssl_test.cc"
 -    ]
 -  },
 -  "test_support": {
 -    "srcs": [
 -      "crypto/test/abi_test.cc",
+-      "crypto/test/der_trailing_data.cc",
 -      "crypto/test/file_test.cc",
 -      "crypto/test/file_test_gtest.cc",
 -      "crypto/test/file_util.cc",
@@ -4118,6 +5048,7 @@ index 56a0f4f71..f445e74fb 100644
 -    ],
 -    "internal_hdrs": [
 -      "crypto/test/abi_test.h",
+-      "crypto/test/der_trailing_data.h",
 -      "crypto/test/file_test.h",
 -      "crypto/test/file_util.h",
 -      "crypto/test/gtest_main.h",
@@ -4151,10 +5082,10 @@ index 56a0f4f71..f445e74fb 100644
 -  },
 -  "urandom_test": {
 -    "srcs": [
--      "crypto/fipsmodule/rand/urandom_test.cc"
+-      "crypto/rand/urandom_test.cc"
 -    ]
    }
  }
 -- 
-2.44.0
+2.54.0
 
