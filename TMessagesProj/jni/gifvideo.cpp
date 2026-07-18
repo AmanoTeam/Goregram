@@ -17,12 +17,9 @@
 
 extern "C" {
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 #include <libavformat/isom.h>
-#include <libavcodec/bytestream.h>
-#include <libavcodec/get_bits.h>
-#include <libavcodec/golomb.h>
 #include <libavutil/eval.h>
-#include <libavutil/intmath.h>
 #include <libswscale/swscale.h>
 }
 
@@ -47,15 +44,15 @@ jmethodID jclass_AnimatedFileDrawableStream_getFinishedFilePath;
 
 typedef struct VideoInfo {
 
-    ~VideoInfo() {
-        if (video_dec_ctx) {
-            avcodec_close(video_dec_ctx);
-            video_dec_ctx = nullptr;
-        }
-        if (fmt_ctx) {
-            avformat_close_input(&fmt_ctx);
-            fmt_ctx = nullptr;
-        }
+	~VideoInfo() {
+		if (video_dec_ctx) {
+			avcodec_free_context(&video_dec_ctx);
+			video_dec_ctx = nullptr;
+		}
+		if (fmt_ctx) {
+			avformat_close_input(&fmt_ctx);
+			fmt_ctx = nullptr;
+		}
         if (frame) {
             av_frame_free(&frame);
             frame = nullptr;
@@ -158,7 +155,7 @@ static enum AVPixelFormat get_format(AVCodecContext *ctx,
 int open_codec_context(int *stream_idx, AVCodecContext **dec_ctx, AVFormatContext *fmt_ctx, enum AVMediaType type) {
     int ret, stream_index;
     AVStream *st;
-    AVCodec *dec = NULL;
+    const AVCodec *dec = NULL;
     AVDictionary *opts = NULL;
 
     ret = av_find_best_stream(fmt_ctx, type, -1, -1, NULL, 0);
@@ -563,7 +560,7 @@ extern "C" JNIEXPORT jlong JNICALL Java_org_telegram_ui_Components_AnimatedFileN
         return 0;
     }
 
-    av_init_packet(&info->pkt);
+    memset(&info->pkt, 0, sizeof(AVPacket));
     info->pkt.data = NULL;
     info->pkt.size = 0;
 
@@ -597,9 +594,6 @@ extern "C" JNIEXPORT jlong JNICALL Java_org_telegram_ui_Components_AnimatedFileN
                 fps = av_q2d(video_stream->avg_frame_rate);
             } else if(video_stream->r_frame_rate.den && video_stream->r_frame_rate.num) {
                 fps = av_q2d(video_stream->r_frame_rate);
-            } else {
-                int ticks = video_stream->codec->ticks_per_frame;
-                fps = 1.0 / (ticks * av_q2d(video_stream->time_base));
             }
         }
         dataArr[5] = (int32_t) fps;

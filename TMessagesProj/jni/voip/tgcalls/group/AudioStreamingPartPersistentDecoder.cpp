@@ -62,12 +62,11 @@ public:
         }
     }
     
-    ~AudioStreamingPartPersistentDecoderState() {
-        if (_codecContext) {
-            avcodec_close(_codecContext);
-            avcodec_free_context(&_codecContext);
-        }
-    }
+	~AudioStreamingPartPersistentDecoderState() {
+		if (_codecContext) {
+			avcodec_free_context(&_codecContext);
+		}
+	}
     
     int decode(AVPacket &packet, AVFrame *frame) {
         int ret = avcodec_send_packet(_codecContext, &packet);

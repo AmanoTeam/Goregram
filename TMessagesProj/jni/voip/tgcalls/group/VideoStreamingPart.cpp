@@ -370,15 +370,14 @@ public:
         _pktTimebase = pktTimebase;
     }
     
-    ~VideoStreamingDecoderState() {
-        if (_codecContext) {
-            avcodec_close(_codecContext);
-            avcodec_free_context(&_codecContext);
-        }
-        if (_codecParameters) {
-            avcodec_parameters_free(&_codecParameters);
-        }
-    }
+	~VideoStreamingDecoderState() {
+		if (_codecContext) {
+			avcodec_free_context(&_codecContext);
+		}
+		if (_codecParameters) {
+			avcodec_parameters_free(&_codecParameters);
+		}
+	}
     
     bool supportsDecoding(
         AVCodecParameters const *codecParameters,
