@@ -232,7 +232,7 @@ int H264DecoderImpl::AVGetBuffer2(AVCodecContext* context,
                 av_frame->data[kUPlaneIndex] + uv_size);
   int total_size = y_size + 2 * uv_size;
 
-        av_frame->format = context->pix_fmt;
+  av_frame->format = context->pix_fmt;
 
   // Create a VideoFrame object, to keep a reference to the buffer.
   // TODO(nisse): The VideoFrame's timestamp and rotation info is not used.

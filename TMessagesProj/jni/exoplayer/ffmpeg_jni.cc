@@ -16,6 +16,7 @@
 #include <android/log.h>
 #include <jni.h>
 #include <stdlib.h>
+#include <string.h>
 
 extern "C" {
 #ifdef __cplusplus
@@ -148,7 +149,7 @@ AUDIO_DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
   uint8_t *inputBuffer = (uint8_t *)env->GetDirectBufferAddress(inputData);
   uint8_t *outputBuffer = (uint8_t *)env->GetDirectBufferAddress(outputData);
   AVPacket packet;
-  av_init_packet(&packet);
+  memset(&packet, 0, sizeof(AVPacket));
   packet.data = inputBuffer;
   packet.size = inputSize;
   return decodePacket((AVCodecContext *)context, &packet, outputBuffer,
@@ -254,120 +255,60 @@ AVCodecContext *createContext(JNIEnv *env, const AVCodec *codec, jbyteArray extr
 }
 
 int get_swr_context(AVCodecContext *context, SwrContext **out) {
-    if (context == nullptr || out == nullptr) {
-        return AVERROR(EINVAL);
-    }
+    AVSampleFormat sampleFormat = context->sample_fmt;
+    int sampleRate = context->sample_rate;
 
-    const AVSampleFormat inputFormat = context->sample_fmt;
-    const AVSampleFormat outputFormat = context->request_sample_fmt;
-    const int sampleRate = context->sample_rate;
+    AVChannelLayout chLayout;
+    av_channel_layout_copy(&chLayout, &context->ch_layout);
 
-    if (inputFormat == AV_SAMPLE_FMT_NONE ||
-        outputFormat == AV_SAMPLE_FMT_NONE ||
-        sampleRate <= 0 ||
-        context->ch_layout.nb_channels <= 0) {
-        return AVERROR(EINVAL);
-    }
-
-    SwrContext *resampleContext =
-            static_cast<SwrContext *>(context->opaque);
-
-    if (resampleContext != nullptr) {
-        AVChannelLayout inputLayout = {};
-        AVChannelLayout outputLayout = {};
-
-        int64_t value = 0;
-        bool mismatch = false;
-
-        if (av_opt_get_chlayout(
-                resampleContext,
-                "in_chlayout",
-                0,
-                &inputLayout) < 0) {
-            mismatch = true;
-        } else if (av_channel_layout_compare(
-                &inputLayout,
-                &context->ch_layout) != 0) {
-            mismatch = true;
+    SwrContext *resampleContext = nullptr;
+    if (context->opaque) {
+        resampleContext = (SwrContext *) context->opaque;
+        AVChannelLayout inLayout = { AV_CHANNEL_ORDER_UNSPEC, 0 };
+        AVChannelLayout outLayout = { AV_CHANNEL_ORDER_UNSPEC, 0 };
+        int64_t value;
+        bool needsReset = false;
+        if (av_opt_get_chlayout(resampleContext, "in_chlayout", 0, &inLayout) < 0 ||
+            av_channel_layout_compare(&inLayout, &chLayout) != 0) {
+            needsReset = true;
         }
-
-        if (!mismatch &&
-            av_opt_get_chlayout(
-                    resampleContext,
-                    "out_chlayout",
-                    0,
-                    &outputLayout) < 0) {
-            mismatch = true;
-        } else if (!mismatch &&
-                   av_channel_layout_compare(
-                           &outputLayout,
-                           &context->ch_layout) != 0) {
-            mismatch = true;
+        if (av_opt_get_chlayout(resampleContext, "out_chlayout", 0, &outLayout) < 0 ||
+            av_channel_layout_compare(&outLayout, &chLayout) != 0) {
+            needsReset = true;
         }
-
-        if (!mismatch &&
-            (av_opt_get_int(
-                    resampleContext,
-                    "in_sample_rate",
-                    0,
-                    &value) < 0 ||
-             value != sampleRate)) {
-            mismatch = true;
+        av_channel_layout_uninit(&inLayout);
+        av_channel_layout_uninit(&outLayout);
+        if (av_opt_get_int(resampleContext, "in_sample_rate", 0, &value) < 0 || value != sampleRate) {
+            needsReset = true;
         }
-
-        if (!mismatch &&
-            (av_opt_get_int(
-                    resampleContext,
-                    "out_sample_rate",
-                    0,
-                    &value) < 0 ||
-             value != sampleRate)) {
-            mismatch = true;
+        if (av_opt_get_int(resampleContext, "out_sample_rate", 0, &value) < 0 || value != sampleRate) {
+            needsReset = true;
         }
-
-        if (!mismatch &&
-            (av_opt_get_sample_fmt(
-                    resampleContext,
-                    "in_sample_fmt",
-                    0,
-                    reinterpret_cast<AVSampleFormat *>(&value)) < 0 ||
-             static_cast<AVSampleFormat>(value) != inputFormat)) {
-            mismatch = true;
+        if (av_opt_get_int(resampleContext, "in_sample_fmt", 0, &value) < 0 || value != (int64_t) sampleFormat) {
+            needsReset = true;
         }
-
-        if (!mismatch &&
-            (av_opt_get_sample_fmt(
-                    resampleContext,
-                    "out_sample_fmt",
-                    0,
-                    reinterpret_cast<AVSampleFormat *>(&value)) < 0 ||
-             static_cast<AVSampleFormat>(value) != outputFormat)) {
-            mismatch = true;
+        if (av_opt_get_int(resampleContext, "out_sample_fmt", 0, &value) < 0 || value != (int64_t) context->request_sample_fmt) {
+            needsReset = true;
         }
-
-        av_channel_layout_uninit(&inputLayout);
-        av_channel_layout_uninit(&outputLayout);
-
-        if (mismatch) {
+        if (needsReset) {
             swr_free(&resampleContext);
             context->opaque = nullptr;
         }
     }
 
-    if (resampleContext == nullptr) {
-        int result = swr_alloc_set_opts2(
-                &resampleContext,
-                &context->ch_layout,
-                outputFormat,
-                sampleRate,
-                &context->ch_layout,
-                inputFormat,
-                sampleRate,
-                0,
-                context
-        );
-
+    if (resampleContext == NULL) {
+        int result = swr_alloc_set_opts2(&resampleContext,
+                                         &chLayout, context->request_sample_fmt, sampleRate,
+                                         &chLayout, sampleFormat, sampleRate,
+                                         0, NULL);
         if (result < 0) {
+            av_channel_layout_uninit(&chLayout);
+            return result;
+        }
+        result = swr_init(resampleContext);
+        if (result < 0) {
+            swr_free(&resampleContext);
+            av_channel_layout_uninit(&chLayout);
             return result;
         }
 
@@ -379,6 +320,7 @@ int get_swr_context(AVCodecContext *context, SwrContext **out) {
         context->opaque = resampleContext;
     }
 
+    av_channel_layout_uninit(&chLayout);
     *out = resampleContext;
     return 0;
 }
