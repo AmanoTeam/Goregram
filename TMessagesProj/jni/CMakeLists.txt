@@ -28,9 +28,6 @@ set_target_properties(avformat PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTO
 add_library(avcodec STATIC IMPORTED)
 set_target_properties(avcodec PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/ffmpeg/build/${ANDROID_ABI}/lib/libavcodec.a)
 
-add_library(avresample STATIC IMPORTED)
-set_target_properties(avresample PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/ffmpeg/build/${ANDROID_ABI}/lib/libavresample.a)
-
 add_library(swresample STATIC IMPORTED)
 set_target_properties(swresample PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/ffmpeg/build/${ANDROID_ABI}/lib/libswresample.a)
 
@@ -186,6 +183,7 @@ target_include_directories(${NATIVE_LIB} PUBLIC
         third_party/libyuv/include
         boringssl/include
         ffmpeg/build/${ANDROID_ABI}/include
+        ffmpeg/libavformat
         libvpx/build/${ANDROID_ABI}/include
         emoji
         exoplayer/include
