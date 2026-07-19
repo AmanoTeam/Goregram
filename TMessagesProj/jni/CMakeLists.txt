@@ -416,10 +416,6 @@ if (${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "arm64-v8a"
             opus/silk/arm/biquad_alt_neon_intr.c
             opus/silk/fixed/arm/warped_autocorrelation_FIX_neon_intr.c
             )
-
-elseif(${ANDROID_ABI} STREQUAL "x86")
-    target_compile_definitions(${NATIVE_LIB} PUBLIC
-            x86fix)
 endif()
 
 target_sources(${NATIVE_LIB} PRIVATE
