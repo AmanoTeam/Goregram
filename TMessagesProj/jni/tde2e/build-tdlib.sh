@@ -46,7 +46,7 @@ cd ..
 rm -rf tdlib || exit 1
 
 echo "Building tde2e..."
-for ABI in arm64-v8a armeabi-v7a x86_64 x86 ; do
+for ABI in arm64-v8a armeabi-v7a ; do
   mkdir -p tdlib/libs/$ABI/ || exit 1
 
   mkdir -p build-$ABI-$TDLIB_INTERFACE || exit 1
@@ -62,10 +62,6 @@ for ABI in arm64-v8a armeabi-v7a x86_64 x86 ; do
       FULL_ABI="aarch64-linux-android"
     elif [[ "$ABI" == "armeabi-v7a" ]] ; then
       FULL_ABI="arm-linux-androideabi"
-    elif [[ "$ABI" == "x86_64" ]] ; then
-      FULL_ABI="x86_64-linux-android"
-    elif [[ "$ABI" == "x86" ]] ; then
-      FULL_ABI="i686-linux-android"
     fi
     cp "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_ARCH/sysroot/usr/lib/$FULL_ABI/libc++_shared.so" tdlib/libs/$ABI/ || exit 1
     "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_ARCH/bin/llvm-strip" tdlib/libs/$ABI/libc++_shared.so || exit 1
