@@ -165,22 +165,6 @@ VERSION="4.9"
 function build {
 	for arg in "$@"; do
 		case "${arg}" in
-		x86_64)
-			ANDROID_API=21
-
-			ARCH=x86_64
-			ARCH_NAME=x86_64
-			PREBUILT_ARCH=x86_64
-			PREBUILT_MIDDLE=
-			CLANG_PREFIX=x86_64
-			BIN_MIDDLE=android
-			CPU=x86_64
-			OPTIMIZE_CFLAGS=
-			PREFIX=./build/$CPU
-			LIBVPXPREFIX=../libvpx/build/$ARCH_NAME
-			ADDITIONAL_CONFIGURE_FLAG="--disable-asm"
-			build_one
-		;;
 			arm64)
 				ANDROID_API=21
 
@@ -213,22 +197,6 @@ function build {
 				ADDITIONAL_CONFIGURE_FLAG=--enable-neon
 				build_one
 			;;
-			x86)
-				ANDROID_API=21
-
-				ARCH=x86
-				ARCH_NAME=i686
-				PREBUILT_ARCH=x86
-				PREBUILT_MIDDLE=
-				CLANG_PREFIX=i686
-				BIN_MIDDLE=android
-				CPU=i686
-				OPTIMIZE_CFLAGS="-march=$CPU"
-				PREFIX=./build/$ARCH
-				LIBVPXPREFIX=../libvpx/build/$ARCH
-				ADDITIONAL_CONFIGURE_FLAG="--disable-x86asm --disable-inline-asm --disable-asm"
-				build_one
-			;;
 			*)
 			;;
 		esac
@@ -236,7 +204,7 @@ function build {
 }
 
 if (( $# == 0 )); then
-	build x86_64 arm64 arm x86
+	build arm64 arm
 else
 	build $@
 fi

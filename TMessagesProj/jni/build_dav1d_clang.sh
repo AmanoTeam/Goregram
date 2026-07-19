@@ -118,26 +118,6 @@ ANDROID_API=21
 function build {
 	for arg in "$@"; do
 		case "${arg}" in
-			x86_64)
-				ANDROID_API=21
-
-				ARCH=x86_64
-				ARCH_NAME=x86_64
-				PREBUILT_ARCH=x86_64
-				PREBUILT_MIDDLE=
-				CLANG_PREFIX=x86_64
-				BIN_MIDDLE=android
-				CPU=x86_64
-				PREFIX="$(pwd)/build/x86_64"
-				LIBVPXPREFIX=../libvpx/build/$ARCH_NAME
-				MESON_EXTRA_OPTIONS="-Denable_asm=false"
-				MESON_C_ARGS="[]"
-
-				MESON_CPU=x86_64
-				MESON_CPU_FAMILY=x86_64
-
-				build_one
-			;;
 			arm64)
 				ANDROID_API=21
 
@@ -178,26 +158,6 @@ function build {
 
 				build_one
 			;;
-			x86)
-				ANDROID_API=21
-
-				ARCH=x86
-				ARCH_NAME=i686
-				PREBUILT_ARCH=x86
-				PREBUILT_MIDDLE=
-				CLANG_PREFIX=i686
-				BIN_MIDDLE=android
-				CPU=i686
-				PREFIX="$(pwd)/build/x86"
-				LIBVPXPREFIX=../libvpx/build/$ARCH
-				MESON_EXTRA_OPTIONS="-Denable_asm=false"
-				MESON_C_ARGS="['-march=i686']"
-
-				MESON_CPU=i686
-				MESON_CPU_FAMILY=x86
-
-				build_one
-			;;
 			*)
 			;;
 		esac
@@ -205,7 +165,7 @@ function build {
 }
 
 if (( $# == 0 )); then
-	build x86_64 x86 arm arm64
+	build arm arm64
 else
 	build $@
 fi
