@@ -146,7 +146,7 @@ public class VoIPPiPView implements VoIPService.StateListener, IPipSourceDelegat
         instance = new VoIPPiPView(activity, parentWidth, parentHeight, false);
 
         WindowManager wm;
-        if (AndroidUtilities.checkInlinePermissions(activity)) {
+        if (PipUtils.checkPermissions(activity) == PipPermissions.PIP_GRANTED_OVERLAY) {
             wm = (WindowManager) ApplicationLoader.applicationContext.getSystemService(Context.WINDOW_SERVICE);
         } else {
             wm = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
@@ -208,7 +208,7 @@ public class VoIPPiPView implements VoIPService.StateListener, IPipSourceDelegat
         windowLayoutParams.gravity = Gravity.TOP | Gravity.LEFT;
         windowLayoutParams.format = PixelFormat.TRANSLUCENT;
 
-        if (AndroidUtilities.checkInlinePermissions(context)) {
+        if (PipUtils.checkPermissions(context) == PipPermissions.PIP_GRANTED_OVERLAY) {
             if (Build.VERSION.SDK_INT >= 26) {
                 windowLayoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
             } else {

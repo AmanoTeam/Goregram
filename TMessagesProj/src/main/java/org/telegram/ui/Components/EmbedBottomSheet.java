@@ -61,6 +61,7 @@ import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.browser.Browser;
+import org.telegram.messenger.pip.utils.PipUtils;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.BottomSheet;
@@ -1016,7 +1017,7 @@ public class EmbedBottomSheet extends BottomSheet {
         if (parentActivity == null) {
             return false;
         }
-        if (Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(parentActivity)) {
+        if (Build.VERSION.SDK_INT < 23 || PipUtils.checkAnyPipPermissions(parentActivity)) {
             return true;
         } else {
             AlertsCreator.createDrawOverlayPermissionDialog(parentActivity, null);

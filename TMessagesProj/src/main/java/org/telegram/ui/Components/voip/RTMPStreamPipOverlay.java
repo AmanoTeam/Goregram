@@ -254,7 +254,9 @@ public class RTMPStreamPipOverlay implements NotificationCenter.NotificationCent
                         .setDampingRatio(SpringForce.DAMPING_RATIO_LOW_BOUNCY)
                         .setStiffness(stiffness));
 
-        Context context = activity != null ? activity : ApplicationLoader.applicationContext;
+        final @PipPermissions int permissions = PipUtils.checkPermissions(activity != null ? activity : ApplicationLoader.applicationContext);
+        final boolean inAppOnly = activity != null && permissions == PipPermissions.PIP_GRANTED_PIP;
+        Context context = inAppOnly ? activity : ApplicationLoader.applicationContext;
         int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
@@ -633,7 +635,7 @@ public class RTMPStreamPipOverlay implements NotificationCenter.NotificationCent
         contentFrameLayout.addView(controlsView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        windowLayoutParams = PipUtils.createWindowLayoutParams(context, false);
+        windowLayoutParams = PipUtils.createWindowLayoutParams(context, inAppOnly);
         windowLayoutParams.width = pipWidth;
         windowLayoutParams.height = pipHeight;
         windowLayoutParams.x = (int) (pipX = AndroidUtilities.displaySize.x - pipWidth - AndroidUtilities.dp(SIDE_PADDING_DP));

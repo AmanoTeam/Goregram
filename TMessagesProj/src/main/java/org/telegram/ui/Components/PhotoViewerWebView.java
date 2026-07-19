@@ -46,6 +46,7 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.browser.Browser;
+import org.telegram.messenger.pip.utils.PipUtils;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.PhotoViewer;
@@ -773,7 +774,7 @@ public class PhotoViewerWebView extends FrameLayout {
     }
 
     public boolean checkInlinePermissions() {
-        if (Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(getContext())) {
+        if (Build.VERSION.SDK_INT < 23 || PipUtils.checkAnyPipPermissions((Activity) getContext())) {
             return true;
         } else {
             AlertsCreator.createDrawOverlayPermissionDialog((Activity) getContext(), null);

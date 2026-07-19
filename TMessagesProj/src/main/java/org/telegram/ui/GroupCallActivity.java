@@ -118,6 +118,7 @@ import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.pip.PipSource;
+import org.telegram.messenger.pip.utils.PipPermissions;
 import org.telegram.messenger.pip.utils.PipUtils;
 import org.telegram.messenger.support.LongSparseIntArray;
 import org.telegram.messenger.voip.GroupCallMessage;
@@ -9553,7 +9554,7 @@ public class GroupCallActivity extends BottomSheet implements NotificationCenter
     }
 
     private void onUserLeaveHint() {
-        if (isRtmpStream() && AndroidUtilities.checkInlinePermissions(parentActivity) && !RTMPStreamPipOverlay.isVisible()) {
+        if (isRtmpStream() && PipUtils.checkPermissions(parentActivity) == PipPermissions.PIP_GRANTED_OVERLAY && !RTMPStreamPipOverlay.isVisible()) {
             dismiss();
             AndroidUtilities.runOnUIThread(() -> RTMPStreamPipOverlay.show(parentActivity), 100);
         }
