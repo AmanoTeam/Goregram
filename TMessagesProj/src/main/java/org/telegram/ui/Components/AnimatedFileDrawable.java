@@ -151,6 +151,11 @@ public final class AnimatedFileDrawable extends BitmapDrawable implements Animat
             pendingSeekToUI = -1;
             invalidateAfter = 0;
         }
+        if (!canLoadFrames()) {
+            if (invalidateAfter < 1000) {
+                invalidateAfter = 1000;
+            }
+        }
         scheduleNextGetFrame();
         invalidateInternal();
     }
