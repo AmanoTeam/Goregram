@@ -40,16 +40,20 @@ public class PipUtils {
     }
 
     public static @PipPermissions int checkPermissions(Context context) {
-        if (AndroidUtilities.checkInlinePermissions(context)) {
-            return PipPermissions.PIP_GRANTED_OVERLAY;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (AndroidUtilities.checkPipPermissions(context)) {
                 return PipPermissions.PIP_GRANTED_PIP;
+            } else if (AndroidUtilities.checkInlinePermissions(context)) {
+                return PipPermissions.PIP_GRANTED_OVERLAY;
             } else {
                 return PipPermissions.PIP_DENIED_PIP;
             }
         } else {
-            return PipPermissions.PIP_DENIED_OVERLAY;
+            if (AndroidUtilities.checkInlinePermissions(context)) {
+                return PipPermissions.PIP_GRANTED_OVERLAY;
+            } else {
+                return PipPermissions.PIP_DENIED_OVERLAY;
+            }
         }
     }
 
