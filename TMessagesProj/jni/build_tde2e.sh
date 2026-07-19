@@ -12,8 +12,6 @@ declare -r install_directory="${app_directory}/tdlib/build/install"
 declare -ra architectures=(
 	'armeabi-v7a'
 	'arm64-v8a'
-	'x86'
-	'x86_64'
 )
 
 function checkPreRequisites {

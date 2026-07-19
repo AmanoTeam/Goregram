@@ -163,6 +163,34 @@ target_compile_options(${NATIVE_LIB} PUBLIC
 target_compile_definitions(${NATIVE_LIB} PUBLIC
         BSD=1 NULL=0 SOCKLEN_T=socklen_t ANDROID_NDK DISABLE_IMPORTGL AVOID_TABLES ANDROID_TILE_BASED_DECODE __STDC_CONSTANT_MACROS ANDROID_ARMV6_IDCT OPUS_BUILD FIXED_POINT USE_ALLOCA restrict= __EMX__ LOCALE_NOT_USED HAVE_LRINT HAVE_LRINTF)
 
+if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
+    set_target_properties(${NATIVE_LIB} PROPERTIES
+            ANDROID_ARM_NEON FALSE
+            ANDROID_ARM_MODE arm)
+    target_compile_definitions(${NATIVE_LIB} PUBLIC
+            ANDROID_ARM_NEON=false)
+else()
+    set_target_properties(${NATIVE_LIB} PROPERTIES
+            ANDROID_ARM_NEON FALSE
+            ANDROID_ARM_MODE arm)
+endif()
+
+if (${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "arm64-v8a")
+    target_compile_definitions(${NATIVE_LIB} PUBLIC
+            LIBYUV_NEON OPUS_HAVE_RTCD OPUS_ARM_ASM)
+
+    target_sources(${NATIVE_LIB} PRIVATE
+            opus/celt/arm/celt_neon_intr.c
+            opus/celt/arm/pitch_neon_intr.c
+            opus/silk/arm/NSQ_neon.c
+            opus/silk/arm/arm_silk_map.c
+            opus/silk/arm/LPC_inv_pred_gain_neon_intr.c
+            opus/silk/arm/NSQ_del_dec_neon_intr.c
+            opus/silk/arm/biquad_alt_neon_intr.c
+            opus/silk/fixed/arm/warped_autocorrelation_FIX_neon_intr.c
+            )
+endif()
+
 target_sources(${NATIVE_LIB} PRIVATE
 
         third_party/xiph/opusfile/src/info.c
