@@ -66,12 +66,6 @@ if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
 elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
     target_compile_definitions(tgvoip PUBLIC
             WEBRTC_ARCH_ARM64 WEBRTC_HAS_NEON)
-elseif(${ANDROID_ABI} STREQUAL "x86")
-    target_compile_definitions(tgvoip PUBLIC
-            HAVE_SSE2)
-elseif(${ANDROID_ABI} STREQUAL "x86_64")
-    target_compile_definitions(tgvoip PUBLIC
-            HAVE_SSE2)
 endif()
 
 #openh264 (prebuilt static library)
@@ -1739,18 +1733,6 @@ elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
             voip/webrtc/common_audio/signal_processing/filter_ar_fast_q12.c)
     target_compile_definitions(tgcalls PUBLIC
             WEBRTC_ARCH_ARM64 WEBRTC_HAS_NEON)
-elseif(${ANDROID_ABI} STREQUAL "x86")
-    target_sources(tgcalls PRIVATE
-
-    )
-    target_compile_definitions(tgcalls PUBLIC
-            HAVE_SSE2)
-elseif(${ANDROID_ABI} STREQUAL "x86_64")
-    target_sources(tgcalls PRIVATE
-
-    )
-    target_compile_definitions(tgcalls PUBLIC
-            HAVE_SSE2)
 endif()
 
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "arm64-v8a")
@@ -1915,10 +1897,4 @@ if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
 elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
     target_compile_definitions(voipandroid PUBLIC
             WEBRTC_ARCH_ARM64 WEBRTC_HAS_NEON)
-elseif(${ANDROID_ABI} STREQUAL "x86")
-    target_compile_definitions(voipandroid PUBLIC
-            HAVE_SSE2)
-elseif(${ANDROID_ABI} STREQUAL "x86_64")
-    target_compile_definitions(voipandroid PUBLIC
-            HAVE_SSE2)
 endif()
