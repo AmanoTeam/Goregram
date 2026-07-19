@@ -100,6 +100,10 @@ android {
 
         multiDexEnabled true
 
+	ndk {
+		abiFilters "armeabi-v7a", "arm64-v8a"
+	}
+
         externalNativeBuild {
             cmake {
                 version '3.10.2'

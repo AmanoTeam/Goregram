@@ -22,10 +22,6 @@ function build_one {
 	export CXXFLAGS="${CFLAGS} -std=c++17"
 	export ASFLAGS="-D__ANDROID__"
 
-	if [ "x86" = ${ARCH} ]; then
-		sed -i '20s/^/#define rand() ((int)lrand48())\n/' vpx_dsp/add_noise.c
-	fi
-
 	echo "Cleaning..."
 	make clean || true
 
@@ -56,10 +52,6 @@ function build_one {
 	--disable-webm-io
 
 	make -j$COMPILATION_PROC_COUNT install
-
-	if [ "x86" = ${ARCH} ]; then
-		sed -i '20d' vpx_dsp/add_noise.c
-	fi
 }
 
 function setCurrentPlatform {
@@ -114,30 +106,6 @@ ANDROID_API=21
 function build {
 	for arg in "$@"; do
 		case "${arg}" in
-			x86_64)
-				ARCH=x86_64
-				ARCH_NAME=x86_64
-				PREBUILT_ARCH=x86_64
-				CLANG_PREFIX=x86_64
-				BIN_MIDDLE=android
-				CPU=x86_64
-				TARGET="x86_64-android-gcc"
-				PREFIX=./build/$CPU
-                CPU_DETECT="--enable-runtime-cpu-detect"
-				build_one
-			;;
-			x86)
-				ARCH=x86
-				ARCH_NAME=i686
-				PREBUILT_ARCH=x86
-				CLANG_PREFIX=i686
-				BIN_MIDDLE=android
-				CPU=i686
-				TARGET="x86-android-gcc"
-				PREFIX=./build/$ARCH
-				CPU_DETECT="--enable-runtime-cpu-detect"
-				build_one
-			;;
 			arm64)
 				ARCH=arm64
 				ARCH_NAME=aarch64
@@ -169,7 +137,7 @@ function build {
 }
 
 if (( $# == 0 )); then
-	build x86_64 x86 arm arm64
+	build arm arm64
 else
 	build $@
 fi

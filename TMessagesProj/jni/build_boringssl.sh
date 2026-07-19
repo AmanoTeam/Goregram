@@ -47,11 +47,6 @@ cd build
 function build {
 	for arg in "$@"; do
 		case "${arg}" in
-			x86_64)
-				API=21
-				CPU=x86_64
-				build_one
-			;;
 			arm64)
 				API=21
 				CPU=arm64-v8a
@@ -62,11 +57,6 @@ function build {
 				CPU=armeabi-v7a
 				build_one
 			;;
-			x86)
-				API=21
-				CPU=x86
-				build_one
-			;;
 			*)
 			;;
 		esac
@@ -74,7 +64,7 @@ function build {
 }
 
 if (( $# == 0 )); then
-	build x86_64 arm64 arm x86
+	build arm64 arm
 else
 	build $@
 fi
