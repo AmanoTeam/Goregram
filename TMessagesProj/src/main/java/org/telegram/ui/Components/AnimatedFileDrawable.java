@@ -173,6 +173,11 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
                 pendingSeekToUI = -1;
                 invalidateAfter = 0;
             }
+            if (!canLoadFrames()) {
+                if (invalidateAfter < 1000) {
+                    invalidateAfter = 1000;
+                }
+            }
             scheduleNextGetFrame();
             invalidateInternal();
         }
@@ -814,6 +819,11 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
         long ms = 0;
         if (wait && lastFrameDecodeTime != 0) {
             ms = Math.min(invalidateAfter, Math.max(0, invalidateAfter - (System.currentTimeMillis() - lastFrameDecodeTime)));
+        } else if (wait) {
+            if (invalidateAfter < 1000) {
+                invalidateAfter = 1000;
+            }
+            ms = invalidateAfter;
         }
         if (useSharedQueue) {
             if (limitFps) {
