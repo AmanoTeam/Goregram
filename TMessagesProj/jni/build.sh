@@ -10,14 +10,6 @@ PATH+=":${NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin"
 
 cd "${APP_DIRECTORY}"
 
-git -C ffmpeg stash || true
-git -C libvpx stash || true
-git -C dav1d stash || true
-git -C boringssl stash || true
-git -C tdlib stash || true
-
-git submodule update --init --remote
-
 ./build_libvpx_clang.sh
 
 ./build_ffmpeg_clang.sh
