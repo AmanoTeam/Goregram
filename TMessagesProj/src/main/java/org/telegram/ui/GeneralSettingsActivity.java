@@ -2,6 +2,7 @@ package org.telegram.ui;
 
 import static org.telegram.messenger.LocaleController.getString;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.Gravity;
@@ -10,6 +11,7 @@ import android.widget.FrameLayout;
 
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
+import org.telegram.messenger.ApplicationLoader;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.BackDrawable;
 import org.telegram.ui.ActionBar.BaseFragment;
@@ -55,6 +57,12 @@ public class GeneralSettingsActivity extends BaseFragment {
             MessagesController.getInstance(currentAccount).getMainSettings().getBoolean("ghostMode", false));
         ghostMode.subtext = getString(R.string.GhostModeInfo);
         items.add(ghostMode);
+
+        SharedPreferences mainConfig = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+        UItem displayExtraProfileInfo = UItem.asCheck(1, getString(R.string.DisplayExtraProfileInformation)).setChecked(
+            mainConfig.getBoolean("displayExtraProfileInformation", false));
+        displayExtraProfileInfo.subtext = getString(R.string.DisplayExtraProfileInformationInfo);
+        items.add(displayExtraProfileInfo);
     }
 
     private void onClick(UItem item, View view, int position, float x, float y) {
@@ -69,6 +77,14 @@ public class GeneralSettingsActivity extends BaseFragment {
             if (newValue) {
                 BulletinFactory.of(this).createSimpleBulletin(R.raw.chats_infotip, getString(R.string.GhostMode)).show();
             }
+        } else if (item.id == 1) {
+            SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+            boolean newValue = !prefs.getBoolean("displayExtraProfileInformation", false);
+            prefs.edit().putBoolean("displayExtraProfileInformation", newValue).apply();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(newValue);
+            }
+            listView.adapter.update(false);
         }
     }
 
