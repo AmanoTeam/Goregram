@@ -6836,8 +6836,9 @@ public class AndroidUtilities {
 
 
     public static Insets getDefaultWindowInsets(WindowInsetsCompat insets, boolean withIme) {
-        final int insetsType = WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout();
-        final Insets systemInsets = insets.getInsetsIgnoringVisibility(insetsType);
+        final Insets cutoutInsets = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.displayCutout());
+        final Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+        final Insets systemInsets = Insets.max(cutoutInsets, systemBarsInsets);
 
         if (withIme) {
             final Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
