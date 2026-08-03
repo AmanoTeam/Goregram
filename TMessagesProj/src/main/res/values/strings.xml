@@ -16,6 +16,8 @@
     <string name="GhostModeInfo">Stay invisible to other users until you choose to interact with them.</string>
     <string name="DisplayExtraProfileInformation">Display extra profile information</string>
     <string name="DisplayExtraProfileInformationInfo">Show additional information about the user or chat on the profile page.</string>
+    <string name="HideTopChatBars">Hide top chat bars</string>
+    <string name="HideTopChatBarsInfo">Automatically hide the pinned messages and live stream bars at the top of chats.</string>
     <!--signin view-->
     <string name="YourPhone">Your Phone</string>
     <string name="StartText">Please confirm your country code and enter your phone number.</string>
