@@ -63,6 +63,11 @@ public class GeneralSettingsActivity extends BaseFragment {
             mainConfig.getBoolean("displayExtraProfileInformation", false));
         displayExtraProfileInfo.subtext = getString(R.string.DisplayExtraProfileInformationInfo);
         items.add(displayExtraProfileInfo);
+
+        UItem hideTopChatBars = UItem.asCheck(2, getString(R.string.HideTopChatBars)).setChecked(
+            mainConfig.getBoolean("hideTopChatBars", false));
+        hideTopChatBars.subtext = getString(R.string.HideTopChatBarsInfo);
+        items.add(hideTopChatBars);
     }
 
     private void onClick(UItem item, View view, int position, float x, float y) {
@@ -81,6 +86,14 @@ public class GeneralSettingsActivity extends BaseFragment {
             SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
             boolean newValue = !prefs.getBoolean("displayExtraProfileInformation", false);
             prefs.edit().putBoolean("displayExtraProfileInformation", newValue).apply();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(newValue);
+            }
+            listView.adapter.update(false);
+        } else if (item.id == 2) {
+            SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+            boolean newValue = !prefs.getBoolean("hideTopChatBars", false);
+            prefs.edit().putBoolean("hideTopChatBars", newValue).apply();
             if (view instanceof TextCheckCell) {
                 ((TextCheckCell) view).setChecked(newValue);
             }
