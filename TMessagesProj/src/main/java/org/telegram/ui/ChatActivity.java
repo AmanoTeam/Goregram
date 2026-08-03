@@ -28320,6 +28320,10 @@ public class ChatActivity extends BaseFragment implements
         if (currentEncryptedChat != null || chatMode != 0) {
             return;
         }
+        if (ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE).getBoolean("hideTopChatBars", false) && dialog_id != getUserConfig().getClientUserId() && chatMode != MODE_SAVED) {
+            hidePinnedMessageView(animated);
+            return;
+        }
         int pinned_msg_id;
         boolean changed = false;
         MessageObject pinnedMessageObject;
