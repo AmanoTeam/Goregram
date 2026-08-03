@@ -60,6 +60,7 @@ import androidx.core.graphics.ColorUtils;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.AnimationNotificationsLocker;
+import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.ContactsController;
 import org.telegram.messenger.DialogObject;
@@ -2281,6 +2282,13 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
     public void checkCall(boolean create) {
         VoIPService voIPService = VoIPService.getSharedInstance();
         if (visible && currentStyle == STYLE_IMPORTING_MESSAGES && (voIPService == null || voIPService.isHangingUp())) {
+            return;
+        }
+        if (ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE).getBoolean("hideTopChatBars", false)) {
+            if ((currentStyle == STYLE_INACTIVE_GROUP_CALL || currentStyle == STYLE_ACTIVE_GROUP_CALL || currentStyle == STYLE_CONNECTING_GROUP_CALL) && visible) {
+                visible = false;
+                setVisibility(GONE);
+            }
             return;
         }
         View fragmentView = fragment.getFragmentView();
