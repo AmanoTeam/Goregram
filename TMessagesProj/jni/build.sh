@@ -17,8 +17,7 @@ cd "${APP_DIRECTORY}"
 
 ./build_dav1d_clang.sh
 
-./patch_boringssl.sh
-./build_boringssl.sh
+./build_libressl.sh
 
 ./patch_tdlib.sh
 ./build_tde2e.sh

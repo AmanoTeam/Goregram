@@ -10,9 +10,9 @@
 [submodule "TMessagesProj/jni/libwebp"]
 	path = TMessagesProj/jni/libwebp
 	url = https://github.com/webmproject/libwebp
-[submodule "TMessagesProj/jni/boringssl"]
-	path = TMessagesProj/jni/boringssl
-	url = https://github.com/google/boringssl
+[submodule "TMessagesProj/jni/libressl"]
+	path = TMessagesProj/jni/libressl
+	url = https://github.com/libressl/portable.git
 [submodule "TMessagesProj/jni/libvpx"]
 	path = TMessagesProj/jni/libvpx
 	url = https://github.com/webmproject/libvpx
