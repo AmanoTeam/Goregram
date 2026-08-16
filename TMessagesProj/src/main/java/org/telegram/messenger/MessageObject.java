@@ -214,6 +214,7 @@ public class MessageObject {
     public boolean isOauthPush;
     public boolean putInDownloadsStore;
     public boolean isDownloadingFile;
+    public boolean suppressAutoDownload;
     public boolean forcePlayEffect;
     private int isRoundVideoCached;
     public long eventId;
