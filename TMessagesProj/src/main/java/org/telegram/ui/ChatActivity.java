@@ -1238,6 +1238,7 @@ public class ChatActivity extends BaseFragment implements
     public final static int OPTION_SUGGESTION_ADD_OFFER = 114;
 
     public final static int OPTION_VIEW_STATISTICS = 115;
+    public final static int OPTION_CLEAR_CACHE = 116;
 
     private final static int[] allowedNotificationsDuringChatListAnimations = new int[]{
             NotificationCenter.messagesRead,
@@ -33094,6 +33095,69 @@ public class ChatActivity extends BaseFragment implements
         MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, null, null);
     }
 
+    private static int clearCacheInvalidationCounter = 0;
+
+    private void invalidateMessageMediaInMemory(ArrayList<MessageObject> messageObjects) {
+        if (messageObjects == null || messageObjects.isEmpty()) {
+            return;
+        }
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        for (int i = 0, N = messageObjects.size(); i < N; i++) {
+            MessageObject messageObject = messageObjects.get(i);
+            if (messageObject == null || messageObject.messageOwner == null) {
+                continue;
+            }
+            TLRPC.MessageMedia media = messageObject.messageOwner.media;
+            if (media != null) {
+                invalidateMediaMemCache(imageLoader, media);
+            }
+            messageObject.mediaExists = false;
+            messageObject.attachPathExists = false;
+            messageObject.suppressAutoDownload = true;
+            messageObject.forceUpdate = true;
+            chatAdapter.updateRowWithMessageObject(messageObject, true, false);
+            messageObject.forceUpdate = false;
+        }
+    }
+
+    private void invalidateMediaMemCache(ImageLoader imageLoader, TLRPC.MessageMedia media) {
+        if (media.photo != null) {
+            for (int s = 0, NS = media.photo.sizes.size(); s < NS; s++) {
+                TLRPC.PhotoSize size = media.photo.sizes.get(s);
+                if (size instanceof TLRPC.TL_photoStrippedSize || size instanceof TLRPC.TL_photoPathSize) {
+                    continue;
+                }
+                ImageLocation location = ImageLocation.getForPhoto(size, media.photo);
+                invalidateMediaMemCacheKey(imageLoader, location);
+            }
+        }
+        if (media.document != null) {
+            ImageLocation location = ImageLocation.getForDocument(media.document);
+            invalidateMediaMemCacheKey(imageLoader, location);
+            for (int s = 0, NS = media.document.thumbs != null ? media.document.thumbs.size() : 0; s < NS; s++) {
+                TLRPC.PhotoSize size = media.document.thumbs.get(s);
+                if (size instanceof TLRPC.TL_photoStrippedSize || size instanceof TLRPC.TL_photoPathSize) {
+                    continue;
+                }
+                invalidateMediaMemCacheKey(imageLoader, ImageLocation.getForDocument(size, media.document));
+            }
+            for (int s = 0, NS = media.document.video_thumbs != null ? media.document.video_thumbs.size() : 0; s < NS; s++) {
+                invalidateMediaMemCacheKey(imageLoader, ImageLocation.getForDocument(media.document.video_thumbs.get(s), media.document));
+            }
+        }
+    }
+
+    private void invalidateMediaMemCacheKey(ImageLoader imageLoader, ImageLocation location) {
+        if (location == null) {
+            return;
+        }
+        String baseKey = location.getKey(null, null, false);
+        if (baseKey == null) {
+            return;
+        }
+        imageLoader.replaceImageInCache(baseKey, baseKey + "_ccinv_" + (clearCacheInvalidationCounter++), null, false);
+    }
+
     private void processSelectedOption(int option) {
         if (selectedObject == null || getParentActivity() == null) {
             return;
@@ -33134,6 +33198,31 @@ public class ChatActivity extends BaseFragment implements
                 }
                 preserveDim = true;
                 createDeleteMessagesAlert(selectedObject, selectedObjectGroup, true);
+                break;
+            }
+            case OPTION_CLEAR_CACHE: {
+                MessageObject obj = selectedObject;
+                MessageObject.GroupedMessages group = selectedObjectGroup;
+                ArrayList<TLRPC.Message> rawMessages = new ArrayList<>();
+                ArrayList<MessageObject> messageObjects = new ArrayList<>();
+                if (group != null) {
+                    for (int a = 0, N = group.messages.size(); a < N; a++) {
+                        MessageObject m = group.messages.get(a);
+                        if (m != null && m.messageOwner != null) {
+                            rawMessages.add(m.messageOwner);
+                            messageObjects.add(m);
+                        }
+                    }
+                }
+                if (obj != null && obj.messageOwner != null) {
+                    rawMessages.add(obj.messageOwner);
+                    boolean alreadyAdded = group != null && group.messages.contains(obj);
+                    if (!alreadyAdded) {
+                        messageObjects.add(obj);
+                    }
+                }
+                getMessagesStorage().clearMessageMediaCache(rawMessages);
+                invalidateMessageMediaInMemory(messageObjects);
                 break;
             }
             case OPTION_FORWARD: {
@@ -45419,6 +45508,13 @@ public class ChatActivity extends BaseFragment implements
             deleteIconRes = R.drawable.msg_delete;
         }
 
+        selectedObject.checkMediaExistance();
+
+        final boolean hasCacheableMedia = (MessageObject.getDocument(selectedObject.messageOwner) != null || MessageObject.getPhoto(selectedObject.messageOwner) != null)
+            && selectedObject.getId() > 0 && !selectedObject.isOut() && (selectedObject.mediaExists() || selectedObject.attachPathExists)
+            && !selectedObject.isSponsored() && !selectedObject.isExpiredStory() && !selectedObject.isSticker() && !selectedObject.isAnimatedSticker()
+            && ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE).getBoolean("displayAdditionalMessageOptions", false);
+
         if (type == -1) {
             if ((selectedObject.type == MessageObject.TYPE_TEXT || selectedObject.type == MessageObject.TYPE_ARTICLE || selectedObject.isAnimatedEmoji() || selectedObject.isAnimatedEmojiStickers() || getMessageCaption(selectedObject, selectedObjectGroup) != null) && (!noforwardsOrPaidMedia || isEphemeral) && !message.isExpiredStory()) {
                 items.add(LocaleController.getString(R.string.Copy));
@@ -45503,6 +45599,11 @@ public class ChatActivity extends BaseFragment implements
                 items.add(LocaleController.getString(chatMode == MODE_SAVED && threadMessageId != getUserConfig().getClientUserId() ? R.string.Remove : R.string.Delete));
                 options.add(OPTION_DELETE);
                 icons.add(deleteIconRes);
+            }
+            if (hasCacheableMedia) {
+                items.add(LocaleController.getString(R.string.ClearCache));
+                options.add(OPTION_CLEAR_CACHE);
+                icons.add(R.drawable.msg_clearcache);
             }
         } else if (type == 20) {
             items.add(LocaleController.getString(R.string.Retry));
@@ -45828,6 +45929,11 @@ public class ChatActivity extends BaseFragment implements
                     options.add(OPTION_DELETE);
                     icons.add(deleteIconRes);
                 }
+                if (hasCacheableMedia) {
+                    items.add(LocaleController.getString(R.string.ClearCache));
+                    options.add(OPTION_CLEAR_CACHE);
+                    icons.add(R.drawable.msg_clearcache);
+                }
             } else {
                 if ((allowChatActions || isEphemeralFromBot) && !isInsideContainer) {
                     items.add(LocaleController.getString(R.string.Reply));
@@ -45917,6 +46023,11 @@ public class ChatActivity extends BaseFragment implements
                 items.add(LocaleController.getString(chatMode == MODE_SAVED && threadMessageId != getUserConfig().getClientUserId() ? R.string.Remove : R.string.Delete));
                 options.add(OPTION_DELETE);
                 icons.add(deleteIconRes);
+                if (hasCacheableMedia) {
+                    items.add(LocaleController.getString(R.string.ClearCache));
+                    options.add(OPTION_CLEAR_CACHE);
+                    icons.add(R.drawable.msg_clearcache);
+                }
             }
         }
     }

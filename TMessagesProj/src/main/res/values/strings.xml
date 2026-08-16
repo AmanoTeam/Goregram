@@ -18,6 +18,8 @@
     <string name="DisplayExtraProfileInformationInfo">Show additional information about the user or chat on the profile page.</string>
     <string name="HideTopChatBars">Hide top chat bars</string>
     <string name="HideTopChatBarsInfo">Automatically hide the pinned messages and live stream bars at the top of chats.</string>
+    <string name="DisplayAdditionalMessageOptions">Display additional message options</string>
+    <string name="DisplayAdditionalMessageOptionsInfo">Show additional options in the message context menu.</string>
     <!--signin view-->
     <string name="YourPhone">Your Phone</string>
     <string name="StartText">Please confirm your country code and enter your phone number.</string>

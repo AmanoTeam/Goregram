@@ -4388,6 +4388,30 @@ public class MessagesStorage extends BaseController {
         return false;
     }
 
+    public void clearMessageMediaCache(ArrayList<TLRPC.Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
+        storageQueue.postRunnable(() -> {
+            ArrayList<File> filesToDelete = new ArrayList<>();
+            ArrayList<String> namesToDelete = new ArrayList<>();
+            ArrayList<Pair<Long, Integer>> idsToDelete = new ArrayList<>();
+            try {
+                for (int a = 0, N = messages.size(); a < N; a++) {
+                    TLRPC.Message message = messages.get(a);
+                    if (message != null) {
+                        addFilesToDelete(message, filesToDelete, idsToDelete, namesToDelete, false);
+                    }
+                }
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
+            deleteFromDownloadQueue(idsToDelete, true);
+            AndroidUtilities.runOnUIThread(() -> getFileLoader().cancelLoadFiles(namesToDelete));
+            getFileLoader().deleteFiles(filesToDelete, 0);
+        });
+    }
+
     public void deleteDialog(long did, int messagesOnly) {
         storageQueue.postRunnable(() -> {
             SQLiteCursor cursor = null;
