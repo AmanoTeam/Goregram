@@ -673,7 +673,7 @@ public class SharedConfig {
             debugVideoQualities = preferences.getBoolean("debugVideoQualities", false);
             shadowsInSections = preferences.getBoolean("shadowsInSections", false);
             debugViewMetrics = preferences.getBoolean("debugViewMetrics", false);
-            photoHighQualityDefault = preferences.getBoolean("photoHighQualityDefault", false);
+            photoHighQualityDefault = preferences.getBoolean("photoHighQualityDefault", true);
             photoLiveDefault = preferences.getBoolean("photoLiveDefault", false);
 
             loadDebugConfig(preferences);
