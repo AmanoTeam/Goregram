@@ -181,7 +181,6 @@ import org.telegram.ui.Components.TextHelper;
 import org.telegram.ui.Components.TypefaceSpan;
 import org.telegram.ui.Components.URLSpanReplacement;
 import org.telegram.ui.Components.UndoView;
-import org.telegram.ui.Components.spoilers.SpoilersTextView;
 import org.telegram.ui.DebugRecordingCanvasReplayFragment;
 import org.telegram.ui.LaunchActivity;
 import org.telegram.ui.Stories.PeerStoriesView;
@@ -4723,14 +4722,6 @@ public class AndroidUtilities {
                     .show();
             }
         }));
-        if (!TextUtils.isEmpty(secret)) {
-            final TableView.TableRowFullContent tableRow = tableView.addFullRow(getString(R.string.UseProxyTelegramInfo2));
-            tableRow.setFilled(true);
-            final SpoilersTextView textView = (SpoilersTextView) tableRow.getChildAt(0);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11);
-            textView.setGravity(Gravity.CENTER);
-        }
-
         final ButtonWithCounterView buttonView = new ButtonWithCounterView(activity, null).setRound();
         buttonView.setText(getString(R.string.ConnectingConnectProxy));
         buttonView.setOnClickListener(v -> {
