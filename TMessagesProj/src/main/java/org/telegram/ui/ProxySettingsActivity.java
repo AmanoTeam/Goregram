@@ -442,7 +442,7 @@ public class ProxySettingsActivity extends BaseFragment {
             if (i == 0) {
                 bottomCells[i].setText(LocaleController.getString(R.string.UseProxyInfo));
             } else {
-                bottomCells[i].setText(LocaleController.getString(R.string.UseProxyTelegramInfo) + "\n\n" + LocaleController.getString(R.string.UseProxyTelegramInfo2));
+                bottomCells[i].setText(LocaleController.getString(R.string.UseProxyTelegramInfo));
                 bottomCells[i].setVisibility(View.GONE);
             }
             linearLayout2.addView(bottomCells[i], LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
