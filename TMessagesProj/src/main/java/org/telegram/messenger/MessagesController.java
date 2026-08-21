@@ -1611,6 +1611,18 @@ public class MessagesController extends BaseController implements NotificationCe
         promoPsaMessage = mainPreferences.getString("promo_psa_message", null);
         promoPsaType = mainPreferences.getString("promo_psa_type", null);
         proxyDialogAddress = mainPreferences.getString("proxyDialogAddress", null);
+        if (promoDialogType == PROMO_TYPE_PROXY) {
+            // never show proxy sponsored channels in the chat list
+            promoDialogId = 0;
+            proxyDialogAddress = null;
+            promoDialogType = PROMO_TYPE_OTHER;
+            promoDialog = null;
+            mainPreferences.edit()
+                .putLong("proxy_dialog", 0)
+                .remove("proxyDialogAddress")
+                .putInt("promo_dialog_type", PROMO_TYPE_OTHER)
+                .commit();
+        }
         venueSearchBot = mainPreferences.getString("venueSearchBot", "foursquare");
         storyVenueSearchBot = mainPreferences.getString("storyVenueSearchBot", "foursquare");
         gifSearchBot = mainPreferences.getString("gifSearchBot", "gif");
@@ -9987,8 +9999,9 @@ public class MessagesController extends BaseController implements NotificationCe
         Utilities.stageQueue.postRunnable(() -> {
             promoDialogId = 0;
             proxyDialogAddress = null;
+            promoDialogType = PROMO_TYPE_OTHER;
             nextPromoInfoCheckTime = getConnectionsManager().getCurrentTime() + 60 * 60;
-            getGlobalMainSettings().edit().putLong("proxy_dialog", promoDialogId).remove("proxyDialogAddress").putInt("nextPromoInfoCheckTime", nextPromoInfoCheckTime).commit();
+            getGlobalMainSettings().edit().putLong("proxy_dialog", promoDialogId).remove("proxyDialogAddress").putInt("promo_dialog_type", PROMO_TYPE_OTHER).putInt("nextPromoInfoCheckTime", nextPromoInfoCheckTime).commit();
         });
         removePromoDialog();
     }
@@ -10901,6 +10914,11 @@ public class MessagesController extends BaseController implements NotificationCe
                 TLRPC.TL_help_promoDataEmpty res = (TLRPC.TL_help_promoDataEmpty) response;
                 nextPromoInfoCheckTime = res.expires;
                 noDialog = true;
+            } else if (response instanceof TLRPC.TL_help_promoData && ((TLRPC.TL_help_promoData) response).proxy) {
+                // never show proxy sponsored channels in the chat list
+                TLRPC.TL_help_promoData res = (TLRPC.TL_help_promoData) response;
+                nextPromoInfoCheckTime = res.expires;
+                noDialog = true;
             } else if (response instanceof TLRPC.TL_help_promoData) {
                 TLRPC.TL_help_promoData res = (TLRPC.TL_help_promoData) response;
 
@@ -10935,6 +10953,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 promoDialogId = did;
                 if (res.proxy) {
                     promoDialogType = PROMO_TYPE_PROXY;
+                    noDialog = true;
                 } else if (!TextUtils.isEmpty(res.psa_type)) {
                     promoDialogType = PROMO_TYPE_PSA;
                     promoPsaType = res.psa_type;
@@ -11141,7 +11160,8 @@ public class MessagesController extends BaseController implements NotificationCe
             }
             if (noDialog) {
                 promoDialogId = 0;
-                getGlobalMainSettings().edit().putLong("proxy_dialog", promoDialogId).remove("proxyDialogAddress").putInt("nextPromoInfoCheckTime", nextPromoInfoCheckTime).commit();
+                promoDialogType = PROMO_TYPE_OTHER;
+                getGlobalMainSettings().edit().putLong("proxy_dialog", promoDialogId).remove("proxyDialogAddress").putInt("promo_dialog_type", PROMO_TYPE_OTHER).putInt("nextPromoInfoCheckTime", nextPromoInfoCheckTime).commit();
                 checkingPromoInfoRequestId = 0;
                 checkingPromoInfo = false;
                 AndroidUtilities.runOnUIThread(this::removePromoDialog);
@@ -11150,8 +11170,9 @@ public class MessagesController extends BaseController implements NotificationCe
         if (removeCurrent != 0) {
             promoDialogId = 0;
             proxyDialogAddress = null;
+            promoDialogType = PROMO_TYPE_OTHER;
             nextPromoInfoCheckTime = getConnectionsManager().getCurrentTime() + 60 * 60;
-            getGlobalMainSettings().edit().putLong("proxy_dialog", promoDialogId).remove("proxyDialogAddress").putInt("nextPromoInfoCheckTime", nextPromoInfoCheckTime).commit();
+            getGlobalMainSettings().edit().putLong("proxy_dialog", promoDialogId).remove("proxyDialogAddress").putInt("promo_dialog_type", PROMO_TYPE_OTHER).putInt("nextPromoInfoCheckTime", nextPromoInfoCheckTime).commit();
             AndroidUtilities.runOnUIThread(this::removePromoDialog);
         }
     }
@@ -11174,7 +11195,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean isPromoDialog(long did, boolean checkLeft) {
-        return promoDialog != null && promoDialog.id == did && (!checkLeft || isLeftPromoChannel);
+        return promoDialog != null && promoDialogType != PROMO_TYPE_PROXY && promoDialog.id == did && (!checkLeft || isLeftPromoChannel);
     }
 
     private String getUserNameForTyping(TLRPC.User user) {
@@ -22496,7 +22517,7 @@ public class MessagesController extends BaseController implements NotificationCe
             }
 
         }
-        if (promoDialog != null && isLeftPromoChannel) {
+        if (promoDialog != null && isLeftPromoChannel && promoDialogType != PROMO_TYPE_PROXY) {
             allDialogs.add(0, promoDialog);
             addDialogToItsFolder(-2, promoDialog);
         }
