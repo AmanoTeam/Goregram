@@ -46,9 +46,6 @@ set_target_properties(libvpx PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY
 add_library(libdav1d STATIC IMPORTED)
 set_target_properties(libdav1d PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/dav1d/build/${ANDROID_ABI}/lib/libdav1d.a)
 
-add_library(libopus STATIC IMPORTED)
-set_target_properties(libopus PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/ffmpeg/${ANDROID_ABI}/libopus.a)
-
 add_library(tde2e STATIC IMPORTED)
 set_target_properties(tde2e PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/tde2e/${ANDROID_ABI}/libtde2e.a)
 
@@ -136,6 +133,13 @@ target_include_directories(breakpad PUBLIC
 #voip
 include(${CMAKE_HOME_DIRECTORY}/voip/CMakeLists.txt)
 
+#libopus
+add_subdirectory(
+        third_party/xiph/opus
+        ${CMAKE_CURRENT_BINARY_DIR}/opus
+        EXCLUDE_FROM_ALL)
+
+
 set(NATIVE_LIB "tmessages.49")
 
 #tmessages
@@ -161,7 +165,7 @@ target_compile_options(${NATIVE_LIB} PUBLIC
         -ffast-math -Oz -funroll-loops -ffast-math -fno-strict-aliasing -fno-math-errno)
 
 target_compile_definitions(${NATIVE_LIB} PUBLIC
-        BSD=1 NULL=0 SOCKLEN_T=socklen_t ANDROID_NDK DISABLE_IMPORTGL AVOID_TABLES ANDROID_TILE_BASED_DECODE __STDC_CONSTANT_MACROS ANDROID_ARMV6_IDCT OPUS_BUILD FIXED_POINT USE_ALLOCA restrict= __EMX__ LOCALE_NOT_USED HAVE_LRINT HAVE_LRINTF)
+        BSD=1 NULL=0 SOCKLEN_T=socklen_t ANDROID_NDK DISABLE_IMPORTGL AVOID_TABLES ANDROID_TILE_BASED_DECODE __STDC_CONSTANT_MACROS ANDROID_ARMV6_IDCT)
 
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
     set_target_properties(${NATIVE_LIB} PROPERTIES
@@ -177,18 +181,7 @@ endif()
 
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "arm64-v8a")
     target_compile_definitions(${NATIVE_LIB} PUBLIC
-            LIBYUV_NEON OPUS_HAVE_RTCD OPUS_ARM_ASM)
-
-    target_sources(${NATIVE_LIB} PRIVATE
-            opus/celt/arm/celt_neon_intr.c
-            opus/celt/arm/pitch_neon_intr.c
-            opus/silk/arm/NSQ_neon.c
-            opus/silk/arm/arm_silk_map.c
-            opus/silk/arm/LPC_inv_pred_gain_neon_intr.c
-            opus/silk/arm/NSQ_del_dec_neon_intr.c
-            opus/silk/arm/biquad_alt_neon_intr.c
-            opus/silk/fixed/arm/warped_autocorrelation_FIX_neon_intr.c
-            )
+            LIBYUV_NEON)
 endif()
 
 target_sources(${NATIVE_LIB} PRIVATE
@@ -239,7 +232,7 @@ target_link_libraries(${NATIVE_LIB}
         swresample
         libvpx
         libdav1d
-        libopus
+        opus
         tde2e
         tdutils
         yuv
