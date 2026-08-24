@@ -46,9 +46,6 @@ set_target_properties(libvpx PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY
 add_library(libdav1d STATIC IMPORTED)
 set_target_properties(libdav1d PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/dav1d/build/${ANDROID_ABI}/lib/libdav1d.a)
 
-add_library(libopus STATIC IMPORTED)
-set_target_properties(libopus PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/ffmpeg/${ANDROID_ABI}/libopus.a)
-
 add_library(tde2e STATIC IMPORTED)
 set_target_properties(tde2e PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/tde2e/${ANDROID_ABI}/libtde2e.a)
 
@@ -136,6 +133,174 @@ target_include_directories(breakpad PUBLIC
 #voip
 include(${CMAKE_HOME_DIRECTORY}/voip/CMakeLists.txt)
 
+#libopus
+add_library(libopus STATIC
+        third_party/xiph/opus/src/opus.c
+        third_party/xiph/opus/src/opus_decoder.c
+        third_party/xiph/opus/src/opus_encoder.c
+        third_party/xiph/opus/src/opus_multistream.c
+        third_party/xiph/opus/src/opus_multistream_encoder.c
+        third_party/xiph/opus/src/opus_multistream_decoder.c
+        third_party/xiph/opus/src/repacketizer.c
+        third_party/xiph/opus/src/analysis.c
+        third_party/xiph/opus/src/mlp.c
+        third_party/xiph/opus/src/mlp_data.c
+        third_party/xiph/opus/src/opus_projection_encoder.c
+        third_party/xiph/opus/src/opus_projection_decoder.c
+        third_party/xiph/opus/src/mapping_matrix.c
+        third_party/xiph/opus/src/extensions.c
+
+        third_party/xiph/opus/silk/CNG.c
+        third_party/xiph/opus/silk/code_signs.c
+        third_party/xiph/opus/silk/init_decoder.c
+        third_party/xiph/opus/silk/decode_core.c
+        third_party/xiph/opus/silk/decode_frame.c
+        third_party/xiph/opus/silk/decode_parameters.c
+        third_party/xiph/opus/silk/decode_indices.c
+        third_party/xiph/opus/silk/decode_pulses.c
+        third_party/xiph/opus/silk/decoder_set_fs.c
+        third_party/xiph/opus/silk/dec_API.c
+        third_party/xiph/opus/silk/enc_API.c
+        third_party/xiph/opus/silk/encode_indices.c
+        third_party/xiph/opus/silk/encode_pulses.c
+        third_party/xiph/opus/silk/gain_quant.c
+        third_party/xiph/opus/silk/interpolate.c
+        third_party/xiph/opus/silk/LP_variable_cutoff.c
+        third_party/xiph/opus/silk/NLSF_decode.c
+        third_party/xiph/opus/silk/NSQ.c
+        third_party/xiph/opus/silk/NSQ_del_dec.c
+        third_party/xiph/opus/silk/PLC.c
+        third_party/xiph/opus/silk/shell_coder.c
+        third_party/xiph/opus/silk/tables_gain.c
+        third_party/xiph/opus/silk/tables_LTP.c
+        third_party/xiph/opus/silk/tables_NLSF_CB_NB_MB.c
+        third_party/xiph/opus/silk/tables_NLSF_CB_WB.c
+        third_party/xiph/opus/silk/tables_other.c
+        third_party/xiph/opus/silk/tables_pitch_lag.c
+        third_party/xiph/opus/silk/tables_pulses_per_block.c
+        third_party/xiph/opus/silk/VAD.c
+        third_party/xiph/opus/silk/control_audio_bandwidth.c
+        third_party/xiph/opus/silk/quant_LTP_gains.c
+        third_party/xiph/opus/silk/VQ_WMat_EC.c
+        third_party/xiph/opus/silk/HP_variable_cutoff.c
+        third_party/xiph/opus/silk/NLSF_encode.c
+        third_party/xiph/opus/silk/NLSF_VQ.c
+        third_party/xiph/opus/silk/NLSF_unpack.c
+        third_party/xiph/opus/silk/NLSF_del_dec_quant.c
+        third_party/xiph/opus/silk/process_NLSFs.c
+        third_party/xiph/opus/silk/stereo_LR_to_MS.c
+        third_party/xiph/opus/silk/stereo_MS_to_LR.c
+        third_party/xiph/opus/silk/check_control_input.c
+        third_party/xiph/opus/silk/control_SNR.c
+        third_party/xiph/opus/silk/init_encoder.c
+        third_party/xiph/opus/silk/control_codec.c
+        third_party/xiph/opus/silk/A2NLSF.c
+        third_party/xiph/opus/silk/ana_filt_bank_1.c
+        third_party/xiph/opus/silk/biquad_alt.c
+        third_party/xiph/opus/silk/bwexpander_32.c
+        third_party/xiph/opus/silk/bwexpander.c
+        third_party/xiph/opus/silk/debug.c
+        third_party/xiph/opus/silk/decode_pitch.c
+        third_party/xiph/opus/silk/inner_prod_aligned.c
+        third_party/xiph/opus/silk/lin2log.c
+        third_party/xiph/opus/silk/log2lin.c
+        third_party/xiph/opus/silk/LPC_analysis_filter.c
+        third_party/xiph/opus/silk/LPC_inv_pred_gain.c
+        third_party/xiph/opus/silk/table_LSF_cos.c
+        third_party/xiph/opus/silk/NLSF2A.c
+        third_party/xiph/opus/silk/NLSF_stabilize.c
+        third_party/xiph/opus/silk/NLSF_VQ_weights_laroia.c
+        third_party/xiph/opus/silk/pitch_est_tables.c
+        third_party/xiph/opus/silk/resampler.c
+        third_party/xiph/opus/silk/resampler_down2_3.c
+        third_party/xiph/opus/silk/resampler_down2.c
+        third_party/xiph/opus/silk/resampler_private_AR2.c
+        third_party/xiph/opus/silk/resampler_private_down_FIR.c
+        third_party/xiph/opus/silk/resampler_private_IIR_FIR.c
+        third_party/xiph/opus/silk/resampler_private_up2_HQ.c
+        third_party/xiph/opus/silk/resampler_rom.c
+        third_party/xiph/opus/silk/sigm_Q15.c
+        third_party/xiph/opus/silk/sort.c
+        third_party/xiph/opus/silk/sum_sqr_shift.c
+        third_party/xiph/opus/silk/stereo_decode_pred.c
+        third_party/xiph/opus/silk/stereo_encode_pred.c
+        third_party/xiph/opus/silk/stereo_find_predictor.c
+        third_party/xiph/opus/silk/stereo_quant_pred.c
+        third_party/xiph/opus/silk/LPC_fit.c
+
+        third_party/xiph/opus/silk/fixed/LTP_analysis_filter_FIX.c
+        third_party/xiph/opus/silk/fixed/LTP_scale_ctrl_FIX.c
+        third_party/xiph/opus/silk/fixed/corrMatrix_FIX.c
+        third_party/xiph/opus/silk/fixed/encode_frame_FIX.c
+        third_party/xiph/opus/silk/fixed/find_LPC_FIX.c
+        third_party/xiph/opus/silk/fixed/find_LTP_FIX.c
+        third_party/xiph/opus/silk/fixed/find_pitch_lags_FIX.c
+        third_party/xiph/opus/silk/fixed/find_pred_coefs_FIX.c
+        third_party/xiph/opus/silk/fixed/noise_shape_analysis_FIX.c
+        third_party/xiph/opus/silk/fixed/process_gains_FIX.c
+        third_party/xiph/opus/silk/fixed/regularize_correlations_FIX.c
+        third_party/xiph/opus/silk/fixed/residual_energy16_FIX.c
+        third_party/xiph/opus/silk/fixed/residual_energy_FIX.c
+        third_party/xiph/opus/silk/fixed/warped_autocorrelation_FIX.c
+        third_party/xiph/opus/silk/fixed/apply_sine_window_FIX.c
+        third_party/xiph/opus/silk/fixed/autocorr_FIX.c
+        third_party/xiph/opus/silk/fixed/burg_modified_FIX.c
+        third_party/xiph/opus/silk/fixed/k2a_FIX.c
+        third_party/xiph/opus/silk/fixed/k2a_Q16_FIX.c
+        third_party/xiph/opus/silk/fixed/pitch_analysis_core_FIX.c
+        third_party/xiph/opus/silk/fixed/vector_ops_FIX.c
+        third_party/xiph/opus/silk/fixed/schur64_FIX.c
+        third_party/xiph/opus/silk/fixed/schur_FIX.c
+
+        third_party/xiph/opus/celt/bands.c
+        third_party/xiph/opus/celt/celt.c
+        third_party/xiph/opus/celt/celt_encoder.c
+        third_party/xiph/opus/celt/celt_decoder.c
+        third_party/xiph/opus/celt/cwrs.c
+        third_party/xiph/opus/celt/entcode.c
+        third_party/xiph/opus/celt/entdec.c
+        third_party/xiph/opus/celt/entenc.c
+        third_party/xiph/opus/celt/kiss_fft.c
+        third_party/xiph/opus/celt/laplace.c
+        third_party/xiph/opus/celt/mathops.c
+        third_party/xiph/opus/celt/mdct.c
+        third_party/xiph/opus/celt/modes.c
+        third_party/xiph/opus/celt/pitch.c
+        third_party/xiph/opus/celt/celt_lpc.c
+        third_party/xiph/opus/celt/quant_bands.c
+        third_party/xiph/opus/celt/rate.c
+        third_party/xiph/opus/celt/vq.c
+        third_party/xiph/opus/celt/arm/armcpu.c
+        third_party/xiph/opus/celt/arm/arm_celt_map.c
+)
+target_compile_options(libopus PUBLIC
+        -ffast-math -Oz -funroll-loops -fno-strict-aliasing -fno-math-errno)
+set_target_properties(libopus PROPERTIES
+        OUTPUT_NAME opus
+        ANDROID_ARM_MODE arm)
+target_compile_definitions(libopus PUBLIC
+        OPUS_BUILD FIXED_POINT USE_ALLOCA restrict= __EMX__ LOCALE_NOT_USED HAVE_LRINT HAVE_LRINTF)
+if (${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "arm64-v8a")
+    target_compile_definitions(libopus PUBLIC
+            OPUS_HAVE_RTCD OPUS_ARM_ASM)
+    target_sources(libopus PRIVATE
+            third_party/xiph/opus/celt/arm/celt_neon_intr.c
+            third_party/xiph/opus/celt/arm/pitch_neon_intr.c
+            third_party/xiph/opus/silk/arm/NSQ_neon.c
+            third_party/xiph/opus/silk/arm/arm_silk_map.c
+            third_party/xiph/opus/silk/arm/LPC_inv_pred_gain_neon_intr.c
+            third_party/xiph/opus/silk/arm/NSQ_del_dec_neon_intr.c
+            third_party/xiph/opus/silk/arm/biquad_alt_neon_intr.c
+            third_party/xiph/opus/silk/fixed/arm/warped_autocorrelation_FIX_neon_intr.c
+            )
+endif()
+target_include_directories(libopus PUBLIC
+        third_party/xiph/opus/include
+        third_party/xiph/opus/silk
+        third_party/xiph/opus/silk/fixed
+        third_party/xiph/opus/celt
+        third_party/xiph/opus)
+
 set(NATIVE_LIB "tmessages.49")
 
 #tmessages
@@ -161,7 +326,7 @@ target_compile_options(${NATIVE_LIB} PUBLIC
         -ffast-math -Oz -funroll-loops -ffast-math -fno-strict-aliasing -fno-math-errno)
 
 target_compile_definitions(${NATIVE_LIB} PUBLIC
-        BSD=1 NULL=0 SOCKLEN_T=socklen_t ANDROID_NDK DISABLE_IMPORTGL AVOID_TABLES ANDROID_TILE_BASED_DECODE __STDC_CONSTANT_MACROS ANDROID_ARMV6_IDCT OPUS_BUILD FIXED_POINT USE_ALLOCA restrict= __EMX__ LOCALE_NOT_USED HAVE_LRINT HAVE_LRINTF)
+        BSD=1 NULL=0 SOCKLEN_T=socklen_t ANDROID_NDK DISABLE_IMPORTGL AVOID_TABLES ANDROID_TILE_BASED_DECODE __STDC_CONSTANT_MACROS ANDROID_ARMV6_IDCT)
 
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
     set_target_properties(${NATIVE_LIB} PROPERTIES
@@ -177,18 +342,7 @@ endif()
 
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "arm64-v8a")
     target_compile_definitions(${NATIVE_LIB} PUBLIC
-            LIBYUV_NEON OPUS_HAVE_RTCD OPUS_ARM_ASM)
-
-    target_sources(${NATIVE_LIB} PRIVATE
-            opus/celt/arm/celt_neon_intr.c
-            opus/celt/arm/pitch_neon_intr.c
-            opus/silk/arm/NSQ_neon.c
-            opus/silk/arm/arm_silk_map.c
-            opus/silk/arm/LPC_inv_pred_gain_neon_intr.c
-            opus/silk/arm/NSQ_del_dec_neon_intr.c
-            opus/silk/arm/biquad_alt_neon_intr.c
-            opus/silk/fixed/arm/warped_autocorrelation_FIX_neon_intr.c
-            )
+            LIBYUV_NEON)
 endif()
 
 target_sources(${NATIVE_LIB} PRIVATE
