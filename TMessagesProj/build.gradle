@@ -10,7 +10,7 @@ idea {
             file('jni/third_party'),
             file('jni/ffmpeg'),
             file('jni/tlottie'),
-            file('jni/boringssl'),
+            file('jni/libressl'),
             file('jni/sqlite')
         ]
     }
