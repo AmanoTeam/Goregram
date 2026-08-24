@@ -10,9 +10,6 @@
 [submodule "TMessagesProj/lib/jlatexmath"]
 	path = TMessagesProj/lib/jlatexmath
 	url = https://github.com/dkaraush/jlatexmath-android.git
-[submodule "TMessagesProj/jni/tlottie"]
-	path = TMessagesProj/jni/tlottie
-	url = https://github.com/dkaraush/tlottie.git
 [submodule "TMessagesProj/jni/third_party/openh264"]
 	path = TMessagesProj/jni/third_party/openh264
 	url = https://github.com/cisco/openh264.git
@@ -37,3 +34,6 @@
 [submodule "TMessagesProj/jni/tdlib"]
 	path = TMessagesProj/jni/tdlib
 	url = https://github.com/tdlib/td
+[submodule "TMessagesProj/jni/rlottie"]
+	path = TMessagesProj/jni/rlottie
+	url = https://github.com/dkaraush/rlottie.git

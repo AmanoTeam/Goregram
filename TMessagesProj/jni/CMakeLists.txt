@@ -84,10 +84,64 @@ target_include_directories(tgnet PUBLIC
 target_link_libraries(tgnet
         crypto)
 
-# tlottie (prebuilt Rust static library)
-add_library(tlottie STATIC IMPORTED)
-set_target_properties(tlottie PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/${ANDROID_ABI}/libtlottie.a)
+#rlottie
+add_library(rlottie STATIC
+        rlottie/src/lottie/lottieanimation.cpp
+        rlottie/src/lottie/lottieitem.cpp
+        rlottie/src/lottie/lottiekeypath.cpp
+        rlottie/src/lottie/lottieloader.cpp
+        rlottie/src/lottie/lottiemodel.cpp
+        rlottie/src/lottie/lottieparser.cpp
+        rlottie/src/lottie/lottieproxymodel.cpp
+        rlottie/src/vector/freetype/v_ft_math.cpp
+        rlottie/src/vector/freetype/v_ft_raster.cpp
+        rlottie/src/vector/freetype/v_ft_stroker.cpp
+        rlottie/src/vector/pixman/vregion.cpp
+        rlottie/src/vector/stb/stb_image.cpp
+        rlottie/src/vector/vbezier.cpp
+        rlottie/src/vector/vbitmap.cpp
+        rlottie/src/vector/vbrush.cpp
+        rlottie/src/vector/vcompositionfunctions.cpp
+        rlottie/src/vector/vdasher.cpp
+        rlottie/src/vector/vdebug.cpp
+        rlottie/src/vector/vdrawable.cpp
+        rlottie/src/vector/vdrawhelper.cpp
+        rlottie/src/vector/vdrawhelper_neon.cpp
+        rlottie/src/vector/velapsedtimer.cpp
+        rlottie/src/vector/vimageloader.cpp
+        rlottie/src/vector/vinterpolator.cpp
+        rlottie/src/vector/vmatrix.cpp
+        rlottie/src/vector/vpainter.cpp
+        rlottie/src/vector/vpath.cpp
+        rlottie/src/vector/vpathmesure.cpp
+        rlottie/src/vector/vraster.cpp
+        rlottie/src/vector/vrect.cpp
+        rlottie/src/vector/vrle.cpp)
+target_compile_options(rlottie PUBLIC
+        -Wall -fno-rtti -finline-functions -ffast-math -Oz -fno-unwind-tables -fno-asynchronous-unwind-tables -Wnon-virtual-dtor -Woverloaded-virtual -Wno-unused-parameter -fvisibility=hidden)
+set_target_properties(rlottie PROPERTIES
+        ANDROID_ARM_MODE arm)
+target_compile_definitions(rlottie PUBLIC
+        HAVE_PTHREAD NDEBUG)
+target_include_directories(rlottie PUBLIC
+        ./
+        rlottie/inc
+        rlottie/src/vector/
+        rlottie/src/vector/pixman
+        rlottie/src/vector/freetype
+        rlottie/src/vector/stb)
+
+if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
+    target_compile_definitions(rlottie PUBLIC
+            USE_ARM_NEON)
+    target_sources(rlottie PRIVATE
+            rlottie/src/vector/pixman/pixman-arm-neon-asm.S)
+elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
+    target_compile_definitions(rlottie PUBLIC
+            USE_ARM_NEON __ARM64_NEON__)
+    target_sources(rlottie PRIVATE
+            rlottie/src/vector/pixman/pixman-arma64-neon-asm.S)
+endif()
 
 #sqlite
 add_library(sqlite STATIC
@@ -370,7 +424,6 @@ target_include_directories(${NATIVE_LIB} PUBLIC
         emoji
         exoplayer/include
         intro
-        tlottie/include
         tgcalls/
         webrtc/
         tde2e/include
@@ -385,7 +438,7 @@ target_link_libraries(${NATIVE_LIB}
         tgcalls
         tgcalls_tp
         tgnet
-        tlottie
+        rlottie
         sqlite
         swscale
         avformat

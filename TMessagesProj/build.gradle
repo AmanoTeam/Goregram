@@ -9,7 +9,7 @@ idea {
         excludeDirs += [
             file('jni/third_party'),
             file('jni/ffmpeg'),
-            file('jni/tlottie'),
+            file('jni/rlottie'),
             file('jni/libressl'),
             file('jni/sqlite')
         ]
