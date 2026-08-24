@@ -18,6 +18,7 @@ idea {
             file('jni/third_party/xiph'),
             file('jni/tlottie'),
             file('jni/voip/webrtc'),
+            file('jni/libressl'),
             file('jni/sqlite')
         ]
     }
