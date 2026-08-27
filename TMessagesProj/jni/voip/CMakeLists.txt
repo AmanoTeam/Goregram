@@ -68,10 +68,12 @@ elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
             WEBRTC_ARCH_ARM64 WEBRTC_HAS_NEON)
 endif()
 
-#openh264 (prebuilt static library)
-add_library(openh264 STATIC IMPORTED)
-set_target_properties(openh264 PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/${ANDROID_ABI}/libopenh264.a)
+#openh264 (Kartatz fork provides its own CMake build)
+set(BUILD_SHARED_LIBS OFF)
+add_subdirectory(
+        ${CMAKE_HOME_DIRECTORY}/third_party/openh264
+        ${CMAKE_CURRENT_BINARY_DIR}/openh264)
+unset(BUILD_SHARED_LIBS)
 
 #rnnoise
 add_library(rnnoise STATIC

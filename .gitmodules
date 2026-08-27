@@ -12,7 +12,7 @@
 	url = https://github.com/dkaraush/jlatexmath-android.git
 [submodule "TMessagesProj/jni/third_party/openh264"]
 	path = TMessagesProj/jni/third_party/openh264
-	url = https://github.com/cisco/openh264.git
+	url = https://github.com/Kartatz/openh264
 [submodule "TMessagesProj/jni/third_party/libyuv"]
 	path = TMessagesProj/jni/third_party/libyuv
 	url = https://chromium.googlesource.com/libyuv/libyuv
