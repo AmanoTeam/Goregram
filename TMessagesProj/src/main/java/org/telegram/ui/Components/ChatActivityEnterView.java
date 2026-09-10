@@ -10622,6 +10622,9 @@ public class ChatActivityEnterView extends FrameLayout implements
 
     private boolean handleRichHtmlPaste() {
         if (messageEditText == null) return false;
+        if (ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE).getBoolean("preferLegacyPasteBehavior", false)) {
+            return false;
+        }
         try {
             final ClipboardManager cm = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
             final ClipData clip = cm == null ? null : cm.getPrimaryClip();
