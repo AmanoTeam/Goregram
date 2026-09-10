@@ -73,6 +73,11 @@ public class GeneralSettingsActivity extends BaseFragment {
             mainConfig.getBoolean("displayAdditionalMessageOptions", false));
         displayAdditionalMessageOptions.subtext = getString(R.string.DisplayAdditionalMessageOptionsInfo);
         items.add(displayAdditionalMessageOptions);
+
+        UItem preferLegacyPasteBehavior = UItem.asCheck(4, getString(R.string.PreferLegacyPasteBehavior)).setChecked(
+            mainConfig.getBoolean("preferLegacyPasteBehavior", false));
+        preferLegacyPasteBehavior.subtext = getString(R.string.PreferLegacyPasteBehaviorInfo);
+        items.add(preferLegacyPasteBehavior);
     }
 
     private void onClick(UItem item, View view, int position, float x, float y) {
@@ -107,6 +112,14 @@ public class GeneralSettingsActivity extends BaseFragment {
             SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
             boolean newValue = !prefs.getBoolean("displayAdditionalMessageOptions", false);
             prefs.edit().putBoolean("displayAdditionalMessageOptions", newValue).apply();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(newValue);
+            }
+            listView.adapter.update(false);
+        } else if (item.id == 4) {
+            SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+            boolean newValue = !prefs.getBoolean("preferLegacyPasteBehavior", false);
+            prefs.edit().putBoolean("preferLegacyPasteBehavior", newValue).apply();
             if (view instanceof TextCheckCell) {
                 ((TextCheckCell) view).setChecked(newValue);
             }
