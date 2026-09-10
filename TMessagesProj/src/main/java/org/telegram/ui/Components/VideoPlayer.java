@@ -423,7 +423,10 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
         ensurePlayerCreated();
 
         currentStreamIsHls = false;
-        selectedQualityIndex = select == null || videoQualities == null ? QUALITY_AUTO : videoQualities.indexOf(select);
+        if (select == null || videoQualities == null || videoQualities.indexOf(select) < 0) {
+            select = getHighestQuality(null);
+        }
+        selectedQualityIndex = select == null ? QUALITY_AUTO : videoQualities.indexOf(select);
         setSelectedQuality(true, select);
         if (autoIsOriginal) {
             selectedQualityIndex = QUALITY_AUTO;
