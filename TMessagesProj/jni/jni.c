@@ -5,7 +5,6 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <openssl/aes.h>
-#include <openssl/aes_ige.h>
 #include <openssl/evp.h>
 #include <unistd.h>
 #include <dirent.h>

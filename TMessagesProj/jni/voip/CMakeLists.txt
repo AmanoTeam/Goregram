@@ -1692,8 +1692,8 @@ target_include_directories(voipandroid PUBLIC
         third_party/usrsctplib
         third_party/absl
         third_party
-        td/tde2e
-        td/tde2e/td/e2e
+        tdlib/tde2e
+        tdlib/tde2e/td/e2e
 )
 
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
