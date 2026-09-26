@@ -7,9 +7,7 @@ apply plugin: 'idea'
 idea {
     module {
         excludeDirs += [
-            file('jni/td'),
             file('jni/third_party/absl'),
-            file('jni/third_party/boringssl'),
             file('jni/third_party/libyuv'),
             file('jni/third_party/openh264'),
             file('jni/third_party/xiph'),

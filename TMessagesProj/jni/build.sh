@@ -22,3 +22,5 @@ cd "${APP_DIRECTORY}"
 ./patch_tdlib.sh
 ./build_tde2e.sh
 
+ANDROID_NDK_HOME="${NDK}" ABIS="arm64-v8a armeabi-v7a" ./prebuild/build_wamr.sh
+
