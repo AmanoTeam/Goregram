@@ -204,7 +204,7 @@ for abi in $ABIS; do
     }
 
     copy_archive "$ABI_BUILD/libopus.a" "$ABI_OUT/libopus.a"
-    finalize_archive "$ABI_OUT/libopus.a"
+    finalize_archive "$ABI_OUT/libopus.a" "$abi"
 
     echo "==> $ABI_OUT/libopus.a"
 done

@@ -163,7 +163,7 @@ for abi in $ABIS; do
   chmod 0644 "$temporary_archive"
   mv -f "$temporary_archive" "$destination"
   temporary_archive=
-  finalize_archive "$destination"
+  finalize_archive "$destination" "$abi"
 
   bytes=$(wc -c < "$destination" | tr -d ' ')
   echo "Wrote $destination ($bytes bytes)"

@@ -88,8 +88,8 @@ for abi in $ABIS; do
 
     copy_archive "$TDE2E_LIB" "$ABI_DIR/libtde2e.a"
     copy_archive "$TDUTILS_LIB" "$ABI_DIR/libtdutils.a"
-    finalize_archive "$ABI_DIR/libtde2e.a"
-    finalize_archive "$ABI_DIR/libtdutils.a"
+    finalize_archive "$ABI_DIR/libtde2e.a" "$abi"
+    finalize_archive "$ABI_DIR/libtdutils.a" "$abi"
 
     echo "==> $ABI_DIR/libtde2e.a"
     echo "==> $ABI_DIR/libtdutils.a"

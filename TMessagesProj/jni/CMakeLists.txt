@@ -229,6 +229,12 @@ add_subdirectory(
         ${CMAKE_CURRENT_BINARY_DIR}/opus
         EXCLUDE_FROM_ALL)
 
+#libogg (generates ogg/config_types.h, required by os_types.h on Android)
+add_subdirectory(
+        third_party/xiph/ogg
+        ${CMAKE_CURRENT_BINARY_DIR}/ogg
+        EXCLUDE_FROM_ALL)
+
 
 set(NATIVE_LIB "tmessages.49")
 
@@ -280,9 +286,7 @@ target_sources(${NATIVE_LIB} PRIVATE
         third_party/xiph/opusfile/src/info.c
         third_party/xiph/opusfile/src/internal.c
         third_party/xiph/opusfile/src/opusfile.c
-        third_party/xiph/opusfile/src/stream.c
-        third_party/xiph/ogg/src/bitwise.c
-        third_party/xiph/ogg/src/framing.c)
+        third_party/xiph/opusfile/src/stream.c)
 
 target_include_directories(${NATIVE_LIB} PUBLIC
         third_party/xiph/opus/include
@@ -325,6 +329,7 @@ target_link_libraries(${NATIVE_LIB}
         libvpx
         libdav1d
         opus
+        ogg
         tde2e
         tdutils
         yuv

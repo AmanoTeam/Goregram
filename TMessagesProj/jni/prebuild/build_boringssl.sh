@@ -59,8 +59,8 @@ for abi in $ABIS; do
 
     copy_archive "$crypto_lib" "$abi_out/libcrypto.a"
     copy_archive "$ssl_lib" "$abi_out/libssl.a"
-    finalize_archive "$abi_out/libcrypto.a"
-    finalize_archive "$abi_out/libssl.a"
+    finalize_archive "$abi_out/libcrypto.a" "$abi"
+    finalize_archive "$abi_out/libssl.a" "$abi"
     echo "==> $abi_out/libcrypto.a"
     echo "==> $abi_out/libssl.a"
 done

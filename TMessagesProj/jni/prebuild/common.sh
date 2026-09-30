@@ -236,33 +236,93 @@ require_llvm_objcopy() {
     }
 }
 
+# GNU binutils triplet exposed by the AmanoTeam android-gcc-cross toolchain
+# (its ndk-patch symlinks them into the NDK toolchain bin directory).
+gnu_triplet_for_abi() {
+    case "$1" in
+        arm64-v8a) printf '%s\n' 'aarch64-linux-android' ;;
+        armeabi-v7a) printf '%s\n' 'arm-linux-androideabi' ;;
+        x86_64) printf '%s\n' 'x86_64-linux-android' ;;
+        x86) printf '%s\n' 'i686-linux-android' ;;
+        *) return 1 ;;
+    esac
+}
+
+# Sanity check for archive tools: android-gcc-cross replaces llvm-strip and
+# llvm-objcopy with binutils wrappers that currently fail every invocation
+# ("fatal error: No input files"), including --version. Working tools, either
+# the real LLVM ones or the GNU triplet ones, answer --version successfully.
+archive_tool_runs() {
+    [[ -n "$1" && -x "$1" ]] || return 1
+    "$1" --version >/dev/null 2>&1
+}
+
+# Resolve the archive tool to use: the LLVM tool when it works, the GNU
+# triplet tool matching the ABI otherwise.
+resolve_archive_tool() {
+    local primary="$1" tool_kind="$2" abi="$3"
+    local triplet candidate
+
+    if archive_tool_runs "$primary"; then
+        printf '%s\n' "$primary"
+        return 0
+    fi
+
+    if [[ -n "$abi" ]]; then
+        triplet="$(gnu_triplet_for_abi "$abi")" || triplet=''
+        if [[ -n "$triplet" ]]; then
+            candidate="$NDK_TOOLCHAIN/bin/${triplet}-${tool_kind}"
+            if archive_tool_runs "$candidate"; then
+                printf '%s\n' "$candidate"
+                return 0
+            fi
+        fi
+    fi
+
+    return 1
+}
+
 strip_archive_debug() {
-    local archive="$1"
+    local archive="$1" abi="${2:-}"
+    local tool
+
     [[ -f "$archive" ]] || {
         echo "ERROR: archive not found for stripping: $archive" >&2
         return 1
     }
     require_llvm_strip
-    "$LLVM_STRIP_BIN" --strip-debug "$archive"
+
+    if ! tool="$(resolve_archive_tool "$LLVM_STRIP_BIN" strip "$abi")"; then
+        echo "WARNING: no usable strip tool, keeping debug sections in $archive" >&2
+        return 0
+    fi
+
+    "$tool" --strip-debug "$archive"
 }
 
 normalize_archive() {
-    local archive="$1"
+    local archive="$1" abi="${2:-}"
     local temporary="${archive}.normalized.$$"
+    local tool
 
     [[ -f "$archive" ]] || {
         echo "ERROR: archive not found for normalization: $archive" >&2
         return 1
     }
-
     require_llvm_objcopy
+
+    if ! tool="$(resolve_archive_tool "$LLVM_OBJCOPY_BIN" objcopy "$abi")"; then
+        echo "WARNING: no usable objcopy tool, skipping normalization of $archive" >&2
+        return 0
+    fi
+
     rm -f "$temporary"
 
     # llvm-objcopy understands GNU/LLVM archives directly, so archive member
     # ordering and duplicate member names are preserved. Removing .comment
     # eliminates host-Clang build metadata (+/-bolt, +/-mlgo) without touching
     # code, relocations, or symbols required by the final linker.
-    if ! "$LLVM_OBJCOPY_BIN" --remove-section=.comment "$archive" "$temporary"; then
+    if ! "$tool" --remove-section=.comment "$archive" "$temporary"; then
         rm -f "$temporary"
         return 1
     fi
@@ -272,9 +332,9 @@ normalize_archive() {
 }
 
 finalize_archive() {
-    local archive="$1"
-    strip_archive_debug "$archive"
-    normalize_archive "$archive"
+    local archive="$1" abi="${2:-}"
+    strip_archive_debug "$archive" "$abi"
+    normalize_archive "$archive" "$abi"
 }
 
 abi_output_dir() {

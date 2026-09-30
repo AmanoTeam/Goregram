@@ -85,7 +85,7 @@ for abi in $ABIS; do
 
     destination="$out_dir/libiwasm.a"
     copy_archive "$archive" "$destination"
-    finalize_archive "$destination"
+    finalize_archive "$destination" "$abi"
 
     echo "    -> $destination"
 done
